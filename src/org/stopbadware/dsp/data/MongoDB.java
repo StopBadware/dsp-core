@@ -46,6 +46,10 @@ public class MongoDB {
 		return instance;
 	}
 	
+	/**
+	 * Gets the database object associated with this instance
+	 * @return MongoDB database object
+	 */
 	public DB getDB() {
 		return db;
 	}	

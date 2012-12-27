@@ -3,6 +3,7 @@ package org.stopbadware.dsp.data;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 public class DBHandler {
@@ -53,5 +55,49 @@ public class DBHandler {
 		sr.setSearchCriteria(String.valueOf(sinceTime));
 		sr.setResults(res);
 		return sr;
+	}
+	
+	/**
+	 * Inserts multiple Event Reports into database. If duplicate md5 of url, reported_date, 
+	 * and reporting_source exists, will update previous entry with any changes.
+	 * @param values - a set of key/value maps to be inserted
+	 * @return int: number of inserts (or updates) that were successful
+	 */
+	public int addToEventReports(Set<Map<String, Object>> values) {
+		int dbWrites = 0;
+		for (Map<String, Object> m : values) {
+			boolean wroteToDB = addToEventReports(m);
+			if (wroteToDB) {
+				dbWrites++;
+			}
+		}
+		return dbWrites;
+	}
+	
+	/**
+	 * Inserts a single Event Report into database. If duplicate md5 of url, reported_date, 
+	 * and reporting_source exists, will update previous entry with any changes.
+	 * @param values - key/value map to be inserted
+	 * @return boolean: true if the insert (or update) was successful
+	 */
+	public boolean addToEventReports(Map<String, Object> values) {
+		boolean wroteToDB = false;
+		DBObject doc = new BasicDBObject();
+		doc.putAll(values);
+		DBObject query = new BasicDBObject();
+		query.put("md5", doc.get("md5"));
+		query.put("reported_date", doc.get("reported_date"));
+		query.put("reporting_source", doc.get("reporting_source"));
+		
+		WriteResult wr = eventReportColl.update(query, doc, true, false);
+		if (wr.getError() != null) {
+			if (!wr.getError().contains("E11000")) {
+				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
+			}
+		} else  {
+			wroteToDB = true;
+		}
+
+		return wroteToDB;	
 	}
 }
