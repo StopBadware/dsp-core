@@ -2,6 +2,7 @@ package org.stopbadware.dsp.data;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -45,11 +46,12 @@ public class DBHandler {
 		DBObject query = new BasicDBObject();
 		//query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", new Date(sinceTime))));
-		int limit = 250;
-		DBCursor cur = eventReportColl.find(query).limit(limit);
-		sr.setCount((cur.count()<limit)?cur.count():limit);
-		sr.setSearch_criteria(String.valueOf(sinceTime));
-		sr.setResults(JSON.serialize(cur));
+		int limit = 2500;
+//		DBCursor cur = eventReportColl.find(query).limit(limit);
+		List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
+		sr.setCount(res.size());
+		sr.setSearchCriteria(String.valueOf(sinceTime));
+		sr.setResults(res);
 		return sr;
 	}
 }

@@ -1,16 +1,18 @@
 package org.stopbadware.dsp.data;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 public class SearchResults {
 	
 	private int count = 0;
 	private long duration = 0L;
-	private long started_at = 0L;
-	private long completed_at = 0L;
-	private String search_criteria = "";
-	private Object results = new Object();
+	private long startedAt = 0L;
+	private long completedAt = 0L;
+	private String searchCriteria = "";
+	private Object results = null;
 	
 	public SearchResults() {
-		started_at = System.currentTimeMillis();
+		startedAt = System.currentTimeMillis();
 	}
 	
 	public int getCount() {
@@ -20,23 +22,26 @@ public class SearchResults {
 	public void setCount(int count) {
 		this.count = count;
 	}
-
-	public long getCompleted_at() {
-		return completed_at/1000;
+	
+	@JsonProperty("completed_at")
+	public long getCompletedAt() {
+		return completedAt;
 	}
 
-	private void setCompleted_at(long completed_at) {
-		this.completed_at = completed_at;
+	private void setCompletedAt(long completedAt) {
+		this.completedAt = completedAt;
 	}
 
-	public String getSearch_criteria() {
-		return search_criteria;
+	@JsonProperty("search_criteria")
+	public String getSearchCriteria() {
+		return searchCriteria;
 	}
 
-	public void setSearch_criteria(String search_criteria) {
-		this.search_criteria = search_criteria;
+	public void setSearchCriteria(String searchCriteria) {
+		this.searchCriteria = searchCriteria;
 	}
-
+	
+	@JsonProperty("search_results")
 	public Object getResults() {
 		return results;
 	}
@@ -51,7 +56,7 @@ public class SearchResults {
 	}
 
 	public void setDuration() {
-		setCompleted_at(System.currentTimeMillis());
-		this.duration = completed_at - started_at;
+		setCompletedAt(System.currentTimeMillis());
+		this.duration = completedAt - startedAt;
 	}
 }

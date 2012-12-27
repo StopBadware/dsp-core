@@ -1,7 +1,5 @@
 package org.stopbadware.dsp.rest;
 
-import java.util.Set;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,11 +18,6 @@ public class All {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public SearchResults test(@PathParam("param") String testString) {
-		/*Delme d = new Delme();
-		d.setA("all data");
-		d.setB(testString);
-		return d;*/
-		
 		return dbh.testFind(Long.valueOf(testString));
 	}
 }
