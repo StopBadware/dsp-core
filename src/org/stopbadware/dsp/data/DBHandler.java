@@ -1,13 +1,13 @@
 package org.stopbadware.dsp.data;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.ShareLevel;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -15,7 +15,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
 
 public class DBHandler {
 	
@@ -24,6 +23,7 @@ public class DBHandler {
 	private DBCollection hostColl;
 	private DBCollection ipColl;
 	private DBCollection asColl;
+	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String EVENT_REPORTS = MongoDB.EVENT_REPORTS;
 	public static final String HOSTS = MongoDB.HOSTS;
@@ -65,8 +65,8 @@ public class DBHandler {
 	 */
 	public int addToEventReports(Set<Map<String, Object>> values) {
 		int dbWrites = 0;
-		for (Map<String, Object> m : values) {
-			boolean wroteToDB = addToEventReports(m);
+		for (Map<String, Object> map : values) {
+			boolean wroteToDB = addToEventReports(map);
 			if (wroteToDB) {
 				dbWrites++;
 			}
@@ -91,13 +91,67 @@ public class DBHandler {
 		
 		WriteResult wr = eventReportColl.update(query, doc, true, false);
 		if (wr.getError() != null) {
-			if (!wr.getError().contains("E11000")) {
+			if (!wr.getError().contains(DUPE_ERR)) {	/*Ignore duplicate entry errors*/
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
 			}
 		} else  {
 			wroteToDB = true;
 		}
 
+		return wroteToDB;	
+	}
+	
+	/**
+	 * Adds multiple hosts to the hosts collection
+	 * @param hosts - a set of hosts to add
+	 * @param level - the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
+	 * @return int: number of inserts (or updates) that were successful
+	 */
+	public int addToHosts(Set<String> hosts, ShareLevel level) {
+		int dbWrites = 0;
+		for (String host : hosts) {
+			boolean wroteToDB = addToHosts(host, level);
+			if (wroteToDB) {
+				dbWrites++;
+			}
+		}
+		return dbWrites; 
+	}
+	
+	/**
+	 * Adds a single host to the hosts collection
+	 * @param host - the host to add
+	 * @param level - the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
+	 * @return boolean: true if the insert (or update) was successful
+	 */
+	public boolean addToHosts(String host, ShareLevel level) {
+		if (host == null || host.length() < 1) {
+			return false;
+		}
+		boolean wroteToDB = false;
+		DBObject query = new BasicDBObject();
+		query.put("host", host);
+		DBCursor cur = hostColl.find(query);
+		while (cur.hasNext()) {
+			String levelString = (String) cur.next().get("share_level");
+			if (levelString != null) {
+				ShareLevel curLevel = ShareLevel.castFromString(levelString);
+				level = ShareLevel.getLeastRestrictive(curLevel, level);
+			}
+		}
+		
+		DBObject updateDoc = new BasicDBObject();
+		updateDoc.put("host", host);
+		updateDoc.put("share_level", level.toString());
+
+		WriteResult wr = hostColl.update(query, updateDoc, true, false);
+		if (wr.getError() != null) {
+			if (!wr.getError().contains(DUPE_ERR)) {	/*Ignore duplicate entry errors*/
+				LOG.error("Error writing {} to collection: {}", host, wr.getError());
+			}
+		} else {
+			wroteToDB = true;
+		}
 		return wroteToDB;	
 	}
 }

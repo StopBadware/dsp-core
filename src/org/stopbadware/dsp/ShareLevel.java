@@ -33,7 +33,7 @@ public enum ShareLevel {
 			shareLevel = SBW_ONLY;
 		} else if (level.equalsIgnoreCase(DSP_ONLY.toString())) {
 			shareLevel = DSP_ONLY;
-		}  else if (level.equalsIgnoreCase(TAKEDOWN.toString())) {
+		} else if (level.equalsIgnoreCase(TAKEDOWN.toString())) {
 			shareLevel = TAKEDOWN;
 		} else if (level.equalsIgnoreCase(RESEARCH.toString())) {
 			shareLevel = RESEARCH;
