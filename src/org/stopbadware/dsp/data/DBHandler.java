@@ -45,9 +45,10 @@ public class DBHandler {
 		DBObject query = new BasicDBObject();
 		//query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", new Date(sinceTime))));
-		DBCursor cur = eventReportColl.find(query).limit(1000);
-		sr.setCount(cur.count());
-		sr.setSearch_criteria("\"since\":"+sinceTime);
+		int limit = 250;
+		DBCursor cur = eventReportColl.find(query).limit(limit);
+		sr.setCount((cur.count()<limit)?cur.count():limit);
+		sr.setSearch_criteria(String.valueOf(sinceTime));
 		sr.setResults(JSON.serialize(cur));
 		return sr;
 	}
