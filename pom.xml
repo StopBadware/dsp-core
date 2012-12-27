@@ -46,5 +46,10 @@
   		<artifactId>jersey-servlet</artifactId>
   		<version>1.16</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.sun.jersey</groupId>
+  		<artifactId>jersey-json</artifactId>
+  		<version>1.16</version>
+  	</dependency>
   </dependencies>
 </project>
