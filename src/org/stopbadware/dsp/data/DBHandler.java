@@ -1,14 +1,17 @@
 package org.stopbadware.dsp.data;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -153,5 +156,85 @@ public class DBHandler {
 			wroteToDB = true;
 		}
 		return wroteToDB;	
+	}
+	
+	//add ips
+	
+	/**
+	 * Writes the ASNs associated with each IP in the map provided 
+	 * @param asns - a Map containing keys of IP addresses as longs and AS objects as values
+	 * @return int: the number of inserted or updated documents
+	 */
+	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
+		int upsertedDocs = 0;
+		Set<AutonomousSystem> as = new HashSet<>(asns.size());
+		for (long ip : asns.keySet()) {
+			as.add(asns.get(ip));
+			
+			DBObject ipDoc = new BasicDBObject();
+			ipDoc.put("ip", ip);
+			
+			DBObject asnDoc = new BasicDBObject();
+			asnDoc.put("asn", asns.get(ip).getASN());
+			asnDoc.put("timestamp", System.currentTimeMillis()/1000L);
+			
+			DBObject updateDoc = new BasicDBObject();
+			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
+			if (asnHasChanged(ip, asns.get(ip).getASN())) {
+				WriteResult wr = ipColl.update(ipDoc, updateDoc);
+				if (wr.getError() != null) {
+					LOG.error("Error writing to collection: {}",wr.getError());
+				} else  {
+					upsertedDocs += wr.getN();
+				}
+			}
+			
+		}
+		//addASsToDB(as);	//TODO: add subroutine
+		return upsertedDocs;		
+	}
+	
+	/**
+	 * Checks if the most recent AS entry for the IP differs from a potentially new entry
+	 * @param ip - the IP to check
+	 * @param asn - the new ASN
+	 * @return boolean, true if the new ASN differs from the most recent db entry
+	 */
+	private boolean asnHasChanged(long ip, int asn) { 
+		boolean hasChanged = false;
+		DBCursor cur = ipColl.find(new BasicDBObject("ip", ip), new BasicDBObject("asns", 1));
+		long mostRecentTimestamp = 0L;
+		int mostRecentASN = asn;
+		
+		while (cur.hasNext()) {
+			BasicDBList asns = (BasicDBList) ((BasicDBObject) cur.next()).get("asns");
+			if (asns == null || asns.size() == 0) {
+				hasChanged = true; /*set to true if no ASN entries*/
+			} else {
+				for (String as : asns.keySet()) {
+					long timestamp = 0L;
+					try {
+						timestamp =  (long) ((BasicDBObject) asns.get(as)).get("timestamp");
+					} catch (ClassCastException e) {
+						continue; /*Skip if cannot cast time from db*/
+					}						
+					if (timestamp > mostRecentTimestamp) {
+						mostRecentTimestamp = timestamp;
+						try {
+							mostRecentASN = (int) ((BasicDBObject) asns.get(as)).get("asn");
+						} catch (ClassCastException e) {
+							/*Set to 0 to force write of new entry if cannot cast db entries*/
+							mostRecentASN = 0;
+						}
+					}
+				}
+			}
+		}
+		
+		if (mostRecentASN != asn) {
+			hasChanged = true;
+		}
+		
+		return hasChanged;
 	}
 }

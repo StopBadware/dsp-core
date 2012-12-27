@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class SearchResults {
 	
 	private int count = 0;
-	private long duration = 0L;
+	private int duration = 0;
 	private long startedAt = 0L;
 	private long completedAt = 0L;
 	private String searchCriteria = "";
@@ -25,7 +25,7 @@ public class SearchResults {
 	
 	@JsonProperty("completed_at")
 	public long getCompletedAt() {
-		return completedAt;
+		return completedAt / 1000L;
 	}
 
 	private void setCompletedAt(long completedAt) {
@@ -51,12 +51,12 @@ public class SearchResults {
 		setDuration();
 	}
 
-	public long getDuration() {
+	public int getDuration() {
 		return duration;
 	}
 
 	public void setDuration() {
 		setCompletedAt(System.currentTimeMillis());
-		this.duration = completedAt - startedAt;
+		this.duration = (int) (completedAt - startedAt);
 	}
 }
