@@ -6,6 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.data.Delme;
 
 @Path("/all")
@@ -15,6 +16,7 @@ public class All {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Delme test(@PathParam("param") String testString) {
+		DBHandler dbh = new DBHandler();
 		Delme d = new Delme();
 		d.setA("all data");
 		d.setB(testString);
