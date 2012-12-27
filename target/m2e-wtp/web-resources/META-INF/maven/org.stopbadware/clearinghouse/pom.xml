@@ -2,9 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.stopbadware</groupId>
   <artifactId>clearinghouse</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>war</packaging>
-  <name>clearinghouse</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -51,5 +50,11 @@
   		<artifactId>jersey-json</artifactId>
   		<version>1.16</version>
   	</dependency>
+  	<dependency>
+  		<groupId>org.mongodb</groupId>
+  		<artifactId>mongo-java-driver</artifactId>
+  		<version>2.10.1</version>
+  	</dependency>
   </dependencies>
+  <name>dsp</name>
 </project>
