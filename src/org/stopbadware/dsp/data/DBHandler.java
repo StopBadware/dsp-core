@@ -93,10 +93,8 @@ public class DBHandler {
 		query.put("reporting_source", doc.get("reporting_source"));
 		
 		WriteResult wr = eventReportColl.update(query, doc, true, false);
-		if (wr.getError() != null) {
-			if (!wr.getError().contains(DUPE_ERR)) {	/*Ignore duplicate entry errors*/
+		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-			}
 		} else  {
 			wroteToDB = true;
 		}
@@ -148,17 +146,15 @@ public class DBHandler {
 		updateDoc.put("share_level", level.toString());
 
 		WriteResult wr = hostColl.update(query, updateDoc, true, false);
-		if (wr.getError() != null) {
-			if (!wr.getError().contains(DUPE_ERR)) {	/*Ignore duplicate entry errors*/
-				LOG.error("Error writing {} to collection: {}", host, wr.getError());
-			}
+		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+			LOG.error("Error writing {} to collection: {}", host, wr.getError());
 		} else {
 			wroteToDB = true;
 		}
 		return wroteToDB;	
 	}
 	
-	//add ips
+	//TODO: add ips
 	
 	/**
 	 * Writes the ASNs associated with each IP in the map provided 
@@ -182,15 +178,15 @@ public class DBHandler {
 			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
 			if (asnHasChanged(ip, asns.get(ip).getASN())) {
 				WriteResult wr = ipColl.update(ipDoc, updateDoc);
-				if (wr.getError() != null) {
-					LOG.error("Error writing to collection: {}",wr.getError());
+				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+					LOG.error("Error writing to collection: {}", wr.getError());
 				} else  {
 					upsertedDocs += wr.getN();
 				}
 			}
 			
 		}
-		//addASsToDB(as);	//TODO: add subroutine
+		addASsToDB(as);
 		return upsertedDocs;		
 	}
 	
@@ -236,5 +232,35 @@ public class DBHandler {
 		}
 		
 		return hasChanged;
+	}
+	
+	/**
+	 * Adds Autonomous Systems to database
+	 * @param autonomousSystems
+	 * @return
+	 */
+	private int addASsToDB(Set<AutonomousSystem> autonomousSystems) {
+		int upsertedDocs = 0;
+		for (AutonomousSystem as : autonomousSystems) {
+			int asn = as.getASN();
+			if (asn > 0) {
+				DBObject doc = new BasicDBObject();
+				doc.put("asn", asn);
+				doc.put("country", as.getCountry());
+				doc.put("name", as.getName());
+				
+				DBObject asnDoc = new BasicDBObject();
+				asnDoc.put("asn", asn);
+				
+				WriteResult wr = asColl.update(asnDoc, doc, true, false);
+				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+					LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
+				} else {
+					upsertedDocs += wr.getN();
+				}
+			}
+		}
+		LOG.info("{} Autonomous Systems added to AS collection", upsertedDocs);
+		return upsertedDocs;
 	}
 }
