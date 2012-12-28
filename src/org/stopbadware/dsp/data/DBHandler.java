@@ -236,8 +236,8 @@ public class DBHandler {
 	
 	/**
 	 * Adds Autonomous Systems to database
-	 * @param autonomousSystems
-	 * @return
+	 * @param autonomousSystems - the set containing the Autonomous Systems to add
+	 * @return int: the number of inserted or updated documents
 	 */
 	private int addASsToDB(Set<AutonomousSystem> autonomousSystems) {
 		int upsertedDocs = 0;
