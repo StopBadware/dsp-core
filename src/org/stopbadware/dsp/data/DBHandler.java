@@ -223,7 +223,7 @@ public class DBHandler {
 						try {
 							mostRecentASN = (int) ((BasicDBObject) asns.get(as)).get("asn");
 						} catch (ClassCastException e) {
-							/*Set to 0 to force write of new entry if cannot cast db entries*/
+							/*Set to 0 to force write of new entry if unable to cast db entry*/
 							mostRecentASN = 0;
 						}
 					}

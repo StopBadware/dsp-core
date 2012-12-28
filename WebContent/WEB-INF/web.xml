@@ -17,6 +17,12 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<listener>
+		<listener-class>
+			org.stopbadware.dsp.Startup
+		</listener-class>
+	</listener>
  
 	<servlet-mapping>
 		<servlet-name>jersey-servlet</servlet-name>
