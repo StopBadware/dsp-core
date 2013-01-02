@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.utilities.IP;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -154,7 +155,53 @@ public class DBHandler {
 		return wroteToDB;	
 	}
 	
-	//TODO: add ips
+	/**
+	 * Writes the IP address associated with each host in the map provided 
+	 * @param ips - a Map containing keys of hosts as Strings and values of IP addresses as longs
+	 * @return int: the number of inserted or updated documents
+	 */
+	public int addIPsForHosts(Map<String, Long> ips) {
+		int upsertedDocs = 0;
+		for (String host : ips.keySet()) {
+			DBObject hostDoc = new BasicDBObject();
+			hostDoc.put("host", host);
+			
+			long ip = ips.get(host);
+			if (ip > 0) {
+				addIPToDB(ip);
+			}
+			DBObject ipDoc = new BasicDBObject();
+			ipDoc.put("ip", ip);
+			ipDoc.put("timestamp", System.currentTimeMillis()/1000L);
+			
+			DBObject updateDoc = new BasicDBObject();
+			updateDoc.put("$push", new BasicDBObject("ips", ipDoc));
+			if (ipHasChanged(host, ip)) {
+				WriteResult wr = hostColl.update(hostDoc, updateDoc);
+				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+					LOG.error("Error writing to collection: {}", wr.getError());
+				} else  {
+					upsertedDocs += wr.getN();
+				}
+			}
+		}
+		
+		return upsertedDocs;		
+	}
+	
+	/**
+	 * Adds an IP address to the database
+	 * @param ip - the IP address as a long to add
+	 */
+	private void addIPToDB(long ip) {
+		DBObject ipDoc = new BasicDBObject();
+		ipDoc.put("ip", ip);
+		WriteResult wr = ipColl.insert(ipDoc);
+		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+			//TODO: DATA-42 add SBW java lib for IP class
+			/*LOG.debug("Error writing {} / {} to database", ip, IP.longToDotted(ip));*/
+		}
+	}
 	
 	/**
 	 * Writes the ASNs associated with each IP in the map provided 
