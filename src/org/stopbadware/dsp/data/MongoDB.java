@@ -20,10 +20,14 @@ public class MongoDB {
 //	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
 
-	public static final String EVENT_REPORTS = "event_reports";
+	/*public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";
 	public static final String IPS = "ips";
-	public static final String ASNS = "autonomous_systems";
+	public static final String ASNS = "autonomous_systems";*/	//TODO: DATA-42 revert
+	public static final String EVENT_REPORTS = "testCollection";
+	public static final String HOSTS = "testCollection";
+	public static final String IPS = "testCollection";
+	public static final String ASNS = "testCollection";
 	public static final String SOURCES = "data_sources";
 
 	public static final String DATE_PATTERN = "EEE MMM dd HH:mm:ss zzz yyyy";
