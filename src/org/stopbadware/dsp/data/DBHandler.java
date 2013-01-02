@@ -74,6 +74,7 @@ public class DBHandler {
 				dbWrites++;
 			}
 		}
+		LOG.info("Wrote {} new Event Reports to database", dbWrites);
 		return dbWrites;
 	}
 	
@@ -98,7 +99,7 @@ public class DBHandler {
 		} else  {
 			wroteToDB = true;
 		}
-
+		
 		return wroteToDB;	
 	}
 	
@@ -116,6 +117,7 @@ public class DBHandler {
 				dbWrites++;
 			}
 		}
+		LOG.info("Wrote {} new hosts to database", dbWrites);
 		return dbWrites; 
 	}
 	
@@ -160,7 +162,7 @@ public class DBHandler {
 	 * @return int: the number of inserted or updated documents
 	 */
 	public int addIPsForHosts(Map<String, Long> ips) {
-		int upsertedDocs = 0;
+		int dbWrites = 0;
 		for (String host : ips.keySet()) {
 			DBObject hostDoc = new BasicDBObject();
 			hostDoc.put("host", host);
@@ -180,12 +182,12 @@ public class DBHandler {
 				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 					LOG.error("Error writing to collection: {}", wr.getError());
 				} else  {
-					upsertedDocs += wr.getN();
+					dbWrites += wr.getN();
 				}
 			}
 		}
-		
-		return upsertedDocs;		
+		LOG.info("Associated {} hosts with IP addresses", dbWrites);
+		return dbWrites;		
 	}
 	
 	/**
@@ -231,7 +233,7 @@ public class DBHandler {
 		WriteResult wr = ipColl.insert(ipDoc);
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 			//TODO: DATA-42 add SBW java lib for IP class
-			/*LOG.debug("Error writing {} / {} to database", ip, IP.longToDotted(ip));*/
+			/*LOG.error("Error writing {} / {} to database", ip, IP.longToDotted(ip));*/
 		} else {
 			wroteToDB = true;
 		}
@@ -244,7 +246,7 @@ public class DBHandler {
 	 * @return int: the number of inserted or updated documents
 	 */
 	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
-		int upsertedDocs = 0;
+		int dbWrites = 0;
 		Set<AutonomousSystem> as = new HashSet<>(asns.size());
 		for (long ip : asns.keySet()) {
 			as.add(asns.get(ip));
@@ -263,13 +265,14 @@ public class DBHandler {
 				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 					LOG.error("Error writing to collection: {}", wr.getError());
 				} else  {
-					upsertedDocs += wr.getN();
+					dbWrites += wr.getN();
 				}
 			}
 			
 		}
 		addASsToDB(as);
-		return upsertedDocs;		
+		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
+		return dbWrites;		
 	}
 	
 	/**
@@ -322,7 +325,7 @@ public class DBHandler {
 	 * @return int: the number of inserted or updated documents
 	 */
 	private int addASsToDB(Set<AutonomousSystem> autonomousSystems) {
-		int upsertedDocs = 0;
+		int dbWrites = 0;
 		for (AutonomousSystem as : autonomousSystems) {
 			int asn = as.getASN();
 			if (asn > 0) {
@@ -338,11 +341,11 @@ public class DBHandler {
 				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 					LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
 				} else {
-					upsertedDocs += wr.getN();
+					dbWrites += wr.getN();
 				}
 			}
 		}
-		LOG.info("{} Autonomous Systems added to AS collection", upsertedDocs);
-		return upsertedDocs;
+		LOG.info("Wrote {} Autonomous Systems to database", dbWrites);
+		return dbWrites;
 	}
 }
