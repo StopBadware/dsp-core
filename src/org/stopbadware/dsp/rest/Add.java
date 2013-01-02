@@ -16,9 +16,12 @@ public class Add {
 	@Path("/events")
 //	@Consumes(MediaType.APPLICATION_JSON)	//TODO:DATA-42 revert
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addEvents() {
+	public String addEvents(String data) {
 //		curl -d '' http://127.0.0.1:8080/clearinghouse/add/events
-		System.out.println("foo");
+		System.out.println(data);	//DELME: DATA-42
+		//TODO: DATA-42 put input data as HashSet<EventReports> via Jackson
+		//TODO: DATA-42 send set to	dbh.addToEventReports() 
+		//TODO: DATA-42 return number added
 		return "AOK";
 	}
 

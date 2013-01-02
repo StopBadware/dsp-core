@@ -62,13 +62,15 @@ public class DBHandler {
 	/**
 	 * Inserts multiple Event Reports into database. If duplicate md5 of url, reported_date, 
 	 * and reporting_source exists, will update previous entry with any changes.
-	 * @param values - a set of key/value maps to be inserted
+	 * @param events - a set of key/value maps to be inserted
 	 * @return int: number of inserts (or updates) that were successful
 	 */
-	public int addToEventReports(Set<Map<String, Object>> values) {
+	public int addEventReports(Set<Map<String, Object>> events) {	
+		//TODO: DATA-42 add EventReports class
+		//TODO: DATA-42 change to set of EventReports
 		int dbWrites = 0;
-		for (Map<String, Object> map : values) {
-			boolean wroteToDB = addToEventReports(map);
+		for (Map<String, Object> map : events) {
+			boolean wroteToDB = addEventReport(map);
 			if (wroteToDB) {
 				dbWrites++;
 			}
@@ -80,13 +82,25 @@ public class DBHandler {
 	/**
 	 * Inserts a single Event Report into database. If duplicate md5 of url, reported_date, 
 	 * and reporting_source exists, will update previous entry with any changes.
-	 * @param values - key/value map to be inserted
+	 * @param event - event report to be inserted
 	 * @return boolean: true if the insert (or update) was successful
 	 */
-	public boolean addToEventReports(Map<String, Object> values) {
+	public boolean addEventReport(Object event) {
+		//TODO: DATA-42 change Object to EventReports
+//		return addToEventReports(event.TOMAP);
+		return true;
+	}
+	
+	/**
+	 * Inserts a single Event Report into database. If duplicate md5 of url, reported_date, 
+	 * and reporting_source exists, will update previous entry with any changes.
+	 * @param event - key/value map to be inserted
+	 * @return boolean: true if the insert (or update) was successful
+	 */
+	private boolean addEventReport(Map<String, Object> event) {
 		boolean wroteToDB = false;
 		DBObject doc = new BasicDBObject();
-		doc.putAll(values);
+		doc.putAll(event);
 		DBObject query = new BasicDBObject();
 		query.put("md5", doc.get("md5"));
 		query.put("reported_date", doc.get("reported_date"));
@@ -108,10 +122,10 @@ public class DBHandler {
 	 * @param level - the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return int: number of inserts (or updates) that were successful
 	 */
-	public int addToHosts(Set<String> hosts, ShareLevel level) {
+	public int addHosts(Set<String> hosts, ShareLevel level) {
 		int dbWrites = 0;
 		for (String host : hosts) {
-			boolean wroteToDB = addToHosts(host, level);
+			boolean wroteToDB = addHost(host, level);
 			if (wroteToDB) {
 				dbWrites++;
 			}
@@ -126,7 +140,7 @@ public class DBHandler {
 	 * @param level - the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return boolean: true if the insert (or update) was successful
 	 */
-	public boolean addToHosts(String host, ShareLevel level) {
+	public boolean addHost(String host, ShareLevel level) {
 		if (host == null || host.length() < 1) {
 			return false;
 		}
@@ -168,7 +182,7 @@ public class DBHandler {
 			
 			long ip = ips.get(host);
 			if (ip > 0) {
-				addIPToDB(ip);
+				addIP(ip);
 			}
 			DBObject ipDoc = new BasicDBObject();
 			ipDoc.put("ip", ip);
@@ -236,7 +250,7 @@ public class DBHandler {
 	 * Adds an IP address to the database
 	 * @param ip - the IP address to add
 	 */
-	private boolean addIPToDB(long ip) {
+	private boolean addIP(long ip) {
 		boolean wroteToDB = false;
 		DBObject ipDoc = new BasicDBObject();
 		ipDoc.put("ip", ip);
@@ -280,7 +294,7 @@ public class DBHandler {
 			}
 			
 		}
-		addASsToDB(as);
+		addAutonmousSystem(as);
 		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
 		return dbWrites;		
 	}
@@ -336,7 +350,7 @@ public class DBHandler {
 	 * @param autonomousSystems - the set containing the Autonomous Systems to add
 	 * @return int: the number of inserted or updated documents
 	 */
-	private int addASsToDB(Set<AutonomousSystem> autonomousSystems) {
+	private int addAutonmousSystem(Set<AutonomousSystem> autonomousSystems) {
 		int dbWrites = 0;
 		for (AutonomousSystem as : autonomousSystems) {
 			int asn = as.getASN();
