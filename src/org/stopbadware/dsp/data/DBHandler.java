@@ -36,7 +36,6 @@ public class DBHandler {
 	public static final String DB_DATE_PATTERN = MongoDB.DATE_PATTERN;
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
-	private static final int BATCH_SIZE = 2000;
 	
 	public DBHandler() {
 		db = MongoDB.getInstance().getDB();
@@ -206,10 +205,21 @@ public class DBHandler {
 			BasicDBList ips = (BasicDBList) ((BasicDBObject) cur.next()).get("ips");
 			if (ips != null) {
 				for (String i : ips.keySet()) {
-					long timestamp = (long) ((BasicDBObject) ips.get(i)).get("timestamp");
+					long timestamp = 0L;
+					try {
+						timestamp = (long) ((BasicDBObject) ips.get(i)).get("timestamp");
+					} catch (ClassCastException e) {
+						/*Skip if cannot cast time from db*/
+						continue; 
+					}
 					if (timestamp > mostRecentTimestamp) {
 						mostRecentTimestamp = timestamp;
-						mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
+						try {
+							mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
+						} catch (ClassCastException e) {
+							/*Set to 0 to force write of new entry if unable to cast db entry*/
+							mostRecentIP = 0L; 
+						}
 					}
 				}
 			}
@@ -224,7 +234,7 @@ public class DBHandler {
 	
 	/**
 	 * Adds an IP address to the database
-	 * @param ip - the IP address as a long to add
+	 * @param ip - the IP address to add
 	 */
 	private boolean addIPToDB(long ip) {
 		boolean wroteToDB = false;
@@ -233,7 +243,7 @@ public class DBHandler {
 		WriteResult wr = ipColl.insert(ipDoc);
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 			//TODO: DATA-42 add SBW java lib for IP class
-			/*LOG.error("Error writing {} / {} to database", ip, IP.longToDotted(ip));*/
+//			LOG.error("Error writing {} / {} to database", ip, IP.longToDotted(ip));
 		} else {
 			wroteToDB = true;
 		}
@@ -290,14 +300,16 @@ public class DBHandler {
 		while (cur.hasNext()) {
 			BasicDBList asns = (BasicDBList) ((BasicDBObject) cur.next()).get("asns");
 			if (asns == null || asns.size() == 0) {
-				hasChanged = true; /*set to true if no ASN entries*/
+				/*set to true if no ASN entries*/
+				hasChanged = true; 
 			} else {
 				for (String as : asns.keySet()) {
 					long timestamp = 0L;
 					try {
 						timestamp =  (long) ((BasicDBObject) asns.get(as)).get("timestamp");
 					} catch (ClassCastException e) {
-						continue; /*Skip if cannot cast time from db*/
+						/*Skip if cannot cast time from db*/
+						continue; 
 					}						
 					if (timestamp > mostRecentTimestamp) {
 						mostRecentTimestamp = timestamp;
