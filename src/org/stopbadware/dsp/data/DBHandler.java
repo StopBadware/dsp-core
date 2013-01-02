@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
-import org.stopbadware.utilities.IP;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -190,17 +189,53 @@ public class DBHandler {
 	}
 	
 	/**
+	 * Checks if the most recent IP entry for the host differs from a potentially new entry
+	 * @param host - the host to check
+	 * @param ip - the new IP address
+	 * @return boolean, true if the new ASN differs from the most recent db entry
+	 */
+	private boolean ipHasChanged(String host, long ip) {
+		boolean hasChanged = false;
+		DBCursor cur = hostColl.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
+		long mostRecentTimestamp = 0L;
+		long mostRecentIP = ip;
+		
+		while (cur.hasNext()) {
+			BasicDBList ips = (BasicDBList) ((BasicDBObject) cur.next()).get("ips");
+			if (ips != null) {
+				for (String i : ips.keySet()) {
+					long timestamp = (long) ((BasicDBObject) ips.get(i)).get("timestamp");
+					if (timestamp > mostRecentTimestamp) {
+						mostRecentTimestamp = timestamp;
+						mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
+					}
+				}
+			}
+		}
+		
+		if (mostRecentIP != ip) {
+			hasChanged = true;
+		}
+		
+		return hasChanged;
+	}
+	
+	/**
 	 * Adds an IP address to the database
 	 * @param ip - the IP address as a long to add
 	 */
-	private void addIPToDB(long ip) {
+	private boolean addIPToDB(long ip) {
+		boolean wroteToDB = false;
 		DBObject ipDoc = new BasicDBObject();
 		ipDoc.put("ip", ip);
 		WriteResult wr = ipColl.insert(ipDoc);
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 			//TODO: DATA-42 add SBW java lib for IP class
 			/*LOG.debug("Error writing {} / {} to database", ip, IP.longToDotted(ip));*/
+		} else {
+			wroteToDB = true;
 		}
+		return wroteToDB;
 	}
 	
 	/**
