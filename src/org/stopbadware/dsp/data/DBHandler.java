@@ -66,8 +66,6 @@ public class DBHandler {
 	 * @return int: number of inserts (or updates) that were successful
 	 */
 	public int addEventReports(Set<Map<String, Object>> events) {	
-		//TODO: DATA-42 add EventReports class
-		//TODO: DATA-42 change to set of EventReports
 		int dbWrites = 0;
 		for (Map<String, Object> map : events) {
 			boolean wroteToDB = addEventReport(map);
@@ -77,18 +75,6 @@ public class DBHandler {
 		}
 		LOG.info("Wrote {} new Event Reports to database", dbWrites);
 		return dbWrites;
-	}
-	
-	/**
-	 * Inserts a single Event Report into database. If duplicate md5 of url, reported_date, 
-	 * and reporting_source exists, will update previous entry with any changes.
-	 * @param event - event report to be inserted
-	 * @return boolean: true if the insert (or update) was successful
-	 */
-	public boolean addEventReport(Object event) {
-		//TODO: DATA-42 change Object to EventReports
-//		return addToEventReports(event.TOMAP);
-		return true;
 	}
 	
 	/**
