@@ -17,7 +17,7 @@ public class All {
 	@GET
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public SearchResults test(@PathParam("param") String testString) {
-		return dbh.testFind(Long.valueOf(testString));	//DELME: DATA-42 test
+	public SearchResults findSince(@PathParam("param") String sinceTime) {
+		return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 replace
 	}
 }
