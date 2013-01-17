@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.lib.util.IP;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -242,8 +243,7 @@ public class DBHandler {
 		ipDoc.put("ip", ip);
 		WriteResult wr = ipColl.insert(ipDoc);
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-			//TODO: DATA-42 add SBW java lib for IP class
-//			LOG.error("Error writing {} / {} to database", ip, IP.longToDotted(ip));
+			LOG.error("Error writing {} / {} to database", ip, IP.longToDots(ip));
 		} else {
 			wroteToDB = true;
 		}
