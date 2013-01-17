@@ -10,21 +10,22 @@ import org.slf4j.LoggerFactory;
 
 public class Startup implements ServletContextListener {
 	
+	private static final String ASTERISK_LINE = "**********************************************";
 	private static final Logger LOG = LoggerFactory.getLogger(Startup.class);
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-		LOG.info("**********************************************");
+		LOG.info(ASTERISK_LINE);
 		LOG.info("*******SBW DSP DB-WRAPPER / API STARTED*******");	
-		LOG.info("**********************************************");
+		LOG.info(ASTERISK_LINE);
 	}
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-		LOG.info("**********************************************");
+		LOG.info(ASTERISK_LINE);
 		LOG.info("*******SBW DSP DB-WRAPPER / API STOPPED*******");	
-		LOG.info("**********************************************");
+		LOG.info(ASTERISK_LINE);
 	}
 
 }
