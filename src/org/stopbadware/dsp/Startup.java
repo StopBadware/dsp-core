@@ -15,12 +15,16 @@ public class Startup implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-//		LOG.debug("SBW DSP Started");	//TODO: DATA-51 prettify
+		LOG.info("**********************************************");
+		LOG.info("*******SBW DSP DB-WRAPPER / API STARTED*******");	
+		LOG.info("**********************************************");
 	}
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
-//		LOG.debug("SBW DSP Stopped");	//TODO: DATA-51 prettify
+		LOG.info("**********************************************");
+		LOG.info("*******SBW DSP DB-WRAPPER / API STOPPED*******");	
+		LOG.info("**********************************************");
 	}
 
 }
