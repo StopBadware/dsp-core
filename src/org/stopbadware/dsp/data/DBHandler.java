@@ -1,6 +1,5 @@
 package org.stopbadware.dsp.data;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,27 +28,21 @@ public class DBHandler {
 	private DBCollection asColl;
 	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
-	public static final String EVENT_REPORTS = MongoDB.EVENT_REPORTS;
-	public static final String HOSTS = MongoDB.HOSTS;
-	public static final String IPS = MongoDB.IPS;
-	public static final String ASNS = MongoDB.ASNS;
-	public static final String SOURCES = MongoDB.SOURCES;
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
 	
 	public DBHandler() {
 		db = MongoDB.getInstance().getDB();
-		eventReportColl = db.getCollection(EVENT_REPORTS);
-		hostColl = db.getCollection(HOSTS);
-		ipColl = db.getCollection(IPS);
-		asColl = db.getCollection(ASNS);
+		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
+		hostColl = db.getCollection(MongoDB.HOSTS);
+		ipColl = db.getCollection(MongoDB.IPS);
+		asColl = db.getCollection(MongoDB.ASNS);
 	}
 	
 	public SearchResults testFind(long sinceTime) {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject();
-		//query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-		query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", new Date(sinceTime))));
+		query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		int limit = 2500;
 //		DBCursor cur = eventReportColl.find(query).limit(limit);
 		List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
