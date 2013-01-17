@@ -34,7 +34,6 @@ public class DBHandler {
 	public static final String IPS = MongoDB.IPS;
 	public static final String ASNS = MongoDB.ASNS;
 	public static final String SOURCES = MongoDB.SOURCES;
-	public static final String DB_DATE_PATTERN = MongoDB.DATE_PATTERN;
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
 	
