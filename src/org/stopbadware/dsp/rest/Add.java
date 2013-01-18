@@ -45,7 +45,6 @@ public class Add {
 		public long time;
 		public Set<Map<String, Object>> reports;
 		public ReportContainer() {
-			time = 14L;
 		}
 	}
 
