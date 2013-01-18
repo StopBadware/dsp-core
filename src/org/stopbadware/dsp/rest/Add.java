@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -22,7 +24,7 @@ public class Add {
 	
 	@POST
 	@Path("/events")
-//	@Consumes(MediaType.APPLICATION_JSON)	//TODO: DATA-51 revert or remove
+	@Consumes(MediaType.APPLICATION_JSON)	//TODO: DATA-51 revert or remove
 	public String addEvents(String data) {
 //		curl -d '' http://127.0.0.1:8080/clearinghouse/add/events
 		System.out.println(data);	//DELME: DATA-51
