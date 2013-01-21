@@ -9,8 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +26,47 @@ public class Add {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String addEvents(String data) {
 		System.out.println(data);	//DELME: DATA-51
+		int numWroteToDB = 0;
 		ObjectMapper mapper = new ObjectMapper();
+		ImportContainer ic = null;
 		try {
-			ReportContainer reports = mapper.readValue(data, ReportContainer.class);
-			System.out.println(reports.reports.size());
+			ic = mapper.readValue(data, ImportContainer.class);
+			System.out.println(ic.reports.size());	//DELME: DATA-51
 		} catch (IOException e) {
 			LOG.error("Error parsing JSON:\t{}", e.getMessage());
 		}
-		//TODO: DATA-51 send set to	dbh.addToEventReports() 
-		return "AOK";
+		
+		if (ic != null) {
+			long age = (System.currentTimeMillis() / 1000) - ic.time;
+			LOG.info("Received import timestamped {}, which was {} seconds ago", ic.time, age);
+			if (age > 3600) {
+				LOG.warn("Import timestamp is more than an hour old");
+			}
+			if (ic.reports != null) {
+				if (ic.size == ic.reports.size()) {
+					LOG.info("Sending {} event reports to DB Handler", ic.size);
+					numWroteToDB = dbh.addEventReports(ic.reports);
+				} else {
+					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", ic.size, ic.reports.size());
+				}
+			} else {
+				LOG.error("Reports field is null");
+			}
+		} else {
+			LOG.error("Add events called but no valid ImportContainer could be mapped from data");
+		}
+
+		return "AOK-"+numWroteToDB;
 	}
 	
-	public static class ReportContainer {
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	private static class ImportContainer {
 		public int size;
 		public long time;
 		public Set<Map<String, Object>> reports;
-		public ReportContainer() {
-			
-		}
+//		public ReportContainer() {
+//			
+//		}
 	}
 
 }

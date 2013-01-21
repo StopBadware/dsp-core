@@ -86,9 +86,10 @@ public class DBHandler {
 		query.put("reporting_source", doc.get("reporting_source"));
 		
 		WriteResult wr = eventReportColl.update(query, doc, true, false);
+		System.out.println(wr.getN()+"\t"+wr.toString());	//DELME: DATA-51
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-		} else  {
+		} else if (wr.getN() > 0)  {
 			wroteToDB = true;
 		}
 		
