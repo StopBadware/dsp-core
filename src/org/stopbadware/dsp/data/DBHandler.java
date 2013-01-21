@@ -17,6 +17,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 public class DBHandler {
@@ -55,7 +56,7 @@ public class DBHandler {
 	/**
 	 * Inserts multiple Event Reports into database. If duplicate md5 of url, reported_date, 
 	 * and reporting_source exists, will update previous entry with any changes.
-	 * @param events - a set of key/value maps to be inserted
+	 * @param events - a set of key/value maps to be inserted 
 	 * @return int: number of inserts (or updates) that were successful
 	 */
 	public int addEventReports(Set<Map<String, Object>> events) {	
@@ -66,7 +67,7 @@ public class DBHandler {
 				dbWrites++;
 			}
 		}
-		LOG.info("Wrote {} new Event Reports to database", dbWrites);
+		LOG.info("{} successful Event Report writes", dbWrites);
 		return dbWrites;
 	}
 	
@@ -80,17 +81,23 @@ public class DBHandler {
 		boolean wroteToDB = false;
 		DBObject doc = new BasicDBObject();
 		doc.putAll(event);
+		long UNIXtime = System.currentTimeMillis() / 1000;
+		doc.put("_created", UNIXtime);
+		doc.put("_updated", UNIXtime);
 		DBObject query = new BasicDBObject();
 		query.put("md5", doc.get("md5"));
 		query.put("reported_date", doc.get("reported_date"));
 		query.put("reporting_source", doc.get("reporting_source"));
 		
-		WriteResult wr = eventReportColl.update(query, doc, true, false);
-		System.out.println(wr.getN()+"\t"+wr.toString());	//DELME: DATA-51
-		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+		try {
+			WriteResult wr = eventReportColl.update(query, doc, true, false);
+			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-		} else if (wr.getN() > 0)  {
-			wroteToDB = true;
+			} else if (wr.getN() > 0)  {
+				wroteToDB = true; 
+			}
+		} catch (MongoException e) {
+			LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
 		}
 		
 		return wroteToDB;	

@@ -44,7 +44,7 @@ public class Add {
 			}
 			if (ic.reports != null) {
 				if (ic.size == ic.reports.size()) {
-					LOG.info("Sending {} event reports to DB Handler", ic.size);
+					LOG.info("{} event reports to write", ic.size);
 					numWroteToDB = dbh.addEventReports(ic.reports);
 				} else {
 					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", ic.size, ic.reports.size());
