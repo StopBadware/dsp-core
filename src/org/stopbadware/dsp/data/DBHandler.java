@@ -84,13 +84,16 @@ public class DBHandler {
 		long UNIXtime = System.currentTimeMillis() / 1000;
 		doc.put("_created", UNIXtime);
 		doc.put("_updated", UNIXtime);
-		DBObject query = new BasicDBObject();
-		query.put("md5", doc.get("md5"));
-		query.put("reported_date", doc.get("reported_date"));
-		query.put("reporting_source", doc.get("reporting_source"));
+//		DBObject query = new BasicDBObject();
+//		query.put("md5", doc.get("md5"));
+//		query.put("reported", doc.get("reported"));
+//		query.put("reported_by", doc.get("reported_by"));
 		
+		WriteResult wr = null;
 		try {
-			WriteResult wr = eventReportColl.update(query, doc, true, false);
+//			wr = eventReportColl.update(query, doc, false, false);
+			wr = eventReportColl.insert(doc);
+			System.out.println(wr.toString()+"\t"+wr.getN());
 			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
 			} else if (wr.getN() > 0)  {

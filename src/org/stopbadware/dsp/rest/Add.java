@@ -38,7 +38,7 @@ public class Add {
 		
 		if (ic != null) {
 			long age = (System.currentTimeMillis() / 1000) - ic.time;
-			LOG.info("Received import timestamped {}, which was {} seconds ago", ic.time, age);
+			LOG.info("Received import with timestamp {}, ({} seconds ago)", ic.time, age);
 			if (age > 3600) {
 				LOG.warn("Import timestamp is more than an hour old");
 			}
