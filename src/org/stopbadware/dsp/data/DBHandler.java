@@ -54,8 +54,7 @@ public class DBHandler {
 	}
 	
 	/**
-	 * Inserts multiple Event Reports into database. If duplicate md5 of url, reported_date, 
-	 * and reporting_source exists, will update previous entry with any changes.
+	 * Inserts multiple Event Reports into database, ignoring duplicates.
 	 * @param events - a set of key/value maps to be inserted 
 	 * @return int: number of new documents written to database plus 
 	 * duplicate documents that were ignored 
@@ -65,9 +64,6 @@ public class DBHandler {
 		int dbDupes = 0;
 		for (Map<String, Object> map : events) {
 			WriteResult wr = addEventReport(map);
-//			if (wroteToDB) {
-//				dbWrites++;
-//			}
 			if (wr != null) {
 				if (wr.getError() != null && wr.getError().contains(DUPE_ERR)) {
 					dbDupes++;
@@ -83,26 +79,20 @@ public class DBHandler {
 	}
 	
 	/**
-	 * Inserts a single Event Report into database. If duplicate md5 of url, reported_date, 
-	 * and reporting_source exists, will update previous entry with any changes.
+	 * Inserts a single Event Report into database, ignoring duplicates.
 	 * @param event - key/value map to be inserted
-	 * @return boolean: true if the insert (or update) was successful
+	 * @return WriteResult: the WriteResult associated with the write attempt
+	 * or null if the attempt was unsuccessful
 	 */
 	private WriteResult addEventReport(Map<String, Object> event) {
-		boolean wroteToDB = false;
 		DBObject doc = new BasicDBObject();
 		doc.putAll(event);
 		long UNIXtime = System.currentTimeMillis() / 1000;
 		doc.put("_created", UNIXtime);
 		doc.put("_updated", UNIXtime);
-//		DBObject query = new BasicDBObject();
-//		query.put("md5", doc.get("md5"));
-//		query.put("reported", doc.get("reported"));
-//		query.put("reported_by", doc.get("reported_by"));
 		
 		WriteResult wr = null;
 		try {
-//			wr = eventReportColl.update(query, doc, false, false);
 			wr = eventReportColl.insert(doc);
 			System.out.println(wr.getError()+"\t"+wr.getN());
 			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
@@ -111,9 +101,7 @@ public class DBHandler {
 				} else {
 					LOG.error("Error writing report with null URL to collection: {}", wr.getError());
 				}
-			} else {
-				wroteToDB = true; 
-			}
+			} 
 		} catch (MongoException e) {
 			LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
 		}
