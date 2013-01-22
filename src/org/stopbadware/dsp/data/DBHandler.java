@@ -93,10 +93,10 @@ public class DBHandler {
 		try {
 //			wr = eventReportColl.update(query, doc, false, false);
 			wr = eventReportColl.insert(doc);
-			System.out.println(wr.toString()+"\t"+wr.getN());
+			System.out.println(wr.getError()+"\t"+wr.getN());
 			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-			} else if (wr.getN() > 0)  {
+			} else {
 				wroteToDB = true; 
 			}
 		} catch (MongoException e) {
