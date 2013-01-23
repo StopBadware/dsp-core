@@ -43,7 +43,7 @@ public class DBHandler {
 	public SearchResults testFind(long sinceTime) {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject();
-		query.put("reported_date", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+		query.put("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		int limit = 2500;
 //		DBCursor cur = eventReportColl.find(query).limit(limit);
 		List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
@@ -51,6 +51,11 @@ public class DBHandler {
 		sr.setSearchCriteria(String.valueOf(sinceTime));
 		sr.setResults(res);
 		return sr;
+	}
+	
+	public String getTimeOfLast(String source) {
+		//TODO: DATA-51 return time of last from source
+		return "";
 	}
 	
 	/**

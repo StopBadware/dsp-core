@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -20,6 +22,14 @@ public class Add {
 	
 	private static DBHandler dbh = new DBHandler();
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
+	
+	@GET
+	@Path("/timeoflast/{source}")
+	public String getLastReportedTime(@PathParam("source") String source) {
+		String foo = "AOK-"+source;
+		//TODO: DATA-51 get time of last source from db
+		return foo;
+	}
 	
 	@POST
 	@Path("/events")
@@ -65,9 +75,6 @@ public class Add {
 		public int size;
 		public long time;
 		public Set<Map<String, Object>> reports;
-//		public ReportContainer() {
-//			
-//		}
 	}
 
 }
