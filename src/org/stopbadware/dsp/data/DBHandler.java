@@ -74,7 +74,7 @@ public class DBHandler {
 		}
 		
 		LOG.info("{} new event reports added", dbWrites);
-		LOG.info("{} duplicate entries were ignored", dbDupes);
+		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
 	}
 	
@@ -92,7 +92,6 @@ public class DBHandler {
 		WriteResult wr = null;
 		try {
 			wr = eventReportColl.insert(doc);
-			System.out.println(wr.getError()+"\t"+wr.getN());
 			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				if (doc.get("url") != null) {
 					LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
