@@ -87,9 +87,7 @@ public class DBHandler {
 	private WriteResult addEventReport(Map<String, Object> event) {
 		DBObject doc = new BasicDBObject();
 		doc.putAll(event);
-		long UNIXtime = System.currentTimeMillis() / 1000;
-		doc.put("_created", UNIXtime);
-		doc.put("_updated", UNIXtime);
+		doc.put("_created", System.currentTimeMillis() / 1000);
 		
 		WriteResult wr = null;
 		try {
