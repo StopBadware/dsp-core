@@ -71,6 +71,11 @@ public class DBHandler {
 		return sr;
 	}
 	
+	/**
+	 * Retrieves and returns timestamp of last event report for the requested source
+	 * @param source - either full name or prefix of reporting source (case insensitive)
+	 * @return TimeOfLast with UNIX timestamp (0 if unable to  
+	 */
 	public TimeOfLast getTimeOfLast(String source) {
 		long time = 0L;
 		DBObject query = new BasicDBObject();
