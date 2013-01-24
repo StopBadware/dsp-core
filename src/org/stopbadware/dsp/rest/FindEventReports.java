@@ -9,8 +9,8 @@ import javax.ws.rs.core.MediaType;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.SearchResults;
 
-@Path("/all")
-public class All {
+@Path("/events")
+public class FindEventReports {
 	
 	private static DBHandler dbh = new DBHandler();
 	
