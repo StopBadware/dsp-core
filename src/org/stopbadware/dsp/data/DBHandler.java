@@ -4,12 +4,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.SearchResults;
+import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.lib.util.IP;
 
 import com.mongodb.BasicDBList;
@@ -41,6 +43,21 @@ public class DBHandler {
 		asColl = db.getCollection(MongoDB.ASNS);
 	}
 	
+	/**
+	 * Convenience method for creating an exact case insensitive regex Pattern
+	 * @param str String to match
+	 * @return java.util.regex Pattern or null if could not create Pattern
+	 */
+	private Pattern getRegex(String str) {
+		Pattern p = null;
+		try {
+			p = Pattern.compile("^" + str + "$", Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
+		} catch (IllegalArgumentException e) {
+			LOG.warn("Unable to create Pattern for >>{}<<\t{}", str, e.getMessage());
+		}
+		return p;
+	}
+	
 	public SearchResults testFind(long sinceTime) {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject();
@@ -54,9 +71,28 @@ public class DBHandler {
 		return sr;
 	}
 	
-	public String getTimeOfLast(String source) {
-		//TODO: DATA-51 return time of last from source
-		return "";
+	public TimeOfLast getTimeOfLast(String source) {
+		long time = 0L;
+		DBObject query = new BasicDBObject();
+		Pattern sourceRegex = getRegex(source);
+		if (source.length() <= 5) {
+			query.put("prefix", sourceRegex);
+		} else {
+			query.put("reported_by", sourceRegex);
+		}
+		DBObject keys = new BasicDBObject();
+		keys.put("_id", 0);
+		keys.put("reported_at", 1);
+		DBCursor cur = eventReportColl.find(query, keys).sort(new BasicDBObject ("reported_at", DESC)).limit(1);
+		while (cur.hasNext()) {
+			try {
+				time = Long.valueOf(cur.next().get("reported_at").toString());
+			} catch (NumberFormatException | NullPointerException e) {
+				time = 0L;
+			}
+		}
+		System.out.println(time);
+		return new TimeOfLast(source, time);
 	}
 	
 	/**

@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.SearchResults;
+import org.stopbadware.dsp.json.TimeOfLast;
 
 @Path("/events")
 public class FindEventReports {
@@ -23,10 +24,8 @@ public class FindEventReports {
 	
 	@GET
 	@Path("/timeoflast/{source}")
-	public String getLastReportedTime(@PathParam("source") String source) {
-		String foo = "AOK-"+source;
-		System.out.println(source);
-		//TODO: DATA-51 get time of last source from db
-		return foo;
+	@Produces(MediaType.APPLICATION_JSON)
+	public TimeOfLast getLastReportedTime(@PathParam("source") String source) {
+		return dbh.getTimeOfLast(source);
 	}
 }
