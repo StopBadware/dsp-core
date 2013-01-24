@@ -1,4 +1,4 @@
-package org.stopbadware.dsp.data;
+package org.stopbadware.dsp.json;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 

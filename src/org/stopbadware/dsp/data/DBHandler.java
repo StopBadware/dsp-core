@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.lib.util.IP;
 
 import com.mongodb.BasicDBList;
