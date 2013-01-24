@@ -11,11 +11,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.json.EventReports;
 
 @Path("/add")
 public class Add {
@@ -38,27 +38,28 @@ public class Add {
 		System.out.println(data);	//DELME: DATA-51
 		int numWroteToDB = 0;
 		ObjectMapper mapper = new ObjectMapper();
-		ImportContainer ic = null;
+		EventReports imports = null;
 		try {
-			ic = mapper.readValue(data, ImportContainer.class);
-			System.out.println(ic.reports.size());	//DELME: DATA-51
+			imports = mapper.readValue(data, EventReports.class);
+			System.out.println(imports.getReports().size());	//DELME: DATA-51
 		} catch (IOException e) {
 			LOG.error("Error parsing JSON:\t{}", e.getMessage());
 		}
 		
-		if (ic != null) {
-			long age = (System.currentTimeMillis() / 1000) - ic.time;
-			LOG.info("Received import with timestamp {}, ({} seconds ago)", ic.time, age);
+		if (imports != null) {
+			long age = (System.currentTimeMillis() / 1000) - imports.getTime();
+			LOG.info("Received import with timestamp {}, ({} seconds ago)", imports.getTime(), age);
 			if (age > 3600) {
 				LOG.warn("Import timestamp is more than an hour old");
 			}
-			if (ic.reports != null) {
-				if (ic.size == ic.reports.size()) {
-					LOG.info("{} event reports to write", ic.size);
-					numWroteToDB = dbh.addEventReports(ic.reports);
+			Set<Map<String, Object>> reports = imports.getReports(); 
+			if (reports != null) {
+				if (imports.getSize() == reports.size()) {
+					LOG.info("{} event reports to write", imports.getSize());
+					numWroteToDB = dbh.addEventReports(reports);
 					LOG.info("{} successful write attempts", numWroteToDB);
 				} else {
-					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", ic.size, ic.reports.size());
+					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
 				}
 			} else {
 				LOG.error("Reports field is null");
@@ -68,13 +69,6 @@ public class Add {
 		}
 
 		return "AOK-"+numWroteToDB;
-	}
-	
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class ImportContainer {
-		public int size;
-		public long time;
-		public Set<Map<String, Object>> reports;
 	}
 
 }
