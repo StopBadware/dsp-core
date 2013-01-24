@@ -2,6 +2,10 @@ package org.stopbadware.dsp.json;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+/**
+ * Serialization wrapper for marshalling/unmarhsalling search results 
+ *
+ */
 public class SearchResults {
 	
 	private int count = 0;
