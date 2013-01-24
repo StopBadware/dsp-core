@@ -17,6 +17,12 @@ public class EventReports {
 	private long time;
 	private Set<Map<String, Object>> reports;
 	
+	public EventReports() {
+		reports = null;
+		size = 0;
+		time = 0;
+	}
+	
 	public EventReports(Set<Map<String, Object>> reports) {
 		this.reports = reports;
 		size = reports.size();
