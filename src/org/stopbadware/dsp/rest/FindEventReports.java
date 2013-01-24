@@ -20,4 +20,13 @@ public class FindEventReports {
 	public SearchResults findSince(@PathParam("param") String sinceTime) {
 		return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 replace
 	}
+	
+	@GET
+	@Path("/timeoflast/{source}")
+	public String getLastReportedTime(@PathParam("source") String source) {
+		String foo = "AOK-"+source;
+		System.out.println(source);
+		//TODO: DATA-51 get time of last source from db
+		return foo;
+	}
 }
