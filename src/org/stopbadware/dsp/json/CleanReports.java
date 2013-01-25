@@ -13,16 +13,19 @@ public class CleanReports {
 	
 	private int size;
 	private long time;
+	private String source;
 	private Set<String> clean;
 	
 	public CleanReports() {
 		clean = null;
+		source = "";
 		size = 0;
 		time = 0;
 	}
 	
-	public CleanReports(Set<String> clean) {
+	public CleanReports(String source, Set<String> clean) {
 		this.clean = clean;
+		this.source = source;
 		size = clean.size();
 		time = System.currentTimeMillis() / 1000;
 	}
@@ -33,6 +36,10 @@ public class CleanReports {
 
 	public long getTime() {
 		return time;
+	}
+	
+	public String getSource() {
+		return source;
 	}
 
 	public Set<String> getClean() {
