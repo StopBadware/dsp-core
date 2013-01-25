@@ -6,8 +6,7 @@ import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
- * Serialization wrapper for marshalling/unmarhsalling timestamp 
- * of the most recent event report for a source 
+ * Serialization wrapper for marshalling/unmarhsalling event reports
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

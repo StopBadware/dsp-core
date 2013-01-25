@@ -2,6 +2,13 @@ package org.stopbadware.dsp.json;
 
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+/**
+ * Serialization wrapper for marshalling/unmarhsalling clean reports 
+ *
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CleanReports {
 	
 	private int size;
