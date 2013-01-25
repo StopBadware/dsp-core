@@ -410,4 +410,9 @@ public class DBHandler {
 		LOG.info("Wrote {} Autonomous Systems to database", dbWrites);
 		return dbWrites;
 	}
+	
+	public int removeHostsFromBlacklist(String reporter, Set<String> cleanHosts) {
+		//TODO: DATA-50 implement clean host handling
+		return 0;
+	}
 }
