@@ -432,6 +432,13 @@ public class DBHandler {
 		for (String blHost : blacklisted) {
 			if (cleanHosts.contains(blHost)) {
 				//TODO: DATA-51 remove entry
+				query = new BasicDBObject();
+				query.put("host", blHost);
+				query.put(sourceField, reporter);
+				query.put("is_on_blacklist", true);
+				
+				DBObject update = new BasicDBObject();
+				update.put("is_on_blacklist", false);
 			}
 		}
 		LOG.debug("end");	//DELME: DATA-51
