@@ -72,7 +72,7 @@ public class DBHandler {
 	
 	/**
 	 * Retrieves and returns timestamp of last event report for the requested source
-	 * @param source - either full name or prefix of reporting source (case insensitive)
+	 * @param source either full name or prefix of reporting source (case insensitive)
 	 * @return TimeOfLast with UNIX timestamp (0 if unable to  
 	 */
 	public TimeOfLast getTimeOfLast(String source) {
@@ -101,7 +101,7 @@ public class DBHandler {
 	
 	/**
 	 * Inserts multiple Event Reports into database, ignoring duplicates.
-	 * @param events - a set of key/value maps to be inserted 
+	 * @param events a set of key/value maps to be inserted 
 	 * @return int: number of new documents written to database plus 
 	 * duplicate documents that were ignored 
 	 */
@@ -126,7 +126,7 @@ public class DBHandler {
 	
 	/**
 	 * Inserts a single Event Report into database, ignoring duplicates.
-	 * @param event - key/value map to be inserted
+	 * @param event key/value map to be inserted
 	 * @return WriteResult: the WriteResult associated with the write attempt
 	 * or null if the attempt was unsuccessful
 	 */
@@ -154,8 +154,8 @@ public class DBHandler {
 	
 	/**
 	 * Adds multiple hosts to the hosts collection
-	 * @param hosts - a set of hosts to add
-	 * @param level - the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
+	 * @param hosts a set of hosts to add
+	 * @param level the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return int: number of inserts (or updates) that were successful
 	 */
 	public int addHosts(Set<String> hosts, ShareLevel level) {
@@ -172,8 +172,8 @@ public class DBHandler {
 	
 	/**
 	 * Adds a single host to the hosts collection
-	 * @param host - the host to add
-	 * @param level - the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
+	 * @param host the host to add
+	 * @param level the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return boolean: true if the insert (or update) was successful
 	 */
 	public boolean addHost(String host, ShareLevel level) {
@@ -207,7 +207,7 @@ public class DBHandler {
 	
 	/**
 	 * Writes the IP address associated with each host in the map provided 
-	 * @param ips - a Map containing keys of hosts as Strings and values of IP addresses as longs
+	 * @param ips a Map containing keys of hosts as Strings and values of IP addresses as longs
 	 * @return int: the number of inserted or updated documents
 	 */
 	public int addIPsForHosts(Map<String, Long> ips) {
@@ -241,8 +241,8 @@ public class DBHandler {
 	
 	/**
 	 * Checks if the most recent IP entry for the host differs from a potentially new entry
-	 * @param host - the host to check
-	 * @param ip - the new IP address
+	 * @param host the host to check
+	 * @param ip the new IP address
 	 * @return boolean, true if the new ASN differs from the most recent db entry
 	 */
 	private boolean ipHasChanged(String host, long ip) {
@@ -284,7 +284,7 @@ public class DBHandler {
 	
 	/**
 	 * Adds an IP address to the database
-	 * @param ip - the IP address to add
+	 * @param ip the IP address to add
 	 */
 	private boolean addIP(long ip) {
 		boolean wroteToDB = false;
@@ -301,7 +301,7 @@ public class DBHandler {
 	
 	/**
 	 * Writes the ASNs associated with each IP in the map provided 
-	 * @param asns - a Map containing keys of IP addresses as longs and AS objects as values
+	 * @param asns a Map containing keys of IP addresses as longs and AS objects as values
 	 * @return int: the number of inserted or updated documents
 	 */
 	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
@@ -336,8 +336,8 @@ public class DBHandler {
 	
 	/**
 	 * Checks if the most recent AS entry for the IP differs from a potentially new entry
-	 * @param ip - the IP to check
-	 * @param asn - the new ASN
+	 * @param ip the IP to check
+	 * @param asn the new ASN
 	 * @return boolean, true if the new ASN differs from the most recent db entry
 	 */
 	private boolean asnHasChanged(long ip, int asn) { 
@@ -382,7 +382,7 @@ public class DBHandler {
 	
 	/**
 	 * Adds Autonomous Systems to database
-	 * @param autonomousSystems - the set containing the Autonomous Systems to add
+	 * @param autonomousSystems the set containing the Autonomous Systems to add
 	 * @return int: the number of inserted or updated documents
 	 */
 	private int addAutonmousSystem(Set<AutonomousSystem> autonomousSystems) {
@@ -410,6 +410,14 @@ public class DBHandler {
 		return dbWrites;
 	}
 	
+	/**
+	 * Updates event reports for the specified reporter matching hosts in the provided set
+	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
+	 * @param reporter either the full name or prefix of the reporting entity
+	 * @param removedTime UNIXTimestamp as a long to set as the removed time
+	 * @param cleanHosts the set of hosts to match
+	 * @return int: the number of event reports updated
+	 */
 	public int removeHostsFromBlacklist(String reporter, long removedTime, Set<String> cleanHosts) {
 		int removed = 0;
 		DBObject query = new BasicDBObject();
