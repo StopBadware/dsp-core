@@ -67,7 +67,7 @@ public class Add {
 	@Path("/clean")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String markClean(String data) {
-		int numWroteToDB = 0;
+		int numCleaned = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		CleanReports clean = null;
 		try {
@@ -79,10 +79,10 @@ public class Add {
 		if (clean != null) {
 			Set<String> cleanSet = clean.getClean();
 			if (cleanSet != null) {
-				if (clean.getSize() == cleanSet.size()) {
+				if (clean.getSize() == cleanSet.size() && clean.getSource() != null) {
 					LOG.info("{} total clean events for {}", clean.getSize(), clean.getSource());
-//					numWroteToDB = dbh.addEventReports(reports);
-					LOG.info("{} events removed from blacklist", numWroteToDB);
+					numCleaned = dbh.removeHostsFromBlacklist(clean.getSource(), cleanSet);
+					LOG.info("{} events removed from blacklist", numCleaned);
 				} else {
 					LOG.error("Indicated size of {} does not match number of clean events unmarshalled {}, aborting imort", clean.getSize(), cleanSet.size());
 				}
@@ -92,7 +92,7 @@ public class Add {
 		} else {
 			LOG.error("Add clean events called but no valid CleanReports could be mapped from data");
 		}
-		return "AOK-"+numWroteToDB;
+		return "AOK-"+numCleaned;
 	}
 
 }

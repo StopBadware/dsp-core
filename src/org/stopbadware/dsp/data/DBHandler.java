@@ -63,7 +63,6 @@ public class DBHandler {
 		DBObject query = new BasicDBObject();
 		query.put("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		int limit = 2500;
-//		DBCursor cur = eventReportColl.find(query).limit(limit);
 		List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
 		sr.setCount(res.size());
 		sr.setSearchCriteria(String.valueOf(sinceTime));
@@ -412,7 +411,31 @@ public class DBHandler {
 	}
 	
 	public int removeHostsFromBlacklist(String reporter, Set<String> cleanHosts) {
-		//TODO: DATA-50 implement clean host handling
-		return 0;
+		int removed = 0;
+		DBObject query = new BasicDBObject();
+		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
+		query.put(sourceField, getRegex(reporter));
+		query.put("is_on_blacklist", true);
+		DBObject keys = new BasicDBObject("host", 1);
+		keys.put("_id", 0);
+		DBCursor cur = eventReportColl.find(query, keys);
+		Set<String> blacklisted = new HashSet<>(cur.count());
+
+		while (cur.hasNext()) {
+			Object host = cur.next().get("host");
+			if (host != null) {
+				blacklisted.add(host.toString());
+			}
+		}
+
+		LOG.debug("start");	//DELME: DATA-51
+		for (String blHost : blacklisted) {
+			if (cleanHosts.contains(blHost)) {
+				//TODO: DATA-51 remove entry
+			}
+		}
+		LOG.debug("end");	//DELME: DATA-51
+		
+		return removed;
 	}
 }
