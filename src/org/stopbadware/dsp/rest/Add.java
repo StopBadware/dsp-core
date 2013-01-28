@@ -28,7 +28,6 @@ public class Add {
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String addEvents(String data) {
-		System.out.println(data);	//DELME: DATA-51
 		int numWroteToDB = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		EventReports imports = null;
