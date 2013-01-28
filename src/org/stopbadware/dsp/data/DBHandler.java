@@ -410,7 +410,7 @@ public class DBHandler {
 		return dbWrites;
 	}
 	
-	public int removeHostsFromBlacklist(String reporter, Set<String> cleanHosts) {
+	public int removeHostsFromBlacklist(String reporter, long removedTime, Set<String> cleanHosts) {
 		int removed = 0;
 		DBObject query = new BasicDBObject();
 		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
@@ -428,10 +428,8 @@ public class DBHandler {
 			}
 		}
 
-		LOG.debug("start");	//DELME: DATA-51
 		for (String blHost : blacklisted) {
 			if (cleanHosts.contains(blHost)) {
-				//TODO: DATA-51 remove entry
 				query = new BasicDBObject();
 				query.put("host", blHost);
 				query.put(sourceField, reporter);
@@ -439,9 +437,18 @@ public class DBHandler {
 				
 				DBObject update = new BasicDBObject();
 				update.put("is_on_blacklist", false);
+				update.put("removed_from_blacklist", removedTime);
+				WriteResult wr = null;
+				wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
+				if (wr != null) {
+					if (wr.getError() != null) {
+						LOG.error("Error changing blacklist flag for {}:\t{}", blHost, wr.getError());
+					} else if (wr.getError() == null) {
+						removed += wr.getN();
+					}
+				}
 			}
 		}
-		LOG.debug("end");	//DELME: DATA-51
 		
 		return removed;
 	}

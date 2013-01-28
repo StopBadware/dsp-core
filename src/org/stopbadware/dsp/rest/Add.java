@@ -81,7 +81,7 @@ public class Add {
 			if (cleanSet != null) {
 				if (clean.getSize() == cleanSet.size() && clean.getSource() != null) {
 					LOG.info("{} total clean events for {}", clean.getSize(), clean.getSource());
-					numCleaned = dbh.removeHostsFromBlacklist(clean.getSource(), cleanSet);
+					numCleaned = dbh.removeHostsFromBlacklist(clean.getSource(), clean.getTime(), cleanSet);
 					LOG.info("{} events removed from blacklist", numCleaned);
 				} else {
 					LOG.error("Indicated size of {} does not match number of clean events unmarshalled {}, aborting imort", clean.getSize(), cleanSet.size());
