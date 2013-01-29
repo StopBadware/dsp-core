@@ -4,7 +4,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * Serialization wrapper for marshalling/unmarhsalling search results 
+ * Serialization wrapper for marshaling/unmarhsaling search results 
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

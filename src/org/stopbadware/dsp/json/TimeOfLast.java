@@ -3,7 +3,7 @@ package org.stopbadware.dsp.json;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
- * Serialization wrapper for marshalling/unmarhsalling timestamp 
+ * Serialization wrapper for marshaling/unmarhsaling timestamp 
  * of the most recent event report for a source 
  *
  */

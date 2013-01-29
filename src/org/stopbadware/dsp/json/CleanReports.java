@@ -5,7 +5,7 @@ import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
- * Serialization wrapper for marshalling/unmarhsalling clean reports 
+ * Serialization wrapper for marshaling/unmarhsaling clean reports 
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -7,7 +7,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * Serialization wrapper for marshalling/unmarhsalling event reports
+ * Serialization wrapper for marshaling/unmarhsaling event reports
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
