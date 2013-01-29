@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,9 @@ public class Add {
 					LOG.info("{} event reports to write", imports.getSize());
 					numWroteToDB = dbh.addEventReports(reports);
 					LOG.info("{} successful write attempts", numWroteToDB);
+					if (imports.isDifferentialBlacklist()) {
+						processClean(imports);
+					}
 				} else {
 					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
 				}
@@ -60,6 +64,12 @@ public class Add {
 		}
 
 		return "AOK-"+numWroteToDB;
+	}
+	
+	private void processClean(EventReports er) {
+		LOG.info("Updating blacklist flags");
+		int numCleaned = dbh.updateBlacklistFlagsFromDirtyReports(er.getSource(), er.getTime(), er.getReports());
+		LOG.info("{} events removed from blacklist", numCleaned);
 	}
 	
 	@POST
@@ -80,7 +90,7 @@ public class Add {
 			if (cleanSet != null) {
 				if (clean.getSize() == cleanSet.size() && clean.getSource() != null) {
 					LOG.info("{} total clean events for {}", clean.getSize(), clean.getSource());
-					numCleaned = dbh.removeHostsFromBlacklist(clean.getSource(), clean.getTime(), cleanSet);
+					numCleaned = dbh.updateBlacklistFlagsFromCleanHosts(clean.getSource(), clean.getTime(), cleanSet);
 					LOG.info("{} events removed from blacklist", numCleaned);
 				} else {
 					LOG.error("Indicated size of {} does not match number of clean events unmarshalled {}, aborting imort", clean.getSize(), cleanSet.size());

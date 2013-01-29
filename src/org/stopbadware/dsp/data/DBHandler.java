@@ -13,6 +13,7 @@ import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.lib.util.IP;
+import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -122,6 +123,14 @@ public class DBHandler {
 		LOG.info("{} new event reports added", dbWrites);
 		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
+	}
+	
+	public int addEventReports(Set<Map<String, Object>> events, boolean isDifferential) {
+		int added = addEventReports(events);
+		if (isDifferential) {
+			//TODO: remove clean
+		}
+		return added;
 	}
 	
 	/**
@@ -418,8 +427,8 @@ public class DBHandler {
 	 * @param cleanHosts the set of hosts to match
 	 * @return int: the number of event reports updated
 	 */
-	public int removeHostsFromBlacklist(String reporter, long removedTime, Set<String> cleanHosts) {
-		int removed = 0;
+	public int updateBlacklistFlagsFromCleanHosts(String reporter, long removedTime, Set<String> cleanHosts) {
+		int updated = 0;
 		DBObject query = new BasicDBObject();
 		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
 		query.put(sourceField, getRegex(reporter));
@@ -452,12 +461,84 @@ public class DBHandler {
 					if (wr.getError() != null) {
 						LOG.error("Error changing blacklist flag for {}:\t{}", blHost, wr.getError());
 					} else if (wr.getError() == null) {
-						removed += wr.getN();
+						updated += wr.getN();
 					}
 				}
 			}
 		}
 		
-		return removed;
+		return updated;
+	}
+	
+	/**
+	 * Updates event reports for the specified reporter matching hosts in the provided set
+	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
+	 * @param reporter either the full name or prefix of the reporting entity
+	 * @param removedTime UNIXTimestamp as a long to set as the removed time
+	 * @param cleanHosts the set of hosts to match
+	 * @return int: the number of event reports updated
+	 */
+	public int updateBlacklistFlagsFromDirtyReports(String reporter, long removedTime, Set<Map<String, Object>> dirtyReports) {
+		Set<String> sha2urls = new HashSet<>(dirtyReports.size());
+		for (Map<String, Object> report : dirtyReports) {
+			if (report.containsKey("sha2_256")) {
+				sha2urls.add(report.get("sha2_256").toString());
+			} else if (report.containsKey("sha2_256")) {
+				sha2urls.add(SHA2.get256(report.get("url").toString()));
+			}
+		}
+		
+		return updateBlacklistFlagsFromDirtySHA2URLs(reporter, removedTime, sha2urls);
+	}
+	
+	/**
+	 * Updates event reports for the specified reporter matching hosts in the provided set
+	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
+	 * @param reporter either the full name or prefix of the reporting entity
+	 * @param removedTime UNIXTimestamp as a long to set as the removed time
+	 * @param cleanHosts the set of hosts to match
+	 * @return int: the number of event reports updated
+	 */
+	public int updateBlacklistFlagsFromDirtySHA2URLs(String reporter, long removedTime, Set<String> dirtySHA2s) {
+		int updated = 0;
+		DBObject query = new BasicDBObject();
+		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
+		query.put(sourceField, getRegex(reporter));
+		query.put("is_on_blacklist", true);
+		DBObject keys = new BasicDBObject("host", 1);
+		keys.put("_id", 0);
+		DBCursor cur = eventReportColl.find(query, keys);
+		Set<String> blacklisted = new HashSet<>(cur.count());
+
+		while (cur.hasNext()) {
+			Object host = cur.next().get("host");
+			if (host != null) {
+				blacklisted.add(host.toString());
+			}
+		}
+
+		for (String blHost : blacklisted) {
+			if (dirtySHA2s.contains(blHost)) {
+				query = new BasicDBObject();
+				query.put("host", blHost);
+				query.put(sourceField, reporter);
+				query.put("is_on_blacklist", true);
+				
+				DBObject update = new BasicDBObject();
+				update.put("is_on_blacklist", false);
+				update.put("removed_from_blacklist", removedTime);
+				WriteResult wr = null;
+				wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
+				if (wr != null) {
+					if (wr.getError() != null) {
+						LOG.error("Error changing blacklist flag for {}:\t{}", blHost, wr.getError());
+					} else if (wr.getError() == null) {
+						updated += wr.getN();
+					}
+				}
+			}
+		}
+		
+		return updated;
 	}
 }
