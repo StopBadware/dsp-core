@@ -59,6 +59,16 @@ public class DBHandler {
 		return p;
 	}
 	
+	/**
+	 * Convenience method for retrieving the field to use as the reported by
+	 * @param reporter reporting source for the record
+	 * @return "_reported_by" if the length of reporter is greater than 5 chars, 
+	 * "prefix" otherwise
+	 */
+	private String getReporterField(String reporter) {
+		return (reporter.length() > 5) ? "_reported_by" : "prefix";
+	}
+	
 	public SearchResults testFind(long sinceTime) {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject();
@@ -80,11 +90,9 @@ public class DBHandler {
 		long time = 0L;
 		DBObject query = new BasicDBObject();
 		Pattern sourceRegex = getRegex(source);
-		if (source.length() <= 5) {
-			query.put("prefix", sourceRegex);
-		} else {
-			query.put("reported_by", sourceRegex);
-		}
+		String sourceField = getReporterField(source);
+		query.put(sourceField, sourceRegex);
+		
 		DBObject keys = new BasicDBObject();
 		keys.put("_id", 0);
 		keys.put("reported_at", 1);
@@ -419,6 +427,50 @@ public class DBHandler {
 		return dbWrites;
 	}
 	
+	private Set<String> findCurrentlyBlacklistedBySource(String reporter, String field) {
+		DBObject query = new BasicDBObject();
+		String sourceField = getReporterField(reporter);
+		query.put(sourceField, getRegex(reporter));
+		query.put("is_on_blacklist", true);
+		DBObject keys = new BasicDBObject(field, 1);
+		keys.put("_id", 0);
+		DBCursor cur = eventReportColl.find(query, keys);
+		Set<String> blacklisted = new HashSet<>(cur.count());
+
+		while (cur.hasNext()) {
+			Object val = cur.next().get(field);
+			if (val != null) {
+				blacklisted.add(val.toString());
+			}
+		}
+		
+		return blacklisted;
+	}
+	
+	private int removeFromBlacklist(String reporter, String key, Object value, long removedTime) {
+		int updated = 0;
+		String sourceField = getReporterField(reporter);
+		DBObject query = new BasicDBObject();
+		query.put(key, value);
+		query.put(sourceField, reporter);
+		query.put("is_on_blacklist", true);
+		
+		DBObject update = new BasicDBObject();
+		update.put("is_on_blacklist", false);
+		update.put("removed_from_blacklist", removedTime);
+		WriteResult wr = null;
+		wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
+		if (wr != null) {
+			if (wr.getError() != null) {
+				LOG.error("Error changing blacklist flag for {}:\t{}", value, wr.getError());
+			} else if (wr.getError() == null) {
+				updated += wr.getN();
+			}
+		}
+		
+		return updated;
+	}
+	
 	/**
 	 * Updates event reports for the specified reporter matching hosts in the provided set
 	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
@@ -429,41 +481,12 @@ public class DBHandler {
 	 */
 	public int updateBlacklistFlagsFromCleanHosts(String reporter, long removedTime, Set<String> cleanHosts) {
 		int updated = 0;
-		DBObject query = new BasicDBObject();
-		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
-		query.put(sourceField, getRegex(reporter));
-		query.put("is_on_blacklist", true);
-		DBObject keys = new BasicDBObject("host", 1);
-		keys.put("_id", 0);
-		DBCursor cur = eventReportColl.find(query, keys);
-		Set<String> blacklisted = new HashSet<>(cur.count());
-
-		while (cur.hasNext()) {
-			Object host = cur.next().get("host");
-			if (host != null) {
-				blacklisted.add(host.toString());
-			}
-		}
+		String key = "host";
+		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, "host");
 
 		for (String blHost : blacklisted) {
 			if (cleanHosts.contains(blHost)) {
-				query = new BasicDBObject();
-				query.put("host", blHost);
-				query.put(sourceField, reporter);
-				query.put("is_on_blacklist", true);
-				
-				DBObject update = new BasicDBObject();
-				update.put("is_on_blacklist", false);
-				update.put("removed_from_blacklist", removedTime);
-				WriteResult wr = null;
-				wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
-				if (wr != null) {
-					if (wr.getError() != null) {
-						LOG.error("Error changing blacklist flag for {}:\t{}", blHost, wr.getError());
-					} else if (wr.getError() == null) {
-						updated += wr.getN();
-					}
-				}
+				updated += removeFromBlacklist(reporter, key, blHost, removedTime);
 			}
 		}
 		
@@ -501,41 +524,12 @@ public class DBHandler {
 	 */
 	public int updateBlacklistFlagsFromDirtySHA2URLs(String reporter, long removedTime, Set<String> dirtySHA2s) {
 		int updated = 0;
-		DBObject query = new BasicDBObject();
-		String sourceField = (reporter.length() > 5) ? "_reported_by" : "prefix";
-		query.put(sourceField, getRegex(reporter));
-		query.put("is_on_blacklist", true);
-		DBObject keys = new BasicDBObject("host", 1);
-		keys.put("_id", 0);
-		DBCursor cur = eventReportColl.find(query, keys);
-		Set<String> blacklisted = new HashSet<>(cur.count());
+		String key = "sha2_256";
+		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, key);
 
-		while (cur.hasNext()) {
-			Object host = cur.next().get("host");
-			if (host != null) {
-				blacklisted.add(host.toString());
-			}
-		}
-
-		for (String blHost : blacklisted) {
-			if (dirtySHA2s.contains(blHost)) {
-				query = new BasicDBObject();
-				query.put("host", blHost);
-				query.put(sourceField, reporter);
-				query.put("is_on_blacklist", true);
-				
-				DBObject update = new BasicDBObject();
-				update.put("is_on_blacklist", false);
-				update.put("removed_from_blacklist", removedTime);
-				WriteResult wr = null;
-				wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
-				if (wr != null) {
-					if (wr.getError() != null) {
-						LOG.error("Error changing blacklist flag for {}:\t{}", blHost, wr.getError());
-					} else if (wr.getError() == null) {
-						updated += wr.getN();
-					}
-				}
+		for (String blSHA2 : blacklisted) {
+			if (!dirtySHA2s.contains(blSHA2)) {
+				updated += removeFromBlacklist(reporter, key, blSHA2, removedTime);
 			}
 		}
 		

@@ -47,12 +47,12 @@ public class Add {
 			Set<Map<String, Object>> reports = imports.getReports(); 
 			if (reports != null) {
 				if (imports.getSize() == reports.size()) {
-					LOG.info("{} event reports to write", imports.getSize());
-					numWroteToDB = dbh.addEventReports(reports);
-					LOG.info("{} successful write attempts", numWroteToDB);
 					if (imports.isDifferentialBlacklist()) {
 						processClean(imports);
 					}
+					LOG.info("{} event reports to write", imports.getSize());
+					numWroteToDB = dbh.addEventReports(reports);
+					LOG.info("{} successful write attempts", numWroteToDB);
 				} else {
 					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
 				}
