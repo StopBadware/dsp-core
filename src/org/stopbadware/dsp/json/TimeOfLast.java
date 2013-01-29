@@ -1,10 +1,13 @@
 package org.stopbadware.dsp.json;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 /**
  * Serialization wrapper for marshalling/unmarhsalling timestamp 
  * of the most recent event report for a source 
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeOfLast {
 	
 	private long last;

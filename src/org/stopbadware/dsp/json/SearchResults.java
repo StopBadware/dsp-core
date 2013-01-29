@@ -1,11 +1,13 @@
 package org.stopbadware.dsp.json;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Serialization wrapper for marshalling/unmarhsalling search results 
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResults {
 	
 	private int count = 0;
