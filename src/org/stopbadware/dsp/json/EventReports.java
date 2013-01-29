@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Serialization wrapper for marshalling/unmarhsalling event reports
@@ -15,6 +16,7 @@ public class EventReports {
 	private int size;
 	private long time;
 	private String source;
+	@JsonProperty("is_differential")
 	private boolean isDifferentialBlacklist;
 	private Set<Map<String, Object>> reports;
 	
