@@ -427,6 +427,12 @@ public class DBHandler {
 		return dbWrites;
 	}
 	
+	/**
+	 * Find the event reports currently marked as blacklisted for the reporter provided
+	 * @param reporter blacklisting source
+	 * @param field the key to retrieve from each report
+	 * @return a Set of Strings containing the value for the corresponding key
+	 */
 	private Set<String> findCurrentlyBlacklistedBySource(String reporter, String field) {
 		DBObject query = new BasicDBObject();
 		String sourceField = getReporterField(reporter);
@@ -447,6 +453,15 @@ public class DBHandler {
 		return blacklisted;
 	}
 	
+	/**
+	 * Updates event reports for the specified reporter matching the provided key/value 
+	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time
+	 * @param reporter either the full name or prefix of the reporting entity
+	 * @param key db document field to match
+	 * @param value matching value
+	 * @param removedTime UNIXTimestamp as a long to set as the removed time
+	 * @return int: the number of event reports updated
+	 */
 	private int removeFromBlacklist(String reporter, String key, Object value, long removedTime) {
 		int updated = 0;
 		String sourceField = getReporterField(reporter);
@@ -494,42 +509,45 @@ public class DBHandler {
 	}
 	
 	/**
-	 * Updates event reports for the specified reporter matching hosts in the provided set
-	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
+	 * Updates event reports for the specified reporter that do NOT match reports 
+	 * in the provided set to have an is_on_blacklist flag of false and 
+	 * sets the removed_from_blacklist time 
 	 * @param reporter either the full name or prefix of the reporting entity
 	 * @param removedTime UNIXTimestamp as a long to set as the removed time
-	 * @param cleanHosts the set of hosts to match
+	 * @param dirtyReports the set of still blacklisted reports
 	 * @return int: the number of event reports updated
 	 */
 	public int updateBlacklistFlagsFromDirtyReports(String reporter, long removedTime, Set<Map<String, Object>> dirtyReports) {
+		String key = "sha2_256";
 		Set<String> sha2urls = new HashSet<>(dirtyReports.size());
 		for (Map<String, Object> report : dirtyReports) {
-			if (report.containsKey("sha2_256")) {
-				sha2urls.add(report.get("sha2_256").toString());
-			} else if (report.containsKey("sha2_256")) {
+			if (report.containsKey(key)) {
+				sha2urls.add(report.get(key).toString());
+			} else if (report.containsKey(key)) {
 				sha2urls.add(SHA2.get256(report.get("url").toString()));
 			}
 		}
 		
-		return updateBlacklistFlagsFromDirtySHA2URLs(reporter, removedTime, sha2urls);
+		return updateBlacklistFlagsFromDirty(reporter, removedTime, sha2urls, key);
 	}
 	
 	/**
-	 * Updates event reports for the specified reporter matching hosts in the provided set
-	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time 
+	 * Updates event reports for the specified reporter that do NOT match reports 
+	 * in the provided set based on the key to have an is_on_blacklist flag of false and 
+	 * sets the removed_from_blacklist time  
 	 * @param reporter either the full name or prefix of the reporting entity
 	 * @param removedTime UNIXTimestamp as a long to set as the removed time
-	 * @param cleanHosts the set of hosts to match
+	 * @param dirtyValues the set of reports to remain blacklisted
+	 * @param key the field the dirtyValues correspond to
 	 * @return int: the number of event reports updated
 	 */
-	public int updateBlacklistFlagsFromDirtySHA2URLs(String reporter, long removedTime, Set<String> dirtySHA2s) {
+	private int updateBlacklistFlagsFromDirty(String reporter, long removedTime, Set<String> dirtyValues, String key) {
 		int updated = 0;
-		String key = "sha2_256";
 		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, key);
 
-		for (String blSHA2 : blacklisted) {
-			if (!dirtySHA2s.contains(blSHA2)) {
-				updated += removeFromBlacklist(reporter, key, blSHA2, removedTime);
+		for (String blValue : blacklisted) {
+			if (!dirtyValues.contains(blValue)) {
+				updated += removeFromBlacklist(reporter, key, blValue, removedTime);
 			}
 		}
 		
