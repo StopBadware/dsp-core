@@ -133,14 +133,6 @@ public class DBHandler {
 		return dbWrites+dbDupes;
 	}
 	
-	public int addEventReports(Set<Map<String, Object>> events, boolean isDifferential) {
-		int added = addEventReports(events);
-		if (isDifferential) {
-			//TODO: remove clean
-		}
-		return added;
-	}
-	
 	/**
 	 * Inserts a single Event Report into database, ignoring duplicates.
 	 * @param event key/value map to be inserted
