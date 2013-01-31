@@ -21,7 +21,8 @@ public class ResolverResults {
 	@JsonProperty("host_to_ip")
 	private Map<String, Long> hostToIPMappings;
 	@JsonProperty("ip_to_as")
-	private Map<Long, Map<String, Object>> ipToASMappings;
+//	private Map<Long, Map<String, Object>> ipToASMappings;
+	private Map<Long, AutonomousSystem> ipToASMappings;
 	
 	public ResolverResults() {
 		time = System.currentTimeMillis() / 1000;
@@ -31,7 +32,7 @@ public class ResolverResults {
 		ipToASSize = 0;
 	}
 	
-	public ResolverResults(Map<String, Long> hostToIPMappings, Map<Long, Map<String, Object>> ipToASMappings) {
+	public ResolverResults(Map<String, Long> hostToIPMappings, Map<Long, AutonomousSystem> ipToASMappings) {
 		time = System.currentTimeMillis() / 1000;
 		this.hostToIPMappings = hostToIPMappings;
 		this.ipToASMappings = ipToASMappings;
@@ -47,7 +48,7 @@ public class ResolverResults {
 		return hostToIPMappings;
 	}
 
-	public Map<Long, Map<String, Object>> getIpToASMappings() {
+	public Map<Long, AutonomousSystem> getIpToASMappings() {
 		return ipToASMappings;
 	}
 
