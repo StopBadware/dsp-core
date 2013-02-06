@@ -21,7 +21,6 @@ public class ResolverResults {
 	@JsonProperty("host_to_ip")
 	private Map<String, Long> hostToIPMappings;
 	@JsonProperty("ip_to_as")
-//	private Map<Long, Map<String, Object>> ipToASMappings;
 	private Map<Long, AutonomousSystem> ipToASMappings;
 	
 	public ResolverResults() {
