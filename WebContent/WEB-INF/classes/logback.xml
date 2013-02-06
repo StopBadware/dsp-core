@@ -6,13 +6,13 @@
     <maxHistory>30</maxHistory> 
    </rollingPolicy>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} %-5level - %msg - %logger{24}:%line [%thread]%n</pattern>
     </encoder>
   </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level - %msg - [%thread] %logger{12}%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} %-5level - %msg - %logger{12}:%line [%thread]%n</pattern>
     </encoder>
   </appender>
 
