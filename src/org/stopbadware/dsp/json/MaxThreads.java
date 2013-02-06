@@ -16,6 +16,10 @@ public class MaxThreads {
 	@JsonProperty("max_threads")
 	private int max;
 	
+	public MaxThreads() {
+
+	}
+	
 	public MaxThreads(int max) {
 		this.max = max;
 		asOf = System.currentTimeMillis() / 1000;
