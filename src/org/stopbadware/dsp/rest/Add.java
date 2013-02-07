@@ -1,7 +1,6 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,8 +9,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +98,16 @@ public class Add {
 		} else {
 			LOG.error("Add clean events called but no valid CleanReports could be mapped from data");
 		}
-		return "AOK-"+numCleaned;
+		return "AOK-"+numCleaned;	//DELME: DATA-50
+	}
+	
+	@POST
+	@Path("/resolved")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String addResolved(String data) {
+		
+		System.out.println(data);
+		return "AOK";	//DELME: DATA-50
 	}
 
 }
