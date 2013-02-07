@@ -1,6 +1,5 @@
 package org.stopbadware.dsp.json;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -18,7 +17,7 @@ public class EventReports {
 	private String source;
 	@JsonProperty("is_differential")
 	private boolean isDifferentialBlacklist;
-	private Set<Map<String, Object>> reports;
+	private Set<ERWrapper> reports;
 	
 	public EventReports() {
 		reports = null;
@@ -28,7 +27,7 @@ public class EventReports {
 		isDifferentialBlacklist = false;
 	}
 	
-	public EventReports(String source, Set<Map<String, Object>> reports) {
+	public EventReports(String source, Set<ERWrapper> reports) {
 		this.reports = reports;
 		size = reports.size();
 		time = System.currentTimeMillis() / 1000;
@@ -36,7 +35,7 @@ public class EventReports {
 		isDifferentialBlacklist = false;
 	}
 	
-	public EventReports(String source, Set<Map<String, Object>> reports, boolean isDifferentialBlacklist) {
+	public EventReports(String source, Set<ERWrapper> reports, boolean isDifferentialBlacklist) {
 		this.reports = reports;
 		size = reports.size();
 		time = System.currentTimeMillis() / 1000;
@@ -52,7 +51,7 @@ public class EventReports {
 		return time;
 	}
 
-	public Set<Map<String, Object>> getReports() {
+	public Set<ERWrapper> getReports() {
 		return reports;
 	}
 
