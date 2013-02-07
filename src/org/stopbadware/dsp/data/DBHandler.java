@@ -127,7 +127,7 @@ public class DBHandler {
 				}
 			}
 		}
-		
+		//TODO: DATA-52 addhosts
 		LOG.info("{} new event reports added", dbWrites);
 		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
@@ -167,7 +167,7 @@ public class DBHandler {
 	 * @param level the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return int: number of inserts (or updates) that were successful
 	 */
-	public int addHosts(Set<String> hosts, ShareLevel level) {
+	private int addHosts(Set<String> hosts, ShareLevel level) {
 		int dbWrites = 0;
 		for (String host : hosts) {
 			boolean wroteToDB = addHost(host, level);

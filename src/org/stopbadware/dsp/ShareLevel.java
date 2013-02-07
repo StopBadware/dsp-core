@@ -29,8 +29,8 @@ public enum ShareLevel {
 
 	public static ShareLevel castFromString(String level) {
 		ShareLevel shareLevel;
-		if (level.equalsIgnoreCase(SBW_ONLY.toString())) {
-			shareLevel = SBW_ONLY;
+		if (level.equalsIgnoreCase(PUBLIC.toString())) {
+			shareLevel = PUBLIC;
 		} else if (level.equalsIgnoreCase(DSP_ONLY.toString())) {
 			shareLevel = DSP_ONLY;
 		} else if (level.equalsIgnoreCase(TAKEDOWN.toString())) {
@@ -38,7 +38,7 @@ public enum ShareLevel {
 		} else if (level.equalsIgnoreCase(RESEARCH.toString())) {
 			shareLevel = RESEARCH;
 		} else {
-			shareLevel = PUBLIC;
+			shareLevel = SBW_ONLY;
 		}
 		return shareLevel;
 	}
