@@ -185,7 +185,7 @@ public class DBHandler {
 	 * @param level the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return boolean: true if the insert (or update) was successful
 	 */
-	public boolean addHost(String host, ShareLevel level) {
+	private boolean addHost(String host, ShareLevel level) {
 		if (host == null || host.length() < 1) {
 			return false;
 		}

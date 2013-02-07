@@ -25,7 +25,7 @@ public class MongoDB {
 	public static final String IPS = "ips";
 	public static final String ASNS = "autonomous_systems";*/	//TODO: DATA-51 revert
 	public static final String EVENT_REPORTS = "testCollection";
-	public static final String HOSTS = "testCollection";
+	public static final String HOSTS = "testHosts";
 	public static final String IPS = "testCollection";
 	public static final String ASNS = "testCollection";
 	public static final String SOURCES = "data_sources";

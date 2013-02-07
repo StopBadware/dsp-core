@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.EventReports;
+import org.stopbadware.dsp.json.ResolverResults;
 
 @Path("/add")
 public class Add {
@@ -105,8 +106,21 @@ public class Add {
 	@Path("/resolved")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String addResolved(String data) {
+		ObjectMapper mapper = new ObjectMapper();
+		ResolverResults rr = null;
+		try {
+			rr = mapper.readValue(data, ResolverResults.class);
+		} catch (IOException e) {
+			LOG.error("Error parsing JSON:\t{}", e.getMessage());
+		}
 		
-		System.out.println(data);
+		if (rr != null) {
+			System.out.println(rr.getHostToIPSize());
+			System.out.println(rr.getHostToIPMappings().size());
+			System.out.println(rr.getIpToASSize());
+			System.out.println(rr.getIpToASMappings().size());
+			System.out.println(rr.getTime());
+		}
 		return "AOK";	//DELME: DATA-50
 	}
 
