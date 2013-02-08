@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.lib.util.IP;
@@ -110,15 +111,15 @@ public class DBHandler {
 	
 	/**
 	 * Inserts multiple Event Reports into database, ignoring duplicates.
-	 * @param events a set of key/value maps to be inserted 
+	 * @param reports a set of key/value maps to be inserted 
 	 * @return int: number of new documents written to database plus 
 	 * duplicate documents that were ignored 
 	 */
-	public int addEventReports(Set<Map<String, Object>> events) {	
+	public int addEventReports(Set<ERWrapper> reports) {	
 		int dbWrites = 0;
 		int dbDupes = 0;
-		for (Map<String, Object> map : events) {
-			WriteResult wr = addEventReport(map);
+		for (ERWrapper er : reports) {
+			WriteResult wr = addEventReport(er.getErMap());
 			if (wr != null) {
 				if (wr.getError() != null && wr.getError().contains(DUPE_ERR)) {
 					dbDupes++;
@@ -167,7 +168,7 @@ public class DBHandler {
 	 * @param level the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
 	 * @return int: number of inserts (or updates) that were successful
 	 */
-	private int addHosts(Set<String> hosts, ShareLevel level) {
+	private int addHosts(Set<String> hosts, ShareLevel level) {	//TODO: DATA-52 add hosts to db
 		int dbWrites = 0;
 		for (String host : hosts) {
 			boolean wroteToDB = addHost(host, level);
@@ -506,17 +507,20 @@ public class DBHandler {
 	 * sets the removed_from_blacklist time 
 	 * @param reporter either the full name or prefix of the reporting entity
 	 * @param removedTime UNIXTimestamp as a long to set as the removed time
-	 * @param dirtyReports the set of still blacklisted reports
+	 * @param set the set of still blacklisted reports
 	 * @return int: the number of event reports updated
 	 */
-	public int updateBlacklistFlagsFromDirtyReports(String reporter, long removedTime, Set<Map<String, Object>> dirtyReports) {
+	public int updateBlacklistFlagsFromDirtyReports(String reporter, long removedTime, Set<ERWrapper> set) {
 		String key = "sha2_256";
-		Set<String> sha2urls = new HashSet<>(dirtyReports.size());
-		for (Map<String, Object> report : dirtyReports) {
-			if (report.containsKey(key)) {
-				sha2urls.add(report.get(key).toString());
-			} else if (report.containsKey(key)) {
-				sha2urls.add(SHA2.get256(report.get("url").toString()));
+		Set<String> sha2urls = new HashSet<>(set.size());
+		for (ERWrapper er : set) {
+			Map<String, Object> map = er.getErMap();
+			if (map != null) {
+				if (map.containsKey(key)) {
+					sha2urls.add(map.get(key).toString());
+				} else if (map.containsKey(key)) {
+					sha2urls.add(SHA2.get256(map.get("url").toString()));
+				}
 			}
 		}
 		

@@ -1,7 +1,6 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -14,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.CleanReports;
+import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverResults;
 
@@ -42,7 +42,7 @@ public class Add {
 			if (age > 3600) {
 				LOG.warn("Import timestamp is more than an hour old");
 			}
-			Set<Map<String, Object>> reports = imports.getReports(); 
+			Set<ERWrapper> reports = imports.getReports(); 
 			if (reports != null) {
 				if (imports.getSize() == reports.size()) {
 					if (imports.isDifferentialBlacklist()) {
