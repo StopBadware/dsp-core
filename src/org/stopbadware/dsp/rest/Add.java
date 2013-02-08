@@ -15,6 +15,7 @@ import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
+import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
 
 @Path("/add")
@@ -100,6 +101,15 @@ public class Add {
 			LOG.error("Add clean events called but no valid CleanReports could be mapped from data");
 		}
 		return "AOK-"+numCleaned;	//DELME: DATA-50
+	}
+	
+	@POST
+	@Path("/resolve/start")
+	public String startResolver() {
+		
+//		ResolverRequest rr = new ResolverRequest();
+		LOG.info("Sending {} hosts to Resolver", 18);
+		return "AOK";	//DELME: DATA-50
 	}
 	
 	@POST
