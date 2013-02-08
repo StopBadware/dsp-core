@@ -110,6 +110,25 @@ public class DBHandler {
 	}
 	
 	/**
+	 * Finds and returns all hosts of currently blacklisted event reports
+	 * @return Set of Strings containing the blacklisted hosts
+	 */
+	public Set<String> getCurrentlyBlacklistedHosts() {
+		Set<String> hosts = new HashSet<>();
+		DBObject query = new BasicDBObject();
+//		query.put("is_on_blacklist", true);	//TODO: DATA-52 revert
+		DBObject keys = new BasicDBObject();
+		keys.put("_id", 0);
+		keys.put("host", 1);
+		
+		DBCursor cur = eventReportColl.find(query, keys);
+		while (cur.hasNext()) {
+			hosts.add(cur.next().get("host").toString());
+		}
+		return hosts;
+	}
+	
+	/**
 	 * Inserts multiple Event Reports into database, ignoring duplicates.
 	 * @param reports a set of key/value maps to be inserted 
 	 * @return int: number of new documents written to database plus 

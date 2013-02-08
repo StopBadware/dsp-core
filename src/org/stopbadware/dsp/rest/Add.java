@@ -1,6 +1,10 @@
 package org.stopbadware.dsp.rest;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -106,9 +110,20 @@ public class Add {
 	@POST
 	@Path("/resolve/start")
 	public String startResolver() {
+		ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
+		LOG.info("Sending {} hosts to Resolver", rr.getHosts().size());
+		try {
+			Socket socket = new Socket("127.0.0.1", 1811);	//TODO: DATA-50 replace
+			PrintWriter out = new PrintWriter(socket.getOutputStream());
+//			PrintWriter out = new PrintWriter(new File("/home/mfrost/eclipseworkspace/resolver/hosts.json"));
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.writeValue(out, rr);
+			socket.close();
+			LOG.info("Hosts sent, connection to Resolver closed");
+		} catch (IOException e) {
+			LOG.error("Unable to establish connection to DSP API:\t{}", e.getMessage());
+		}	
 		
-//		ResolverRequest rr = new ResolverRequest();
-		LOG.info("Sending {} hosts to Resolver", 18);
 		return "AOK";	//DELME: DATA-50
 	}
 	
@@ -124,7 +139,7 @@ public class Add {
 			LOG.error("Error parsing JSON:\t{}", e.getMessage());
 		}
 		
-		if (rr != null) {
+		if (rr != null) {	//TODO: DATA-52 write to db
 			System.out.println(rr.getHostToIPSize());
 			System.out.println(rr.getHostToIPMappings().size());
 			System.out.println(rr.getIpToASSize());
