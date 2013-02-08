@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.data;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +120,10 @@ public class DBHandler {
 		int dbWrites = 0;
 		int dbDupes = 0;
 		for (ERWrapper er : reports) {
-			WriteResult wr = addEventReport(er.getErMap());
+			WriteResult wr = null;
+			if (er.getErMap() != null && er.getErMap().size() > 0) {
+				wr = addEventReport(er.getErMap());
+			}
 			if (wr != null) {
 				if (wr.getError() != null && wr.getError().contains(DUPE_ERR)) {
 					dbDupes++;
@@ -127,8 +131,9 @@ public class DBHandler {
 					dbWrites++; 
 				}
 			}
+			addHost(er.getHost(), ShareLevel.castFromString(er.getShareLevel()));
 		}
-		//TODO: DATA-52 addhosts
+		
 		LOG.info("{} new event reports added", dbWrites);
 		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
@@ -163,24 +168,6 @@ public class DBHandler {
 	}
 	
 	/**
-	 * Adds multiple hosts to the hosts collection
-	 * @param hosts a set of hosts to add
-	 * @param level the ShareLevel the hosts were reported at (for existing entries the least restrictive ShareLevel will be used
-	 * @return int: number of inserts (or updates) that were successful
-	 */
-	private int addHosts(Set<String> hosts, ShareLevel level) {	//TODO: DATA-52 add hosts to db
-		int dbWrites = 0;
-		for (String host : hosts) {
-			boolean wroteToDB = addHost(host, level);
-			if (wroteToDB) {
-				dbWrites++;
-			}
-		}
-		LOG.info("Wrote {} new hosts to database", dbWrites);
-		return dbWrites; 
-	}
-	
-	/**
 	 * Adds a single host to the hosts collection
 	 * @param host the host to add
 	 * @param level the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used
@@ -208,7 +195,7 @@ public class DBHandler {
 
 		WriteResult wr = hostColl.update(query, updateDoc, true, false);
 		if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-			LOG.error("Error writing {} to collection: {}", host, wr.getError());
+			LOG.error("Error writing {} to host collection: {}", host, wr.getError());
 		} else {
 			wroteToDB = true;
 		}
