@@ -237,7 +237,7 @@ public class DBHandler {
 			}
 			DBObject ipDoc = new BasicDBObject();
 			ipDoc.put("ip", ip);
-			ipDoc.put("timestamp", System.currentTimeMillis()/1000L);
+			ipDoc.put("timestamp", System.currentTimeMillis()/1000);
 			
 			DBObject updateDoc = new BasicDBObject();
 			updateDoc.put("$push", new BasicDBObject("ips", ipDoc));
@@ -250,7 +250,7 @@ public class DBHandler {
 				}
 			}
 		}
-		LOG.info("Associated {} hosts with IP addresses", dbWrites);
+		LOG.info("Wrote associated IP addresses for {} hosts", dbWrites);
 		return dbWrites;		
 	}
 	
@@ -261,10 +261,9 @@ public class DBHandler {
 	 * @return boolean, true if the new ASN differs from the most recent db entry
 	 */
 	private boolean ipHasChanged(String host, long ip) {
-		boolean hasChanged = false;
 		DBCursor cur = hostColl.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
 		long mostRecentTimestamp = 0L;
-		long mostRecentIP = ip;
+		long mostRecentIP = -1;
 		
 		while (cur.hasNext()) {
 			BasicDBList ips = (BasicDBList) ((BasicDBObject) cur.next()).get("ips");
@@ -282,19 +281,15 @@ public class DBHandler {
 						try {
 							mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
 						} catch (ClassCastException e) {
-							/*Set to 0 to force write of new entry if unable to cast db entry*/
-							mostRecentIP = 0L; 
+							/*Set to -1 to force write of new entry if unable to cast db entry*/
+							mostRecentIP = -1; 
 						}
 					}
 				}
 			}
 		}
 		
-		if (mostRecentIP != ip) {
-			hasChanged = true;
-		}
-		
-		return hasChanged;
+		return (mostRecentIP != ip);
 	}
 	
 	/**
