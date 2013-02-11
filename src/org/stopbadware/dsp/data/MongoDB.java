@@ -24,11 +24,6 @@ public class MongoDB {
 	public static final String HOSTS = "hosts";
 	public static final String IPS = "ips";
 	public static final String ASNS = "autonomous_systems";	
-//	public static final String EVENT_REPORTS = "testCollection";	//DELME: DATA-50
-//	public static final String HOSTS = "testHosts";
-//	public static final String IPS = "testIPs";
-//	public static final String ASNS = "testCollection";
-//	public static final String SOURCES = "data_sources";
 
 	public static final int ASC = 1;
 	public static final int DESC = -1;
