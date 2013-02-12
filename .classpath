@@ -28,5 +28,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/clearinghouse/WebContent/WEB-INF/lib/sbwjavalib.jar!/doc"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
