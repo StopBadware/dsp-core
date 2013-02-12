@@ -1,7 +1,5 @@
 package org.stopbadware.dsp;
 
-import java.util.TimeZone;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -15,7 +13,6 @@ public class Startup implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 		LOG.info(ASTERISK_LINE);
 		LOG.info("*******SBW DSP DB-WRAPPER / API STARTED*******");	
 		LOG.info(ASTERISK_LINE);
