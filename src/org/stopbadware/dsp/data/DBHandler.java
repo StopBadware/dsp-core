@@ -105,7 +105,6 @@ public class DBHandler {
 				time = 0L;
 			}
 		}
-		System.out.println(time);
 		return new TimeOfLast(source, time);
 	}
 	
@@ -123,7 +122,10 @@ public class DBHandler {
 		
 		DBCursor cur = eventReportColl.find(query, keys);
 		while (cur.hasNext()) {
-			hosts.add(cur.next().get("host").toString());
+			String host = cur.next().get("host").toString();
+			if (host != null && host.length() > 0) {
+				hosts.add(cur.next().get("host").toString());
+			}
 		}
 		return hosts;
 	}
