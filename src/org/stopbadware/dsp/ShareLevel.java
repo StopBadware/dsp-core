@@ -27,6 +27,13 @@ public enum ShareLevel {
 		}
 	};
 
+	/**
+	 * Converts string used as share levels to enums for
+	 * comparision purposes
+	 * @param level string representation of the share level, returned from
+	 * each ShareLevel's toString() method
+	 * @return a comparable ShareLevel enum
+	 */
 	public static ShareLevel castFromString(String level) {
 		ShareLevel shareLevel;
 		if (level.equalsIgnoreCase(PUBLIC.toString())) {
@@ -43,7 +50,13 @@ public enum ShareLevel {
 		return shareLevel;
 	}
 	
-	public static ShareLevel getLeastRestrictive(ShareLevel oldLevel, ShareLevel newLevel) {
-		return (oldLevel.compareTo(newLevel) >= 0) ? oldLevel : newLevel ;
+	/**
+	 * Determines which of the two provided ShareLevels are the least restrictive
+	 * @param a the first ShareLevel to compare
+	 * @param b ShareLevel to compare to the first
+	 * @return the least restrictive ShareLevel of the two
+	 */
+	public static ShareLevel getLeastRestrictive(ShareLevel a, ShareLevel b) {
+		return (a.compareTo(b) >= 0) ? a : b ;
 	}
 }
