@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -21,6 +25,7 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
+import org.stopbadware.lib.util.IP;
 
 @Path("/add")
 public class Add {
@@ -113,12 +118,12 @@ public class Add {
 		ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
 		LOG.info("Sending {} hosts to Resolver", rr.getHosts().size());
 		try {
-			Socket socket = new Socket("127.0.0.1", 1811);	//TODO: DATA-50 replace
-			PrintWriter out = new PrintWriter(socket.getOutputStream());
-//			PrintWriter out = new PrintWriter(new File("/home/mfrost/eclipseworkspace/resolver/hosts.json"));
+//			Socket socket = new Socket("127.0.0.1", 1811);	//TODO: DATA-50 replace
+//			PrintWriter out = new PrintWriter(socket.getOutputStream());
+			PrintWriter out = new PrintWriter(new File("/home/mfrost/eclipseworkspace/resolver/hosts.json"));
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(out, rr);
-			socket.close();
+//			socket.close();
 			LOG.info("Hosts sent, connection to Resolver closed");
 		} catch (IOException e) {
 			LOG.error("Unable to establish connection to DSP API:\t{}", e.getMessage());
@@ -139,12 +144,9 @@ public class Add {
 			LOG.error("Error parsing JSON:\t{}", e.getMessage());
 		}
 		
-		if (rr != null) {	//TODO: DATA-52 write to db
-			System.out.println(rr.getHostToIPSize());
-			System.out.println(rr.getHostToIPMappings().size());
-			System.out.println(rr.getIpToASSize());
-			System.out.println(rr.getIpToASMappings().size());
-			System.out.println(rr.getTime());
+		if (rr != null) {
+			dbh.addIPsForHosts(rr.getHostToIPMappings());
+			dbh.addASNsForIPs(rr.getIpToASMappings());
 		}
 		return "AOK";	//DELME: DATA-50
 	}

@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.stopbadware.dsp.AutonomousSystem;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -324,12 +324,12 @@ public class DBHandler {
 			ipDoc.put("ip", ip);
 			
 			DBObject asnDoc = new BasicDBObject();
-			asnDoc.put("asn", asns.get(ip).getASN());
+			asnDoc.put("asn", asns.get(ip).getAsn());
 			asnDoc.put("timestamp", System.currentTimeMillis()/1000L);
 			
 			DBObject updateDoc = new BasicDBObject();
 			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
-			if (asnHasChanged(ip, asns.get(ip).getASN())) {
+			if (asnHasChanged(ip, asns.get(ip).getAsn())) {
 				WriteResult wr = ipColl.update(ipDoc, updateDoc);
 				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 					LOG.error("Error writing to collection: {}", wr.getError());
@@ -398,7 +398,7 @@ public class DBHandler {
 	private int addAutonmousSystem(Set<AutonomousSystem> autonomousSystems) {
 		int dbWrites = 0;
 		for (AutonomousSystem as : autonomousSystems) {
-			int asn = as.getASN();
+			int asn = as.getAsn();
 			if (asn > 0) {
 				DBObject doc = new BasicDBObject();
 				doc.put("asn", asn);
