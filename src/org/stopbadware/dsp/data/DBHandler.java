@@ -38,7 +38,7 @@ public class DBHandler {
 	public static final int DESC = MongoDB.DESC;
 	
 	public DBHandler() {
-		db = MongoDB.getInstance().getDB();
+		db = MongoDB.getDB();
 		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
 		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
