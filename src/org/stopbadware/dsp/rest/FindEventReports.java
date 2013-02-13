@@ -18,17 +18,18 @@ import org.stopbadware.dsp.json.TimeOfLast;
 @Path("/events")
 public class FindEventReports {
 	
+	@Context HttpHeaders httpHeaders;
 	private static DBHandler dbh = new DBHandler();
 	
 	@GET
 	@Path("/test")
-	public String secTest(@Context HttpHeaders httpHeaders /*@HeaderParam("sbw_key") String key,
-						   @HeaderParam("sbw_ts") String ts,
-						   @HeaderParam("sbw_sig") String sig*/) {
-		String key = httpHeaders.getRequestHeader("sbw_key").get(0);
+	public String secTest() {
+		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
+		String ts = httpHeaders.getRequestHeaders().getFirst("sbw_ts");
+		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
 		System.out.println(key);
-//		System.out.println(ts);
-//		System.out.println(sig);
+		System.out.println(ts);
+		System.out.println(sig);
 //		@Context HttpHeaders httpHeaders
 		return "AOK";
 	}
