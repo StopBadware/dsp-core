@@ -3,12 +3,6 @@ package org.stopbadware.dsp.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -25,7 +19,6 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
-import org.stopbadware.lib.util.IP;
 
 @Path("/add")
 public class Add {
