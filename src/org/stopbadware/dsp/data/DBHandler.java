@@ -67,7 +67,7 @@ public class DBHandler {
 	 * "prefix" otherwise
 	 */
 	private String getReporterField(String reporter) {
-		return (reporter.length() > 5) ? "_reported_by" : "prefix";
+		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
 	public SearchResults testFind(long sinceTime) {
@@ -115,16 +115,17 @@ public class DBHandler {
 	public Set<String> getCurrentlyBlacklistedHosts() {
 		Set<String> hosts = new HashSet<>();
 		DBObject query = new BasicDBObject();
-//		query.put("is_on_blacklist", true);	//TODO: DATA-52 revert
+		query.put("is_on_blacklist", true);
 		DBObject keys = new BasicDBObject();
 		keys.put("_id", 0);
 		keys.put("host", 1);
 		
 		DBCursor cur = eventReportColl.find(query, keys);
 		while (cur.hasNext()) {
-			String host = cur.next().get("host").toString();
-			if (host != null && host.length() > 0) {
+			try {
 				hosts.add(cur.next().get("host").toString());
+			} catch (MongoException | NullPointerException e) {
+				LOG.error("Unable to retrieve object from cursor:\t{}", e.getMessage());
 			}
 		}
 		return hosts;
@@ -492,8 +493,7 @@ public class DBHandler {
 	public int updateBlacklistFlagsFromCleanHosts(String reporter, long removedTime, Set<String> cleanHosts) {
 		int updated = 0;
 		String key = "host";
-		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, "host");
-
+		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, key);
 		for (String blHost : blacklisted) {
 			if (cleanHosts.contains(blHost)) {
 				updated += removeFromBlacklist(reporter, key, blHost, removedTime);
