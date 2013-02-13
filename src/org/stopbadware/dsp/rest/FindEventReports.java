@@ -1,10 +1,14 @@
 package org.stopbadware.dsp.rest;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
@@ -18,8 +22,14 @@ public class FindEventReports {
 	
 	@GET
 	@Path("/test")
-	public String secTest(@HeaderParam("SBW-KEY") String data) {
-		System.out.println(data);
+	public String secTest(@Context HttpHeaders httpHeaders /*@HeaderParam("sbw_key") String key,
+						   @HeaderParam("sbw_ts") String ts,
+						   @HeaderParam("sbw_sig") String sig*/) {
+		String key = httpHeaders.getRequestHeader("sbw_key").get(0);
+		System.out.println(key);
+//		System.out.println(ts);
+//		System.out.println(sig);
+//		@Context HttpHeaders httpHeaders
 		return "AOK";
 	}
 	
