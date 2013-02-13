@@ -15,9 +15,9 @@ public abstract class MongoDB {
 	private static Mongo m = null;
 	private static DB db = null;	
 //	private static final String PRODUCTION_DB = "clearinghouse";
-//	private static final String STAGING_DB = "stagedb";
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
+	private static final String SECURITY_DB = "security";
 
 	public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";
@@ -35,18 +35,41 @@ public abstract class MongoDB {
 	}
 	
 	/**
-	 * Gets the database object associated with this instance
+	 * Gets the general purpose clearinghouse database object
 	 * @return MongoDB database object
 	 */
 	public static DB getDB() {
-		if (db == null) {
+		if (m == null) {
 			try {
 				m = new Mongo();
-				db = m.getDB(DEVELOPMENT_DB);
 			} catch (UnknownHostException | MongoException e) {
 				LOG.error("Unable to access database:\t{}", e.getMessage());
 			}
 		}
+		
+		if (m != null && db == null) {
+			db = m.getDB(DEVELOPMENT_DB);
+		}
 		return db;
-	}	
+	}
+	
+	/**
+	 * Gets the security database object
+	 * @return MongoDB database object
+	 */
+	public static DB getSecurityDB() {
+		if (m == null) {
+			try {
+				m = new Mongo();
+			} catch (UnknownHostException | MongoException e) {
+				LOG.error("Unable to access database:\t{}", e.getMessage());
+			}
+		}
+		
+		if (m != null) {
+			return m.getDB(SECURITY_DB);
+		} else {
+			return null;
+		}
+	}
 }
