@@ -25,6 +25,9 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
+/**
+ * Class to handle all non security related database events 
+ */
 public class DBHandler {
 	
 	private DB db;
