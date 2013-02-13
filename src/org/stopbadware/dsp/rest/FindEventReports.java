@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import org.stopbadware.dsp.AuthAuth;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -24,12 +25,11 @@ public class FindEventReports {
 	@GET
 	@Path("/test")
 	public String secTest() {	//DELME: DATA-54 auth test method
-		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
-		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
-		String ts = httpHeaders.getRequestHeaders().getFirst("sbw_ts");
-		System.out.println(key);
-		System.out.println(ts);
-		System.out.println(sig);
+		if (AuthAuth.authenticated(httpHeaders)) {
+			System.out.println("AUTH SUCCESS");
+		} else {
+			System.out.println("AUTH FAIL");
+		}
 		return "AOK";
 	}
 	
