@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.rest;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -14,6 +15,13 @@ import org.stopbadware.dsp.json.TimeOfLast;
 public class FindEventReports {
 	
 	private static DBHandler dbh = new DBHandler();
+	
+	@GET
+	@Path("/test")
+	public String secTest(@HeaderParam("SBW-KEY") String data) {
+		System.out.println(data);
+		return "AOK";
+	}
 	
 	@GET
 	@Path("/since/{param}")
