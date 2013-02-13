@@ -23,14 +23,13 @@ public class FindEventReports {
 	
 	@GET
 	@Path("/test")
-	public String secTest() {
+	public String secTest() {	//DELME: DATA-54 auth test method
 		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
-		String ts = httpHeaders.getRequestHeaders().getFirst("sbw_ts");
 		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
+		String ts = httpHeaders.getRequestHeaders().getFirst("sbw_ts");
 		System.out.println(key);
 		System.out.println(ts);
 		System.out.println(sig);
-//		@Context HttpHeaders httpHeaders
 		return "AOK";
 	}
 	
