@@ -24,8 +24,6 @@ public abstract class AuthAuth {
 		System.out.println(ts);
 		System.out.println(sig);
 		
-//		Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory();
-//		org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 		SecurityManager securityManager = new DefaultSecurityManager(realm);
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
