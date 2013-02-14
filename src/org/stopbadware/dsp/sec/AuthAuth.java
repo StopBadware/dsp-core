@@ -1,4 +1,4 @@
-package org.stopbadware.dsp;
+package org.stopbadware.dsp.sec;
 
 import javax.ws.rs.core.HttpHeaders;
 
@@ -9,6 +9,8 @@ import org.apache.shiro.subject.Subject;
  * Authentication and authorization handler 
  */
 public abstract class AuthAuth {
+	
+	private static Realm realm = new Realm();
 
 	public static boolean authenticated(HttpHeaders httpHeaders) {
 		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
