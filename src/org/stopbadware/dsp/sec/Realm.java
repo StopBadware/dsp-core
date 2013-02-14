@@ -10,20 +10,17 @@ import org.apache.shiro.subject.PrincipalCollection;
 public class Realm extends AuthorizingRealm {
 
 	public Realm() {
-		
+		this.setAuthenticationTokenClass(RESTfulToken.class);
 	}
 	
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		// TODO Auto-generated method stub
-		return null;
+		return new User();
 	}
 
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken arg0) throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+		return new User();
 	}
-
 	
 }
