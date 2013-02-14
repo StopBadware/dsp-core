@@ -18,7 +18,7 @@ public abstract class AuthAuth {
 	public static boolean authenticated(HttpHeaders httpHeaders) {
 		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
 		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
-		String ts = httpHeaders.getRequestHeaders().getFirst("sbw_ts");
+		long ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("sbw_ts"));
 		System.out.println(key);
 		System.out.println(ts);
 		System.out.println(sig);
@@ -27,7 +27,7 @@ public abstract class AuthAuth {
 		org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
-		AuthenticationToken token = new RESTfulToken(); 
+		AuthenticationToken token = new RESTfulToken(key, sig, ts); 
 		subject.login(token);
 		System.out.println(subject.toString());
 		System.out.println(subject.isAuthenticated());
