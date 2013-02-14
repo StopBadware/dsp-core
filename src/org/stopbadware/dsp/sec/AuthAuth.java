@@ -3,6 +3,7 @@ package org.stopbadware.dsp.sec;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
@@ -26,8 +27,10 @@ public abstract class AuthAuth {
 		org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
+		AuthenticationToken token = new RESTfulToken(); 
+		subject.login(token);
 		System.out.println(subject.toString());
-		
+		System.out.println(subject.isAuthenticated());
 		
 		return false;
 	}
