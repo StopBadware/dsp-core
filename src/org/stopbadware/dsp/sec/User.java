@@ -9,33 +9,47 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.AllPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.stopbadware.dsp.data.SecurityDBHandler;
 import org.stopbadware.dsp.sec.RESTfulToken.Credentials;
+import org.stopbadware.lib.util.SHA2;
 
 public class User implements Account {
 
+//	private String apiKey;
+	private Credentials credentials;
+//	private String signature = "";
+	private SimplePrincipalCollection pc = new SimplePrincipalCollection();
+	private SecurityDBHandler db = new SecurityDBHandler();
+	
 	private static final long serialVersionUID = -8172191017152833255L;
 
 	public User(String principal) {
-		System.out.println(">>"+principal+"<<");
+		System.out.println(">>"+principal+"<<");	//DELME: DATA-54
+		setPrincipal(principal);
 	}
 	
-	public User(String principal, Credentials credentials) {
+	public User(String principal, Credentials credentials) {	//DELME: DATA-54
 		System.out.println(">>"+principal+"<<\t"+credentials.getSignature());
-//		System.out.println(">>"+principal+"<<\t");
+		setPrincipal(principal);
+		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+db.getSecret(principal));
+		this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
+		System.out.println(signature);
+	}
+	
+	private void setPrincipal(String principal) {
+//		apiKey = principal;
+		pc.add(principal, AuthAuth.REALMNAME);
 	}
 	
 	@Override
-	public Object getCredentials() {
+	public Credentials getCredentials() {
 		//TODO: DATA-54 implement
-		String sig = "1fea95532ec9ad15a32a1c513a28f453aee027c56df8bff62b324ada5cb5c72b";
-		return new RESTfulToken.Credentials(sig, 1360786590L);
+		return credentials;
 	}
 
 	@Override
 	public PrincipalCollection getPrincipals() {
 		//TODO: DATA-54 implement
-		SimplePrincipalCollection pc = new SimplePrincipalCollection();
-		pc.add("DATA123456", "SBW-DSP");
 		return pc;
 	}
 

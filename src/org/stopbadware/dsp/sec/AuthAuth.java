@@ -16,11 +16,12 @@ import org.stopbadware.lib.util.SHA2;
 public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
+	public static String REALMNAME = "SBW-DSP";
 
 	public static boolean authenticated(HttpHeaders httpHeaders, String path) {
-		String key = httpHeaders.getRequestHeaders().getFirst("sbw_key");
-		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
-		long ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("sbw_ts"));
+		String key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");
+		String sig = httpHeaders.getRequestHeaders().getFirst("SBW-Signature");
+		long ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("SBW-Timestamp"));
 		System.out.println(key);
 		System.out.println(sig);
 		System.out.println(ts);
@@ -29,7 +30,7 @@ public abstract class AuthAuth {
 		SecurityManager securityManager = new DefaultSecurityManager(realm);
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
-		AuthenticationToken token = new RESTfulToken(key, sig, ts); 
+		AuthenticationToken token = new RESTfulToken(key, sig, path, ts); 
 		boolean authenticated = false;
 		try {
 			subject.login(token);

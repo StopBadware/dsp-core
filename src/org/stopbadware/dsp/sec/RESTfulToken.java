@@ -8,8 +8,8 @@ public class RESTfulToken implements AuthenticationToken {
 	private Credentials credentials;
 	private static final long serialVersionUID = -5394243945291266097L;
 
-	public RESTfulToken(String apiKey, String signature, long timestamp) {
-		credentials = new Credentials(signature, timestamp);
+	public RESTfulToken(String apiKey, String signature, String path, long timestamp) {
+		credentials = new Credentials(signature, path, timestamp);
 		this.apiKey = apiKey;
 	}
 	
@@ -40,15 +40,21 @@ public class RESTfulToken implements AuthenticationToken {
 	static public class Credentials {
 		
 		private String signature = "";
+		private String path = "";
 		private long timestamp = 0L;
 		
-		public Credentials (String signature, long timestamp) {
-			this.signature = signature;
-			this.timestamp = timestamp;
+		public Credentials (String signature, String path, long timestamp) {
+			this.signature = (signature != null) ? signature : "";
+			this.path = (path != null) ? path : "";
+			this.timestamp = (timestamp > 0) ? timestamp : 0L;
 		}
 		
 		public String getSignature() {
 			return signature;
+		}
+		
+		public String getPath() {
+			return path;
 		}
 		
 		public long getTimestamp() {
@@ -58,8 +64,7 @@ public class RESTfulToken implements AuthenticationToken {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Credentials) {
-				return (this.signature.equals(((Credentials) obj).getSignature()) && 
-						 this.timestamp == ((Credentials) obj).getTimestamp());
+				return this.signature.equals(((Credentials) obj).getSignature());
 			} else {
 				return false;
 			}

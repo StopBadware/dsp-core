@@ -12,7 +12,7 @@ public class Realm extends AuthorizingRealm {
 
 	public Realm() {
 		this.setAuthenticationTokenClass(RESTfulToken.class);
-		this.setName("SBW-DSP");
+		this.setName(AuthAuth.REALMNAME);
 	}
 	
 	@Override
