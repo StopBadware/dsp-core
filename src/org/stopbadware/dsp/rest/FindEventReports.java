@@ -1,9 +1,8 @@
 package org.stopbadware.dsp.rest;
 
-import java.util.List;
-
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -24,8 +23,13 @@ public class FindEventReports {
 	
 	@GET
 	@Path("/test")
-	public String secTest() {	//DELME: DATA-54 auth test method
-		if (AuthAuth.authenticated(httpHeaders)) {
+	public String secTest(ServletRequest request) {	//DELME: DATA-54 auth test method
+		String path = "";
+		if (request instanceof HttpServletRequest) {
+			HttpServletRequest req = (HttpServletRequest) request;
+			path = req.getPathTranslated();
+		}
+		if (AuthAuth.authenticated(httpHeaders, path)) {
 			System.out.println("AUTH SUCCESS");
 		} else {
 			System.out.println("AUTH FAIL");
