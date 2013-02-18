@@ -8,6 +8,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
+import org.stopbadware.lib.util.SHA2;
 
 /**
  * Authentication and authorization handler 
@@ -24,7 +25,7 @@ public abstract class AuthAuth {
 		System.out.println(sig);
 		System.out.println(ts);
 		System.out.println(path);
-		
+		System.out.println(SHA2.get256(key+ts+path+"SECRET"));
 		SecurityManager securityManager = new DefaultSecurityManager(realm);
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();

@@ -18,4 +18,9 @@ public class SecurityDBHandler {
 	public SecurityDBHandler() {
 		secdb = MongoDB.getSecurityDB();
 	}
+	
+	public String getSecret(String apiKey) {
+		//TODO: DATA-54 get secret key from db
+		return "SECRET";
+	}
 }

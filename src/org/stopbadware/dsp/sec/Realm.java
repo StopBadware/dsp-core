@@ -6,6 +6,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.stopbadware.dsp.sec.RESTfulToken.Credentials;
 
 public class Realm extends AuthorizingRealm {
 
@@ -16,12 +17,20 @@ public class Realm extends AuthorizingRealm {
 	
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		return new User();
+		Object obj = principals.iterator().next();
+		return new User(obj.toString());
 	}
 
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken arg0) throws AuthenticationException {
-		return new User();
+		String principal = null;
+		Credentials credentials = null;
+		if (arg0 instanceof RESTfulToken) {
+			RESTfulToken token = (RESTfulToken) arg0;
+			principal = token.getPrincipal();
+			credentials = token.getCredentials();
+		}
+		return new User(principal, credentials);
 	}
 	
 }

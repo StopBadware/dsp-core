@@ -25,7 +25,6 @@ public class FindEventReports {
 	@Path("/test")
 	public String secTest() {	//DELME: DATA-54 auth test method
 		String path = "";
-//		path = uri.getPath();
 		path = uri.getRequestUri().toString();
 		if (AuthAuth.authenticated(httpHeaders, path)) {
 			System.out.println("AUTH SUCCESS");
