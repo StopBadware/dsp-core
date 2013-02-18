@@ -23,7 +23,21 @@ public class RESTfulToken implements AuthenticationToken {
 		return apiKey;
 	}
 	
-	public class Credentials {
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof RESTfulToken) {
+			return this.apiKey.equals(((RESTfulToken) obj).getPrincipal());
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return apiKey.hashCode();
+	}
+	
+	static public class Credentials {
 		
 		private String signature = "";
 		private long timestamp = 0L;
@@ -39,6 +53,21 @@ public class RESTfulToken implements AuthenticationToken {
 		
 		public long getTimestamp() {
 			return timestamp;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Credentials) {
+				return (this.signature.equals(((Credentials) obj).getSignature()) && 
+						 this.timestamp == ((Credentials) obj).getTimestamp());
+			} else {
+				return false;
+			}
+		}
+		
+		@Override
+		public int hashCode() {
+			return signature.hashCode();
 		}
 	}
 

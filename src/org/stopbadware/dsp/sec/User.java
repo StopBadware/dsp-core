@@ -1,10 +1,14 @@
 package org.stopbadware.dsp.sec;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.shiro.authc.Account;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.AllPermission;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 
 public class User implements Account {
 
@@ -16,32 +20,40 @@ public class User implements Account {
 	
 	@Override
 	public Object getCredentials() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: DATA-54 implement
+		return new RESTfulToken.Credentials("FOOBAR", 1360786590L);
 	}
 
 	@Override
 	public PrincipalCollection getPrincipals() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: DATA-54 implement
+		SimplePrincipalCollection pc = new SimplePrincipalCollection();
+		pc.add("DATA123456", "SBW-DSP");
+		return pc;
 	}
 
 	@Override
 	public Collection<Permission> getObjectPermissions() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: DATA-54 implement
+		Set<Permission> perms = new HashSet<>();
+		perms.add(new AllPermission());
+		return perms;
 	}
 
 	@Override
 	public Collection<String> getRoles() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: DATA-54 implement
+		Set<String> roles = new HashSet<>();
+		roles.add("testrole");
+		return roles;
 	}
 
 	@Override
 	public Collection<String> getStringPermissions() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: DATA-54 implement
+		Set<String> perms = new HashSet<>();
+		perms.add("testperm");
+		return perms;
 	}
 
 }

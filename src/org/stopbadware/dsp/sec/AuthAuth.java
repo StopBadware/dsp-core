@@ -21,8 +21,8 @@ public abstract class AuthAuth {
 		String sig = httpHeaders.getRequestHeaders().getFirst("sbw_sig");
 		long ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("sbw_ts"));
 		System.out.println(key);
-		System.out.println(ts);
 		System.out.println(sig);
+		System.out.println(ts);
 		
 		SecurityManager securityManager = new DefaultSecurityManager(realm);
 		SecurityUtils.setSecurityManager(securityManager);
