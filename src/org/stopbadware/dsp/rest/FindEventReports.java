@@ -1,7 +1,5 @@
 package org.stopbadware.dsp.rest;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -9,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.SearchResults;
@@ -18,17 +17,16 @@ import org.stopbadware.dsp.sec.AuthAuth;
 @Path("/events")
 public class FindEventReports {
 	
+	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
 	private static DBHandler dbh = new DBHandler();
 	
 	@GET
 	@Path("/test")
-	public String secTest(ServletRequest request) {	//DELME: DATA-54 auth test method
+	public String secTest() {	//DELME: DATA-54 auth test method
 		String path = "";
-		if (request instanceof HttpServletRequest) {
-			HttpServletRequest req = (HttpServletRequest) request;
-			path = req.getPathTranslated();
-		}
+//		path = uri.getPath();
+		path = uri.getRequestUri().toString();
 		if (AuthAuth.authenticated(httpHeaders, path)) {
 			System.out.println("AUTH SUCCESS");
 		} else {
