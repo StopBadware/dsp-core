@@ -4,7 +4,6 @@ import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
@@ -50,11 +49,8 @@ public abstract class AuthAuth {
 		Subject subject = SecurityUtils.getSubject();
 		try {
 			subject.login(token);
-			System.out.println(subject.toString());			//DELME: DATA-54
-			System.out.println(subject.isAuthenticated());	//DELME: DATA-54
 			authenticated = subject.isAuthenticated();
 		} catch (AuthenticationException e) {
-			System.err.println(e.getMessage());				//DELME: DATA-54
 			LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
 		}
 		return authenticated;
