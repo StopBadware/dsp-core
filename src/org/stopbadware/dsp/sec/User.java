@@ -15,41 +15,33 @@ import org.stopbadware.lib.util.SHA2;
 
 public class User implements Account {
 
-//	private String apiKey;
 	private Credentials credentials;
-//	private String signature = "";
 	private SimplePrincipalCollection pc = new SimplePrincipalCollection();
 	private SecurityDBHandler db = new SecurityDBHandler();
 	
 	private static final long serialVersionUID = -8172191017152833255L;
 
 	public User(String principal) {
-		System.out.println(">>"+principal+"<<");	//DELME: DATA-54
 		setPrincipal(principal);
 	}
 	
-	public User(String principal, Credentials credentials) {	//DELME: DATA-54
-		System.out.println(">>"+principal+"<<\t"+credentials.getSignature());
+	public User(String principal, Credentials credentials) {
 		setPrincipal(principal);
 		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+db.getSecret(principal));
 		this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
-		System.out.println(signature);
 	}
 	
 	private void setPrincipal(String principal) {
-//		apiKey = principal;
 		pc.add(principal, AuthAuth.REALMNAME);
 	}
 	
 	@Override
 	public Credentials getCredentials() {
-		//TODO: DATA-54 implement
 		return credentials;
 	}
 
 	@Override
 	public PrincipalCollection getPrincipals() {
-		//TODO: DATA-54 implement
 		return pc;
 	}
 

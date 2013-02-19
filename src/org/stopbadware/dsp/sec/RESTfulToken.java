@@ -4,13 +4,13 @@ import org.apache.shiro.authc.AuthenticationToken;
 
 public class RESTfulToken implements AuthenticationToken {
 
-	private String apiKey;
-	private Credentials credentials;
+	private String apiKey = "";
+	private Credentials credentials = new Credentials("", "", 0L);
 	private static final long serialVersionUID = -5394243945291266097L;
 
 	public RESTfulToken(String apiKey, String signature, String path, long timestamp) {
 		credentials = new Credentials(signature, path, timestamp);
-		this.apiKey = apiKey;
+		this.apiKey = (apiKey != null) ? apiKey : "";
 	}
 	
 	@Override

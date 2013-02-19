@@ -29,6 +29,9 @@ public class Realm extends AuthorizingRealm {
 			RESTfulToken token = (RESTfulToken) arg0;
 			principal = token.getPrincipal();
 			credentials = token.getCredentials();
+		} else {
+			principal = "";
+			credentials = new Credentials("", "", 0L); 
 		}
 		return new User(principal, credentials);
 	}
