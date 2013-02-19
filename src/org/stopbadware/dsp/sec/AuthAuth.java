@@ -9,6 +9,7 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.ShareLevel;
 
 /**
  * Authentication and authorization handler 
@@ -22,7 +23,6 @@ public abstract class AuthAuth {
 	public static String REALMNAME = "SBW-DSP";
 	
 	static {
-		System.out.println("doin' stuff");
 		SecurityUtils.setSecurityManager(securityManager);
 	}
 
@@ -68,5 +68,9 @@ public abstract class AuthAuth {
 		long age = (System.currentTimeMillis()/1000) - ts;
 //		return age < MAX_AGE;
 		return true;	//TODO: DATA-54 revert
+	}
+	
+	public ShareLevel getAuthLevel(String apiKey) {
+		return	ShareLevel.DSP_ONLY;	//TODO: DATA-54 implement 
 	}
 }

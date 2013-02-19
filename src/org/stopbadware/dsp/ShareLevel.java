@@ -1,5 +1,8 @@
 package org.stopbadware.dsp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum ShareLevel {
 	SBW_ONLY {
 		public String toString() {
@@ -58,5 +61,24 @@ public enum ShareLevel {
 	 */
 	public static ShareLevel getLeastRestrictive(ShareLevel a, ShareLevel b) {
 		return (a.compareTo(b) >= 0) ? a : b ;
+	}
+	
+	/**
+	 * Creates an array of Strings containing all ShareLevels above
+	 * the ShareLevel provided (including the provided ShareLevel itself)
+	 * The concept of "above" refers to an ascending order of least restrictive
+	 * to most restrictive ShareLevels
+	 * @param lowest most restrictive ShareLevel to include
+	 * @return array of Strings containing the provided ShareLevel and all 
+	 * less restrictive levels
+	 */
+	public static String[] getAllAbove(ShareLevel lowest) {
+		List<String> levels = new ArrayList<>(); 
+		for (ShareLevel level : ShareLevel.values()) {
+			if (level.compareTo(lowest) >= 0) {
+				levels.add(level.toString());
+			}
+		}
+		return levels.toArray(new String[levels.size()]);
 	}
 }
