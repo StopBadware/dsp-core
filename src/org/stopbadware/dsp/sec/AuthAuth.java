@@ -20,6 +20,11 @@ public abstract class AuthAuth {
 	private static final long MAX_AGE = 15L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	public static String REALMNAME = "SBW-DSP";
+	
+	static {
+		System.out.println("doin' stuff");
+		SecurityUtils.setSecurityManager(securityManager);
+	}
 
 	public static boolean authenticated(HttpHeaders httpHeaders, String path) {
 		String key = "";
@@ -45,7 +50,6 @@ public abstract class AuthAuth {
 	
 	private static boolean authenticate(RESTfulToken token) {
 		boolean authenticated = false;
-		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
 		try {
 			subject.login(token);
