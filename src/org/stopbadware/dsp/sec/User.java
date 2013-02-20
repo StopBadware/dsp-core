@@ -22,17 +22,13 @@ public class User implements Account {
 	private static final long serialVersionUID = -8172191017152833255L;
 
 	public User(String principal) {
-		setPrincipal(principal);
+		pc.add(principal, AuthAuth.REALMNAME);
 	}
 	
 	public User(String principal, Credentials credentials) {
-		setPrincipal(principal);
+		this(principal);
 		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+db.getSecret(principal));
 		this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
-	}
-	
-	private void setPrincipal(String principal) {
-		pc.add(principal, AuthAuth.REALMNAME);
 	}
 	
 	@Override

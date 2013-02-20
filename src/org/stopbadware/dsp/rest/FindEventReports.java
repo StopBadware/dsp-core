@@ -9,6 +9,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.shiro.subject.Subject;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -19,17 +20,28 @@ public class FindEventReports {
 	
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
-	private static DBHandler dbh = new DBHandler();
+	private DBHandler dbh = null;
 	
 	@GET
 	@Path("/test")
 	public String secTest() {	//DELME: DATA-54 auth test method
-		String path = "";
-		path = uri.getRequestUri().toString();
-		if (AuthAuth.authenticated(httpHeaders, path)) {
+		String path = uri.getRequestUri().toString();
+		Subject subject = AuthAuth.authenticated(httpHeaders, path);
+		if (subject.isAuthenticated()) {
+			dbh = new DBHandler(subject.getPrincipal().toString());
+			System.out.println(subject.getPrincipal().toString());
+			System.out.println(subject.toString());
+			System.out.println(subject.isPermitted("foo"));
 			System.out.println("AUTH SUCCESS");
+			dbh.test1();
 		} else {
+			dbh = new DBHandler();
+//			System.out.println(subject.getPrincipal().toString());
+			System.out.println(subject.toString());
+			System.out.println(subject.isAuthenticated());
+			System.out.println(subject.isPermitted("foo"));
 			System.out.println("AUTH FAIL");
+			dbh.test2();
 		}
 		return "AOK";
 	}
@@ -38,6 +50,7 @@ public class FindEventReports {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public SearchResults findSince(@PathParam("param") String sinceTime) {
+		dbh = new DBHandler();	//TODO: DATA-50 fix call
 		return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 replace
 	}
 	
@@ -45,6 +58,7 @@ public class FindEventReports {
 	@Path("/timeoflast/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public TimeOfLast getLastReportedTime(@PathParam("source") String source) {
+		dbh = new DBHandler();	//TODO: DATA-50 fix call
 		return dbh.getTimeOfLast(source);
 	}
 }

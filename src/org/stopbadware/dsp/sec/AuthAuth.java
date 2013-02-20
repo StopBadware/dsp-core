@@ -26,7 +26,7 @@ public abstract class AuthAuth {
 		SecurityUtils.setSecurityManager(securityManager);
 	}
 
-	public static boolean authenticated(HttpHeaders httpHeaders, String path) {
+	public static Subject authenticated(HttpHeaders httpHeaders, String path) {
 		String key = "";
 		String sig = "";
 		long ts = 0L;
@@ -40,12 +40,20 @@ public abstract class AuthAuth {
 			LOG.warn("Exception thrown parsing headers:\t{}", e.getMessage());
 		}
 		
+		Subject subject = SecurityUtils.getSubject();
 		if (sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
-			authenticated = authenticate(token);
+//			authenticated = authenticate(token);
+//			Subject subject = SecurityUtils.getSubject();
+			try {
+				subject.login(token);
+//				authenticated = subject.isAuthenticated();
+			} catch (AuthenticationException e) {
+				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
+			}
 		}
 		
-		return authenticated;
+		return subject;
 	}
 	
 	private static boolean authenticate(RESTfulToken token) {
