@@ -1,6 +1,9 @@
 package org.stopbadware.dsp.sec;
 
+import java.net.URI;
+
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -26,7 +29,7 @@ public abstract class AuthAuth {
 		SecurityUtils.setSecurityManager(securityManager);
 	}
 
-	public static Subject authenticated(HttpHeaders httpHeaders, String path) {
+	public static Subject authenticated(HttpHeaders httpHeaders, URI uri) {
 		String key = "";
 		String sig = "";
 		long ts = 0L;
@@ -42,7 +45,8 @@ public abstract class AuthAuth {
 		
 		Subject subject = SecurityUtils.getSubject();
 		if (sigIsValid(sig) && tsIsValid(ts)) {
-			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
+			String foo = uri.getPath().toString();
+			RESTfulToken token = new RESTfulToken(key, sig, foo, ts); 
 //			authenticated = authenticate(token);
 //			Subject subject = SecurityUtils.getSubject();
 			try {

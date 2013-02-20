@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.rest;
 
+import java.net.URI;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,28 +22,39 @@ public class FindEventReports {
 	
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
-	private DBHandler dbh = null;
+//	private DBHandler dbh = null;
+	private int status = 0; 
 	
-	@GET
-	@Path("/test")
-	public String secTest() {	//DELME: DATA-54 auth test method
-		String path = uri.getRequestUri().toString();
-		Subject subject = AuthAuth.authenticated(httpHeaders, path);
+	private DBHandler getDBH() {
+		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
+		DBHandler dbh = new DBHandler(subject.getPrincipal().toString());
 		if (subject.isAuthenticated()) {
-			dbh = new DBHandler(subject.getPrincipal().toString());
+			status = 200;
+//			dbh = new DBHandler(subject.getPrincipal().toString());
+//			dbh = new DBHandler(subject.getPrincipal().toString());
 			System.out.println(subject.getPrincipal().toString());
 			System.out.println(subject.toString());
 			System.out.println(subject.isPermitted("foo"));
 			System.out.println("AUTH SUCCESS");
 			dbh.test1();
 		} else {
-			dbh = new DBHandler();
-//			System.out.println(subject.getPrincipal().toString());
-			System.out.println(subject.toString());
-			System.out.println(subject.isAuthenticated());
-			System.out.println(subject.isPermitted("foo"));
-			System.out.println("AUTH FAIL");
-			dbh.test2();
+			status = 403;
+			System.out.println("(403) AUTH FAIL");
+			//TODO: DATA-54 return 403
+		}
+		
+		return dbh;
+	}
+	
+	@GET
+	@Path("/test")
+	public String secTest() {	//DELME: DATA-54 auth test method
+//		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
+		DBHandler dbh = getDBH();
+		if (dbh != null	) {
+			//TODO: DATA-54 do db stuff
+		} else {
+			
 		}
 		return "AOK";
 	}
@@ -50,7 +63,7 @@ public class FindEventReports {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public SearchResults findSince(@PathParam("param") String sinceTime) {
-		dbh = new DBHandler();	//TODO: DATA-50 fix call
+		DBHandler dbh = new DBHandler();	//TODO: DATA-50 fix call
 		return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 replace
 	}
 	
@@ -58,7 +71,7 @@ public class FindEventReports {
 	@Path("/timeoflast/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public TimeOfLast getLastReportedTime(@PathParam("source") String source) {
-		dbh = new DBHandler();	//TODO: DATA-50 fix call
+		DBHandler dbh = new DBHandler();	//TODO: DATA-50 fix call
 		return dbh.getTimeOfLast(source);
 	}
 }
