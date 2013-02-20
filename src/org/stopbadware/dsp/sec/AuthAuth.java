@@ -48,46 +48,31 @@ public abstract class AuthAuth {
 	 * authentication checks
 	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
+		String path = "";
 		String key = "";
 		String sig = "";
 		long ts = 0L;
-		boolean authenticated = false;
 		
 		try {
+			path = uri.getPath().toString();
 			key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");
 			sig = httpHeaders.getRequestHeaders().getFirst("SBW-Signature");
 			ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("SBW-Timestamp"));
-		} catch (IllegalStateException | NumberFormatException e) {
-			LOG.warn("Exception thrown parsing headers:\t{}", e.getMessage());
+		} catch (NullPointerException | IllegalStateException | NumberFormatException e) {
+			LOG.warn("Exception thrown parsing headers:\t{}", e.toString());
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
 		if (sigIsValid(sig) && tsIsValid(ts)) {
-			String foo = uri.getPath().toString();
-			RESTfulToken token = new RESTfulToken(key, sig, foo, ts); 
-//			authenticated = authenticate(token);
-//			Subject subject = SecurityUtils.getSubject();
+			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
 			try {
 				subject.login(token);
-//				authenticated = subject.isAuthenticated();
 			} catch (AuthenticationException e) {
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
 			}
 		}
 		
 		return subject;
-	}
-	
-	private static boolean authenticate(RESTfulToken token) {
-		boolean authenticated = false;
-		Subject subject = SecurityUtils.getSubject();
-		try {
-			subject.login(token);
-			authenticated = subject.isAuthenticated();
-		} catch (AuthenticationException e) {
-			LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
-		}
-		return authenticated;
 	}
 	
 	private static boolean sigIsValid(String sig) {
