@@ -15,8 +15,7 @@ public class SecureREST {
 	protected Subject subject = AuthAuth.getEmptySubject();
 	
 	protected DBHandler getDBH() {
-//		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
-		subject = AuthAuth.getSubject(null, null);
+		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
 		if (subject.isAuthenticated()) {
 			return new DBHandler(subject);
 		} else {
