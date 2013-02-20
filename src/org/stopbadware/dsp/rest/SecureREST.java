@@ -12,10 +12,15 @@ public class SecureREST {
 	
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
+	protected Subject subject = AuthAuth.getEmptySubject();
 	
 	protected DBHandler getDBH() {
-		Subject subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
-		return new DBHandler(subject);
+		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
+		if (subject.isAuthenticated()) {
+			return new DBHandler(subject);
+		} else {
+			return null;
+		}
 	}
 
 }

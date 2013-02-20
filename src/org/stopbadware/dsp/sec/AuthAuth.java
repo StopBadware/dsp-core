@@ -28,6 +28,10 @@ public abstract class AuthAuth {
 	static {
 		SecurityUtils.setSecurityManager(securityManager);
 	}
+	
+	public static Subject getEmptySubject() {
+		return SecurityUtils.getSubject();
+	}
 
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
 		String key = "";

@@ -23,40 +23,40 @@ public class FindEventReports extends SecureREST {
 //	@Context UriInfo uri;
 //	@Context HttpHeaders httpHeaders;
 //	private DBHandler dbh = null;
-	private int status = 0; 
 	
-	private DBHandler OLDgetDBH() {
-		Subject subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
-		DBHandler dbh = new DBHandler(subject);
-		if (subject.isAuthenticated()) {
-			status = 200;
-//			dbh = new DBHandler(subject.getPrincipal().toString());
-//			dbh = new DBHandler(subject.getPrincipal().toString());
-			System.out.println(subject.getPrincipal().toString());
-			System.out.println(subject.toString());
-			System.out.println(subject.isPermitted("foo"));
-			System.out.println("AUTH SUCCESS");
-			dbh.test1();
-		} else {
-			status = 403;
-			System.out.println("(403) AUTH FAIL");
-			//TODO: DATA-54 return 403
-		}
-		
-		return dbh;
-	}
+//	private DBHandler OLDgetDBH() {
+//		Subject subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
+//		DBHandler dbh = new DBHandler(subject);
+//		if (subject.isAuthenticated()) {
+//			status = 200;
+////			dbh = new DBHandler(subject.getPrincipal().toString());
+////			dbh = new DBHandler(subject.getPrincipal().toString());
+//			System.out.println(subject.getPrincipal().toString());
+//			System.out.println(subject.toString());
+//			System.out.println(subject.isPermitted("foo"));
+//			System.out.println("AUTH SUCCESS");
+//			dbh.test1();
+//		} else {
+//			status = 403;
+//			System.out.println("(403) AUTH FAIL");
+//			//TODO: DATA-54 return 403
+//		}
+//		
+//		return dbh;
+//	}
 	
 	@GET
 	@Path("/test")
 	public String secTest() {	//DELME: DATA-54 auth test method
-//		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
 		DBHandler dbh = getDBH();
-		if (dbh != null	) {
+		if (subject.isAuthenticated() /*&& subject.isPermitted("foo")*/) {
 			//TODO: DATA-54 do db stuff
+			return "AOK";
 		} else {
-			
+			//TODO: DATA-54 return 403
+			System.out.println("(403) AUTH FAIL");
+			return "403";
 		}
-		return "AOK";
 	}
 	
 	@GET
