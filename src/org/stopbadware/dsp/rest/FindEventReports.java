@@ -7,12 +7,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.Permissions;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
-	
 	
 	@GET
 	@Path("/test")
@@ -21,7 +21,7 @@ public class FindEventReports extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (subject.isAuthenticated() && subject.isPermitted("testperm")) {
 			//TODO: DATA-54 do db stuff
-			System.out.println(subject.isPermitted("testperm"));
+			System.out.println(subject.isPermitted(Permissions.TEST_PERM));
 			System.out.println(subject.isPermitted("foobar"));
 			return new String("AOK");
 		} else {
