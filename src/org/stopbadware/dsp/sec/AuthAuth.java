@@ -29,10 +29,24 @@ public abstract class AuthAuth {
 		SecurityUtils.setSecurityManager(securityManager);
 	}
 	
+	/**
+	 * Returns an unauthenticated Subject with no authorizations
+	 * @return a placeholder Subject that will return false to any
+	 * authentication or authorization checks
+	 */
 	public static Subject getEmptySubject() {
 		return SecurityUtils.getSubject();
 	}
 
+	/**
+	 * Creates and returns a subject from the provided parameters
+	 * @param httpHeaders HTTP Header information that should include
+	 * "SBW-Key", "SBW-Signature", and "SBW-Timestamp" - a warning will be 
+	 * thrown otherwise and an unauthenticated subject returned
+	 * @param uri destination URI of the request
+	 * @return an Apache Shiro Subject for use in authorization and
+	 * authentication checks
+	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
 		String key = "";
 		String sig = "";
