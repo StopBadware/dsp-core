@@ -26,7 +26,7 @@ public class FindEventReports extends SecureREST {
 	private int status = 0; 
 	
 	private DBHandler OLDgetDBH() {
-		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
+		Subject subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
 		DBHandler dbh = new DBHandler(subject);
 		if (subject.isAuthenticated()) {
 			status = 200;

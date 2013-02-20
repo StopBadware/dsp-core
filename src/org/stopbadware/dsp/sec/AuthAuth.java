@@ -29,7 +29,7 @@ public abstract class AuthAuth {
 		SecurityUtils.setSecurityManager(securityManager);
 	}
 
-	public static Subject authenticated(HttpHeaders httpHeaders, URI uri) {
+	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
 		String key = "";
 		String sig = "";
 		long ts = 0L;

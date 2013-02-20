@@ -14,7 +14,7 @@ public class SecureREST {
 	@Context HttpHeaders httpHeaders;
 	
 	protected DBHandler getDBH() {
-		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
+		Subject subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
 		return new DBHandler(subject);
 	}
 
