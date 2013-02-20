@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.ShareLevel;
@@ -62,9 +63,9 @@ public class DBHandler {
 //		asColl = db.getCollection(MongoDB.ASNS);
 	}
 	
-	public DBHandler(String apiKey) {
+	public DBHandler(Subject subject) {
 		this();
-		this.apiKey = apiKey;
+		this.apiKey = "apiKey";
 	}
 	
 	public void test1() {

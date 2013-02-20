@@ -27,7 +27,7 @@ public class FindEventReports {
 	
 	private DBHandler getDBH() {
 		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
-		DBHandler dbh = new DBHandler(subject.getPrincipal().toString());
+		DBHandler dbh = new DBHandler(subject);
 		if (subject.isAuthenticated()) {
 			status = 200;
 //			dbh = new DBHandler(subject.getPrincipal().toString());
