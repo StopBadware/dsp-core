@@ -18,14 +18,14 @@ import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.AuthAuth;
 
 @Path("/events")
-public class FindEventReports {
+public class FindEventReports extends SecureREST {
 	
-	@Context UriInfo uri;
-	@Context HttpHeaders httpHeaders;
+//	@Context UriInfo uri;
+//	@Context HttpHeaders httpHeaders;
 //	private DBHandler dbh = null;
 	private int status = 0; 
 	
-	private DBHandler getDBH() {
+	private DBHandler OLDgetDBH() {
 		Subject subject = AuthAuth.authenticated(httpHeaders, uri.getRequestUri());
 		DBHandler dbh = new DBHandler(subject);
 		if (subject.isAuthenticated()) {
