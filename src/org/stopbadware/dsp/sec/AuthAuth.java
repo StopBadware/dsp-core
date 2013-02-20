@@ -44,8 +44,7 @@ public abstract class AuthAuth {
 	 * "SBW-Key", "SBW-Signature", and "SBW-Timestamp" - a warning will be 
 	 * thrown otherwise and an unauthenticated subject returned
 	 * @param uri destination URI of the request
-	 * @return an Apache Shiro Subject for use in authorization and
-	 * authentication checks
+	 * @return a Subject for use in authorization and authentication checks
 	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
 		String path = "";

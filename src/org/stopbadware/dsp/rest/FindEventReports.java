@@ -19,8 +19,10 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object secTest() {	//DELME: DATA-54 auth test method
 		DBHandler dbh = getDBH();
-		if (subject.isAuthenticated() /*&& subject.isPermitted("foo")*/) {
+		if (subject.isAuthenticated() && subject.isPermitted("testperm")) {
 			//TODO: DATA-54 do db stuff
+			System.out.println(subject.isPermitted("testperm"));
+			System.out.println(subject.isPermitted("foobar"));
 			return new String("AOK");
 		} else {
 			//TODO: DATA-54 return 403

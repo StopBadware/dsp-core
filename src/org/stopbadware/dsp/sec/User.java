@@ -42,24 +42,24 @@ public class User implements Account {
 	}
 
 	@Override
-	public Collection<Permission> getObjectPermissions() {
-		//TODO: DATA-54 implement
-		Set<Permission> perms = new HashSet<>();
-		perms.add(new AllPermission());
-		return perms;
-	}
-
-	@Override
 	public Collection<String> getRoles() {
-		//TODO: DATA-54 implement
+		//TODO: DATA-54 get roles from db
 		Set<String> roles = new HashSet<>();
 		roles.add("testrole");
 		return roles;
 	}
+	
+	@Override
+	public Collection<Permission> getObjectPermissions() {
+		//TODO: DATA-54 get perms from db (as Permission objects)
+		Set<Permission> perms = new HashSet<>();
+//		perms.add(new AllPermission());
+		return perms;
+	}
 
 	@Override
 	public Collection<String> getStringPermissions() {
-		//TODO: DATA-54 implement
+		//TODO: DATA-54 get perms from db
 		Set<String> perms = new HashSet<>();
 		perms.add("testperm");
 		return perms;
