@@ -17,7 +17,7 @@ public class User implements Account {
 
 	private Credentials credentials;
 	private SimplePrincipalCollection pc = new SimplePrincipalCollection();
-	private SecurityDBHandler db = new SecurityDBHandler();
+	private SecurityDBHandler secdb = new SecurityDBHandler();
 	
 	private static final long serialVersionUID = -8172191017152833255L;
 
@@ -27,7 +27,7 @@ public class User implements Account {
 	
 	public User(String principal, Credentials credentials) {
 		this(principal);
-		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+db.getSecret(principal));
+		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+secdb.getSecret(principal));
 		this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
 	}
 	
@@ -43,26 +43,17 @@ public class User implements Account {
 
 	@Override
 	public Collection<String> getRoles() {
-		//TODO: DATA-54 get roles from db
-		Set<String> roles = new HashSet<>();
-		roles.add("testrole");
-		return roles;
+		return secdb.getRoles(pc.getPrimaryPrincipal().toString());
 	}
 	
 	@Override
 	public Collection<Permission> getObjectPermissions() {
-		//TODO: DATA-54 get perms from db (as Permission objects)
-		Set<Permission> perms = new HashSet<>();
-//		perms.add(new AllPermission());
-		return perms;
+		return secdb.getObjectPermissions(pc.getPrimaryPrincipal().toString());
 	}
 
 	@Override
 	public Collection<String> getStringPermissions() {
-		//TODO: DATA-54 get perms from db
-		Set<String> perms = new HashSet<>();
-		perms.add("testperm");
-		return perms;
+		return secdb.getStringPermissions(pc.getPrimaryPrincipal().toString());
 	}
 
 }
