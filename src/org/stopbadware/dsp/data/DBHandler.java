@@ -33,10 +33,10 @@ import com.mongodb.WriteResult;
 public class DBHandler {
 	
 	private DB db;
-	private DBCollection eventReportColl;
 	private DBCollection hostColl;
 	private DBCollection ipColl;
 	private DBCollection asColl;
+	private DBCollection eventReportColl;
 	private Subject subject = AuthAuth.getEmptySubject();
 	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);

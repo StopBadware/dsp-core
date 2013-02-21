@@ -29,11 +29,21 @@ public class SecurityDBHandler {
 		return "SECRET";
 	}
 	
-	public String addUser(String apiKey, Set<String> roles) {
-		//TODO: DATA-54 add user with roles as array, create secret
+	public String addUser(Set<String> roles) {
+		//TODO: DATA-54 create API key 
+		//TODO: DATA-54 add user with roles as array 
+		//TODO: DATA-54 create secret
 		//TODO: DATA-54 store secret encrypted with padding
-		//TODO: DATA-54 return secret
+		//TODO: DATA-54 return apikey
 		return "SECRET";
+	}
+	
+	private String encryptSecret(String plaintext) {
+		return "";	//TODO: DATA-54 pad and encrypt
+	}
+	
+	private String decryptSecret(String secret) {
+		return "";	//TODO: DATA-54 decrypt and remove padding
 	}
 	
 	public Set<String> getRoles(String apiKey) {
@@ -52,6 +62,7 @@ public class SecurityDBHandler {
 	public Set<String> getStringPermissions(String apiKey) {
 		//TODO: DATA-54 get perms for provided role
 		Set<String> perms = new HashSet<>();
+		perms.add("testperm");	//DELME: DATA-54
 		return perms;
 	}
 }
