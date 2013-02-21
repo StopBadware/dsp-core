@@ -14,6 +14,7 @@ import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
 
@@ -31,59 +32,24 @@ import com.mongodb.WriteResult;
  */
 public class DBHandler {
 	
-	private String apiKey = "";
-	private static DB db;
-	private static DBCollection eventReportColl;
-	private static DBCollection hostColl;
-	private static DBCollection ipColl;
-	private static DBCollection asColl;
+	private DB db;
+	private DBCollection eventReportColl;
+	private DBCollection hostColl;
+	private DBCollection ipColl;
+	private DBCollection asColl;
+	private Subject subject = AuthAuth.getEmptySubject();
 	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
 	
-	static {
+	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
 		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
 		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
-	}
-	
-	/**
-	 * Constructor for a DBHandler with no associated API Key.
-	 * Thus the data returned from queries will be limited to what 
-	 * is available at the PUBLIC sharing level.
-	 */
-	public DBHandler() {
-//		db = MongoDB.getDB();
-//		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
-//		hostColl = db.getCollection(MongoDB.HOSTS);
-//		ipColl = db.getCollection(MongoDB.IPS);
-//		asColl = db.getCollection(MongoDB.ASNS);
-	}
-	
-	public DBHandler(Subject subject) {
-		this();
-		this.apiKey = "apiKey";
-	}
-	
-	public void test1() {
-		LOG.debug("test1 - apikey:{}", apiKey);
-		LOG.debug("test1 - sleeping");
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		LOG.debug("test1 - apikey:{}", apiKey);
-		LOG.debug("test1 - dbh:{}", this.toString());
-	}
-	
-	public void test2() {
-		LOG.debug("test2 - apikey:{}", apiKey);
-		LOG.debug("test2 - dbh:{}", this.toString());
+		this.subject = subject;
 	}
 	
 	/**

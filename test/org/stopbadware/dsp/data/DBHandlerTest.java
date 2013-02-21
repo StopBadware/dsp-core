@@ -13,11 +13,12 @@ import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.lib.util.SHA2;
 
 public class DBHandlerTest {
 	
-	private DBHandler dbh = new DBHandler(); 
+	private DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject()); 
 	private static final String TEST_SOURCE = "TESTING";
 	private static final String TEST_HOST = "example.com";
 	private static final long TEST_IP = 47L;

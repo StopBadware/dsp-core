@@ -48,7 +48,7 @@ public abstract class MongoDB {
 		}
 		
 		if (m != null && db == null) {
-			db = m.getDB(DEVELOPMENT_DB);
+			db = m.getDB(DEVELOPMENT_DB);	//TODO: DATA-50 change to prod
 		}
 		return db;
 	}

@@ -10,6 +10,7 @@ import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.data.Permissions;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.sec.AuthAuth;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
@@ -35,15 +36,15 @@ public class FindEventReports extends SecureREST {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public SearchResults findSince(@PathParam("param") String sinceTime) {
-		DBHandler dbh = new DBHandler();				//TODO: DATA-50 fix call
-		return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 replace
+		DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());	//TODO: DATA-50 fix call
+		return dbh.testFind(Long.valueOf(sinceTime));				//TODO: DATA-53 replace
 	}
 	
 	@GET
 	@Path("/timeoflast/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public TimeOfLast getLastReportedTime(@PathParam("source") String source) {
-		DBHandler dbh = new DBHandler();				//TODO: DATA-50 fix call
+		DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());	//TODO: DATA-50 fix call
 		return dbh.getTimeOfLast(source);
 	}
 }

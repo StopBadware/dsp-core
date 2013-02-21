@@ -19,11 +19,12 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
+import org.stopbadware.dsp.sec.AuthAuth;
 
 @Path("/add")
 public class Add {
 	
-	private static DBHandler dbh = new DBHandler();
+	private static DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());	//TODO: DATA-54 add auth for each method
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
 	
 	@POST
