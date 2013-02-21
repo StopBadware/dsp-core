@@ -56,6 +56,8 @@ public class SecurityDBHandler {
 	public Set<Permission> getObjectPermissions(String apiKey) {
 		//TODO: DATA-54 get perms for provided role
 		Set<Permission> perms = new HashSet<>();
+		Role.getPermissions("Role.ADMIN");
+		//TODO: DATA-54 iterate through getRoles, add perms
 		return perms;
 	}
 	
