@@ -4,12 +4,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.shiro.authz.Permission;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum Role {
 	
 	ADMIN {
+		private Set<Permission> objPerms = new HashSet<>();
+		private Set<String> strPerms = new HashSet<>();
 		public String toString() {
 			return "Admin";
+		}
+		public Set<Permission> getObjectPermissions() {
+			return objPerms;
+		}
+		public Set<String> getStringPermissions() {
+			return strPerms;
 		}
 	},
 	DATA_IMPORTER {
@@ -28,10 +38,30 @@ public enum Role {
 		}
 	};
 	
+	private static final Logger LOG = LoggerFactory.getLogger(Role.class);
+	
+	static {
+		//TODO: DATA-54 grab perms from db and call updateroleperms
+		boolean updated = updateRolePermissions();
+		if (updated) {
+			LOG.info("Successfully upated Role permissions from database");
+		} else {
+			LOG.error("Failed updating Role permissions from database");
+		}
+	}
+	
+	public static boolean updateRolePermissions() {
+		System.out.println("updating perms");	//DELME: DATA-54
+		//TODO: DATA-54 grab perms from db and update roles
+		return true;
+	}
+	
 	public static Role castFromString(String role) {
+		//TODO: DATA-54 add casting
 		return null;
 	}
 	
+	//TODO: DATA-54 replace with get string perms
 	public static Set<Permission> getPermissions(String role) {
 		Role r = castFromString(role);
 		if (r != null) {
@@ -61,7 +91,6 @@ public enum Role {
 			default:
 				break;
 		}
-		//TODO: DATA-54 benchmarking, seems this may be more expensive than hitting the db?
 		return perms;
 	}
 
