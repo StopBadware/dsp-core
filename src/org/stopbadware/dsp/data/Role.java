@@ -47,16 +47,21 @@ public enum Role {
 		Set<Permission> perms = new HashSet<>();
 		switch(role) {
 			case ADMIN:
+				//TODO: DATA-54 add admin perms
 				break;
 			case DATA_IMPORTER:
+				//TODO: DATA-54 add importer perms
 				break;
 			case IP_AS_RESOLVER:
+				//TODO: DATA-54 add resolver perms
 				break;
 			case DATA_SHARING_PARTICIPANT:
+				//TODO: DATA-54 add participant perms
 				break;
 			default:
 				break;
 		}
+		//TODO: DATA-54 benchmarking, seems this may be more expensive than hitting the db?
 		return perms;
 	}
 
