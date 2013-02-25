@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.shiro.authz.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.sec.Role;
 
 import com.mongodb.DB;
 
@@ -54,7 +55,7 @@ public class SecurityDBHandler {
 	
 	//TODO: DATA-54 write permissions for roles in db
 	public Set<Permission> getObjectPermissions(String apiKey) {
-		//TODO: DATA-54 get perms for provided role
+		//TODO: DATA-54 get perms for all roles of provided key
 		Set<Permission> perms = new HashSet<>();
 		Role.getPermissions("Role.ADMIN");
 		//TODO: DATA-54 iterate through getRoles, add perms
@@ -62,9 +63,15 @@ public class SecurityDBHandler {
 	}
 	
 	public Set<String> getStringPermissions(String apiKey) {
-		//TODO: DATA-54 get perms for provided role
+		//TODO: DATA-54 get perms for all roles of provided key
 		Set<String> perms = new HashSet<>();
 		perms.add("testperm");	//DELME: DATA-54
+		return perms;
+	}
+	
+	public Set<String> getPermissions(String role) {
+		Set<String> perms = new HashSet<>();
+		//TODO: DATA-54 get perms for provided role
 		return perms;
 	}
 }

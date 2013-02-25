@@ -10,11 +10,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
-import org.stopbadware.dsp.data.Permissions;
 import org.stopbadware.dsp.data.SecurityDBHandler;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.AuthAuth;
+import org.stopbadware.dsp.sec.Permissions;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {

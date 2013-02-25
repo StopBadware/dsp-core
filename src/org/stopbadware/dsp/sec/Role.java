@@ -1,4 +1,4 @@
-package org.stopbadware.dsp.data;
+package org.stopbadware.dsp.sec;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,38 +10,18 @@ import org.slf4j.LoggerFactory;
 public enum Role {
 	
 	ADMIN {
-		private Set<Permission> objPerms = new HashSet<>();
-		private Set<String> strPerms = new HashSet<>();
-		public String toString() {
-			return "Admin";
-		}
-		public Set<Permission> getObjectPermissions() {
-			return objPerms;
-		}
-		public Set<String> getStringPermissions() {
-			return strPerms;
-		}
+		
 	},
 	DATA_IMPORTER {
-		public String toString() {
-			return "Importer";
-		}
 	},
 	IP_AS_RESOLVER {
-		public String toString() {
-			return "Resolver";
-		}
 	},
 	DATA_SHARING_PARTICIPANT {
-		public String toString() {
-			return "Participant";
-		}
 	};
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Role.class);
 	
 	static {
-		//TODO: DATA-54 grab perms from db and call updateroleperms
 		boolean updated = updateRolePermissions();
 		if (updated) {
 			LOG.info("Successfully upated Role permissions from database");
@@ -51,8 +31,12 @@ public enum Role {
 	}
 	
 	public static boolean updateRolePermissions() {
-		System.out.println("updating perms");	//DELME: DATA-54
+		System.out.println("updating perms");		//DELME: DATA-54
 		//TODO: DATA-54 grab perms from db and update roles
+		for (Role role : Role.values()) {
+			
+			System.out.println(role.toString());	//DELME: DATA-54
+		}
 		return true;
 	}
 	
@@ -92,6 +76,17 @@ public enum Role {
 				break;
 		}
 		return perms;
+	}
+	
+	private class Permissions {
+		private Set<Permission> objPerms = new HashSet<>();
+		private Set<String> strPerms = new HashSet<>();
+		public Set<Permission> getObjectPermissions() {
+			return objPerms;
+		}
+		public Set<String> getStringPermissions() {
+			return strPerms;
+		}
 	}
 
 }
