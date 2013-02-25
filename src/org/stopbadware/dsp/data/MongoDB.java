@@ -22,7 +22,10 @@ public abstract class MongoDB {
 	public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";
 	public static final String IPS = "ips";
-	public static final String ASNS = "autonomous_systems";	
+	public static final String ASNS = "autonomous_systems";
+	
+	public static final String ACCOUNTS = "accounts";
+	public static final String ROLES = "roles";
 
 	public static final int ASC = 1;
 	public static final int DESC = -1;
