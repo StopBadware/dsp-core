@@ -57,7 +57,7 @@ public class SecurityDBHandler {
 	public Set<Permission> getObjectPermissions(String apiKey) {
 		//TODO: DATA-54 get perms for all roles of provided key
 		Set<Permission> perms = new HashSet<>();
-		Role.castFromString("rolefromdb").getObjectPermissions();
+		Role.fromString("rolefromdb").getObjectPermissions();
 		//TODO: DATA-54 addall perms
 		return perms;
 	}
@@ -65,7 +65,7 @@ public class SecurityDBHandler {
 	public Set<String> getStringPermissions(String apiKey) {
 		//TODO: DATA-54 get perms for all roles of provided key
 		Set<String> perms = new HashSet<>();
-		Role.castFromString("rolefromdb").getStringPermissions();
+		Role.fromString("rolefromdb").getStringPermissions();
 		//TODO: DATA-54 addall perms
 		return perms;
 	}
