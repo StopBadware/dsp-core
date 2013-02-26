@@ -1,16 +1,13 @@
 package org.stopbadware.dsp.data;
 
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-
 import org.apache.shiro.authz.Permission;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.registry.AlgorithmRegistry;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.sec.Role;
@@ -31,10 +28,17 @@ public class SecurityDBHandler {
 	private DB secdb;
 	private DBCollection accountsColl;
 	private DBCollection rolesColl;
-	private static final String CIPHER = "AES";
+	private static final String KEY = "foobar";
+	private static final String ALGORITHM = "PBEWITHSHA1ANDDESEDE";
+	private static StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDBHandler.class);
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
+	
+	static {
+		textEncryptor.setAlgorithm(ALGORITHM);
+		textEncryptor.setPassword(KEY);
+	}
 	
 	public SecurityDBHandler() {
 		secdb = MongoDB.getSecurityDB();
@@ -44,11 +48,14 @@ public class SecurityDBHandler {
 	
 	public String getSecret(String apiKey) {
 		String crypted = "";	//TODO: DATA-54 get secret key from db
-		String decrypted = decryptSecret(crypted);
+//		String decrypted = decryptSecret(crypted);
 		
 		String test = createSecret();	//DELME: DATA-54
-		System.out.println(test);		//DELME: DATA-54
-		
+		crypted = encryptSecret(test); 			//DELME: DATA-54
+		String decrypted = decryptSecret(crypted);	//DELME: DATA-54
+		System.out.println("cleartext:\t"+test);		//DELME: DATA-54
+		System.out.println("ciphertext:\t"+crypted);	//DELME: DATA-54
+		System.out.println("decrypted:\t"+decrypted);	//DELME: DATA-54
 		return "SECRET";
 	}
 	
@@ -77,23 +84,11 @@ public class SecurityDBHandler {
 	}
 	
 	private String encryptSecret(String cleartext) {
-		Cipher cipher = null;
-		Key key = null;
-		try {
-			cipher = Cipher.getInstance(CIPHER);
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";	//TODO: DATA-54 pad and encrypt
+		return textEncryptor.encrypt(cleartext);
 	}
 	
 	private String decryptSecret(String ciphertext) {
-		return "";	//TODO: DATA-54 decrypt and remove padding
+		return textEncryptor.decrypt(ciphertext);
 	}
 	
 	public Set<String> getRoles(String apiKey) {
