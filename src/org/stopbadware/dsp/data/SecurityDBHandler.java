@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.sec.Role;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -57,6 +58,7 @@ public class SecurityDBHandler {
 	
 	public Set<String> getRoles(String apiKey) {
 		//TODO: DATA-54 get roles from db
+		System.out.println(apiKey);				//DELME: DATA-54
 		Set<String> roles = new HashSet<>();
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query);
@@ -64,7 +66,11 @@ public class SecurityDBHandler {
 			DBObject obj = cur.next();
 			System.out.println(obj.toString());	//DELME: DATA-54
 			if (obj.containsField("roles")) {
-				obj.get("roles");	//TODO: DATA-54 verify array?
+				BasicDBList roleList = (BasicDBList)obj.get("roles");
+				for (Object role : roleList) {
+					roles.add(role.toString());
+					System.out.println(role.toString());	//DELME: DATA-54
+				}
 			}
 		}
 		return roles;
