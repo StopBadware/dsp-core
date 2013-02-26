@@ -58,15 +58,7 @@ public class SecurityDBHandler {
 				crypted = obj.get("secret_key").toString();
 			}
 		}
-//		String decrypted = decryptSecret(crypted);
-		
-		String test = createSecret();					//DELME: DATA-54
-		crypted = encryptSecret(test); 					//DELME: DATA-54
-		String decrypted = decryptSecret(crypted);		//DELME: DATA-54
-		System.out.println("cleartext:\t"+test);		//DELME: DATA-54
-		System.out.println("ciphertext:\t"+crypted);	//DELME: DATA-54
-		System.out.println("decrypted:\t"+decrypted);	//DELME: DATA-54
-		return decrypted;
+		return decryptSecret(crypted);
 	}
 	
 	public String addUser(Set<String> roles) {
@@ -75,7 +67,9 @@ public class SecurityDBHandler {
 		String secret = createSecret();
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
-			//TODO: DATA-54 store crypted in db
+			if (crypted != null && crypted.length() > 0) {
+				//TODO: DATA-54 store crypted in db
+			}
 		}
 		return apiKey;
 	}
