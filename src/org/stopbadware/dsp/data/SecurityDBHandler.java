@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.apache.shiro.authz.Permission;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.exceptions.EncryptionInitializationException;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.registry.AlgorithmRegistry;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
@@ -48,15 +50,23 @@ public class SecurityDBHandler {
 	
 	public String getSecret(String apiKey) {
 		String crypted = "";	//TODO: DATA-54 get secret key from db
+		DBObject query = new BasicDBObject("api_key", apiKey);
+		DBCursor cur = accountsColl.find(query).limit(1);
+		while (cur.hasNext()) {
+			DBObject obj = cur.next();
+			if (obj.containsField("secret_key")) {
+				crypted = obj.get("secret_key").toString();
+			}
+		}
 //		String decrypted = decryptSecret(crypted);
 		
-		String test = createSecret();	//DELME: DATA-54
-		crypted = encryptSecret(test); 			//DELME: DATA-54
-		String decrypted = decryptSecret(crypted);	//DELME: DATA-54
+		String test = createSecret();					//DELME: DATA-54
+		crypted = encryptSecret(test); 					//DELME: DATA-54
+		String decrypted = decryptSecret(crypted);		//DELME: DATA-54
 		System.out.println("cleartext:\t"+test);		//DELME: DATA-54
 		System.out.println("ciphertext:\t"+crypted);	//DELME: DATA-54
 		System.out.println("decrypted:\t"+decrypted);	//DELME: DATA-54
-		return "SECRET";
+		return decrypted;
 	}
 	
 	public String addUser(Set<String> roles) {
@@ -84,11 +94,23 @@ public class SecurityDBHandler {
 	}
 	
 	private String encryptSecret(String cleartext) {
-		return textEncryptor.encrypt(cleartext);
+		String crypted = "";
+		try {
+			crypted = textEncryptor.encrypt(cleartext);
+		} catch (EncryptionOperationNotPossibleException | EncryptionInitializationException e) {
+			LOG.error("Unable to encrypt provided cleartext '{}'\t{}", cleartext, e.getMessage());
+		}
+		return crypted;
 	}
 	
 	private String decryptSecret(String ciphertext) {
-		return textEncryptor.decrypt(ciphertext);
+		String clear = "";
+		try {
+			clear = textEncryptor.decrypt(ciphertext);
+		} catch (EncryptionOperationNotPossibleException | EncryptionInitializationException e) {
+			LOG.error("Unable to decrypt provided ciphertext '{}'\t{}", ciphertext, e.getMessage());
+		}
+		return clear;
 	}
 	
 	public Set<String> getRoles(String apiKey) {
