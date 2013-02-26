@@ -44,28 +44,34 @@ public class SecurityDBHandler {
 	}
 	
 	public String addUser(Set<String> roles) {
-		//TODO: DATA-54 create API key 
+		String apiKey = createAPIKey();
 		//TODO: DATA-54 add user with roles as array 
-		//TODO: DATA-54 create secret
-		//TODO: DATA-54 store secret encrypted with padding
-		//TODO: DATA-54 return apikey
-		return "SECRET";
+		String secret = createSecret();
+		if (secret != null) {
+			String crypted = encryptSecret(secret);
+			//TODO: DATA-54 store crypted in db
+		}
+		return apiKey;
+	}
+	
+	private String createAPIKey() {
+		//TODO: DATA-54 create API key
+		return "";
 	}
 	
 	private String createSecret() {
 		StringBuilder secret = new StringBuilder("");
-		secret.append(System.nanoTime() + "-");
 		secret.append(UUID.randomUUID().toString());
 		secret.append("-" + System.currentTimeMillis());
 		String hashed = SHA2.get256(secret.toString());
 		return hashed;
 	}
 	
-	private String encryptSecret(String plaintext) {
+	private String encryptSecret(String cleartext) {
 		return "";	//TODO: DATA-54 pad and encrypt
 	}
 	
-	private String decryptSecret(String secret) {
+	private String decryptSecret(String ciphertext) {
 		return "";	//TODO: DATA-54 decrypt and remove padding
 	}
 	
