@@ -73,6 +73,10 @@ public class SecurityDBHandler {
 		return apiKey;
 	}
 	
+	private boolean keyIsNotUnique(String apiKey) {
+		return false;
+	}
+	
 	private String createAPIKey() {
 		StringBuilder key = new StringBuilder("");
 		key.append(UUID.randomUUID().toString());
