@@ -8,8 +8,6 @@ import org.apache.shiro.authz.Permission;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionInitializationException;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
-import org.jasypt.registry.AlgorithmRegistry;
-import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.sec.Role;
@@ -49,7 +47,7 @@ public class SecurityDBHandler {
 	}
 	
 	public String getSecret(String apiKey) {
-		String crypted = "";	//TODO: DATA-54 get secret key from db
+		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
 		while (cur.hasNext()) {
@@ -63,6 +61,7 @@ public class SecurityDBHandler {
 	
 	public String addUser(Set<String> roles) {
 		String apiKey = createAPIKey();
+		//TODO: DATA-54 verify key not already present
 		//TODO: DATA-54 add user with roles as array 
 		String secret = createSecret();
 		if (secret != null) {
@@ -75,8 +74,10 @@ public class SecurityDBHandler {
 	}
 	
 	private String createAPIKey() {
-		//TODO: DATA-54 create API key
-		return "";
+		StringBuilder key = new StringBuilder("");
+		key.append(UUID.randomUUID().toString());
+		key.append("-"+Long.toString(System.currentTimeMillis(), 32));
+		return key.toString();
 	}
 	
 	private String createSecret() {
@@ -108,19 +109,15 @@ public class SecurityDBHandler {
 	}
 	
 	public Set<String> getRoles(String apiKey) {
-		//TODO: DATA-54 get roles from db
-		System.out.println(apiKey);				//DELME: DATA-54
 		Set<String> roles = new HashSet<>();
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query);
 		while (cur.hasNext()) {
 			DBObject obj = cur.next();
-			System.out.println(obj.toString());	//DELME: DATA-54
 			if (obj.containsField("roles")) {
 				BasicDBList roleList = (BasicDBList)obj.get("roles");
 				for (Object role : roleList) {
 					roles.add(role.toString());
-					System.out.println(role.toString());	//DELME: DATA-54
 				}
 			}
 		}
