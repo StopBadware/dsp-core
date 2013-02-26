@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.data;
 
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,10 +77,15 @@ public class SecurityDBHandler {
 	}
 	
 	private String encryptSecret(String cleartext) {
-		Cipher c = null;
+		Cipher cipher = null;
+		Key key = null;
 		try {
-			c = Cipher.getInstance("DES");
+			cipher = Cipher.getInstance(CIPHER);
+			cipher.init(Cipher.ENCRYPT_MODE, key);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
