@@ -1,8 +1,12 @@
 package org.stopbadware.dsp.data;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 
 import org.apache.shiro.authz.Permission;
 import org.slf4j.Logger;
@@ -25,6 +29,7 @@ public class SecurityDBHandler {
 	private DB secdb;
 	private DBCollection accountsColl;
 	private DBCollection rolesColl;
+	private static final String CIPHER = "AES";
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDBHandler.class);
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
@@ -36,10 +41,12 @@ public class SecurityDBHandler {
 	}
 	
 	public String getSecret(String apiKey) {
-		//TODO: DATA-54 get secret key from db
-		//TODO: DATA-54 unencrypt and remove padding
-		String secret = createSecret();	//DELME: DATA-54
-		System.out.println(secret);	//DELME: DATA-54
+		String crypted = "";	//TODO: DATA-54 get secret key from db
+		String decrypted = decryptSecret(crypted);
+		
+		String test = createSecret();	//DELME: DATA-54
+		System.out.println(test);		//DELME: DATA-54
+		
 		return "SECRET";
 	}
 	
@@ -68,6 +75,13 @@ public class SecurityDBHandler {
 	}
 	
 	private String encryptSecret(String cleartext) {
+		Cipher c = null;
+		try {
+			c = Cipher.getInstance("DES");
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return "";	//TODO: DATA-54 pad and encrypt
 	}
 	
