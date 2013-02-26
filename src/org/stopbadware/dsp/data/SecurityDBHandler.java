@@ -2,11 +2,13 @@ package org.stopbadware.dsp.data;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.shiro.authz.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.sec.Role;
+import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -36,6 +38,8 @@ public class SecurityDBHandler {
 	public String getSecret(String apiKey) {
 		//TODO: DATA-54 get secret key from db
 		//TODO: DATA-54 unencrypt and remove padding
+		String secret = createSecret();	//DELME: DATA-54
+		System.out.println(secret);	//DELME: DATA-54
 		return "SECRET";
 	}
 	
@@ -46,6 +50,15 @@ public class SecurityDBHandler {
 		//TODO: DATA-54 store secret encrypted with padding
 		//TODO: DATA-54 return apikey
 		return "SECRET";
+	}
+	
+	private String createSecret() {
+		StringBuilder secret = new StringBuilder("");
+		secret.append(System.nanoTime() + "-");
+		secret.append(UUID.randomUUID().toString());
+		secret.append("-" + System.currentTimeMillis());
+		String hashed = SHA2.get256(secret.toString());
+		return hashed;
 	}
 	
 	private String encryptSecret(String plaintext) {
