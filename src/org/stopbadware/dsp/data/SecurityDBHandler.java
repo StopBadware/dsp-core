@@ -30,7 +30,7 @@ public class SecurityDBHandler {
 	private DB secdb;
 	private DBCollection accountsColl;
 	private DBCollection rolesColl;
-	private static final String KEY = "foobar";
+	private static final String KEY = "La Forge Theta-2-9-9-7"; /* Geordi's command code from "The Mind's Eye" */
 	private static final String ALGORITHM = "PBEWITHSHA1ANDDESEDE";
 	private static StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDBHandler.class);
