@@ -62,6 +62,11 @@ public class SecurityDBHandler {
 	public String addUser(Set<String> roles) {
 		String apiKey = createAPIKey();
 		//TODO: DATA-54 verify key not already present
+		while (keyIsNotUnique(apiKey)) {
+			LOG.warn("Generated API Key is already in use, trying again...");
+			apiKey = createAPIKey();
+		}
+		LOG.info("Unique API Key generated");
 		//TODO: DATA-54 add user with roles as array 
 		String secret = createSecret();
 		if (secret != null) {
