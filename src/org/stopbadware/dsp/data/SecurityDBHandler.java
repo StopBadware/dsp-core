@@ -61,28 +61,38 @@ public class SecurityDBHandler {
 	
 	public String addUser(Set<String> roles) {
 		String apiKey = createAPIKey();
-		if (keyIsNotUnique(apiKey)) {
+		boolean userAdded = false;
+		if (!keyIsUnique(apiKey)) {
 			/* unique key should be successfully generated on first attempt
 			 * odds of same UUID + timestamp extremely low, if there is a
 			 * collision, most likely symptom of something wrong */
-			LOG.error("Generated API Key {} is already in use", apiKey);
+			LOG.error("Generated duplicate API Key:{}", apiKey);
 			return null;
 		}
 		LOG.info("Unique API Key generated");
-		//TODO: DATA-54 add user with roles as array 
+		
 		String secret = createSecret();
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
 			if (crypted != null && crypted.length() > 0) {
+				//TODO: DATA-54 add user with roles as array
 				//TODO: DATA-54 store crypted in db
+				userAdded = writeToDB(apiKey, crypted);
 			}
 		}
-		return apiKey;
+		 
+		return (userAdded) ? apiKey : null;
 	}
 	
-	private boolean keyIsNotUnique(String apiKey) {
-		//TODO: DATA-54 verify key not already present
-		return false;
+	private boolean writeToDB(String apiKey, String crypted) {
+		
+		return true;
+	}
+	
+	private boolean keyIsUnique(String apiKey) {
+		DBObject query = new BasicDBObject("api_key", apiKey);
+		int count = accountsColl.find(query).count();
+		return count==0;
 	}
 	
 	private String createAPIKey() {
