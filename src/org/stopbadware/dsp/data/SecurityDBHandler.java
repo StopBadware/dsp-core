@@ -57,10 +57,9 @@ public class SecurityDBHandler {
 		textEncryptor.setPassword(KEY);
 	}
 	
-	private void test() {
+	private void cryptTest() {
 		String clear = "yakabouche";
 		String crypt = "";
-		String decrypt = "";
 		try {
 //			Key key = KeyFactory.getInstance("DESede").generateKey(new PBEKeySpec(KEY.toCharArray()));
 			SecretKey k = KeyGenerator.getInstance("AES").generateKey();
@@ -80,9 +79,35 @@ public class SecurityDBHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 		System.out.println("clear:"+clear);
 		System.out.println("crypt:"+crypt);
-		System.out.println("clear:"+decrypt);
+		System.out.println("clear:"+decryptTest(crypt));
+	}
+	
+	private String decryptTest(String crypted) {
+		String decrypt = "";
+		try {
+			SecretKey k = KeyGenerator.getInstance("AES").generateKey();
+			byte[] key = k.getEncoded();
+			SecretKey key2 = new SecretKeySpec(key, 0, key.length, "AES");
+			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			cipher.init(Cipher.DECRYPT_MODE, key2);
+			byte[] decrypted = cipher.doFinal(crypted.getBytes());
+//			crypt = Base64.encode(encrypted);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchPaddingException | InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return decrypt;
 	}
 	
 	public SecurityDBHandler() {
@@ -92,7 +117,7 @@ public class SecurityDBHandler {
 	}
 	
 	public String getSecret(String apiKey) {
-		test();	//DELME: DATA-54
+		cryptTest();	//DELME: DATA-54
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
