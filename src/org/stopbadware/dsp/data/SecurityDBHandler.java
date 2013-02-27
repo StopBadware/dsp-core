@@ -47,27 +47,6 @@ public class SecurityDBHandler {
 		rolesColl = secdb.getCollection(MongoDB.ROLES);
 	}
 	
-	public void delme() {
-		Set<String> roles = new HashSet<>();
-		roles.add(Role.ADMIN.toString());
-		addUser(roles);
-		roles = new HashSet<>();
-		roles.add(Role.DATA_IMPORTER.toString());
-		addUser(roles);
-		roles = new HashSet<>();
-		roles.add(Role.DATA_SHARING_PARTICIPANT.toString());
-		addUser(roles);
-		roles = new HashSet<>();
-		roles.add(Role.IP_AS_RESOLVER.toString());
-		addUser(roles);
-		roles = new HashSet<>();
-		roles.add(Role.ADMIN.toString());
-		roles.add(Role.DATA_IMPORTER.toString());
-		roles.add(Role.DATA_SHARING_PARTICIPANT.toString());
-		roles.add(Role.IP_AS_RESOLVER.toString());
-		addUser(roles);
-	}
-	
 	public String getSecret(String apiKey) {
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);

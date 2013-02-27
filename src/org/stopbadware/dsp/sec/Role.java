@@ -15,7 +15,7 @@ public enum Role {
 	DATA_IMPORTER,
 	IP_AS_RESOLVER,
 	DATA_SHARING_PARTICIPANT,
-	NONE;
+	NO_PERMISSIONS;
 	
 	private Set<Permission> objPerms = new HashSet<>();
 	private Set<String> strPerms = new HashSet<>();
@@ -52,7 +52,7 @@ public enum Role {
 	}
 	
 	public static Role fromString(String role) {
-		return (strMap.containsKey(role)) ? strMap.get(role) : NONE;
+		return (strMap.containsKey(role)) ? strMap.get(role) : NO_PERMISSIONS;
 	}
 	
 }
