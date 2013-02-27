@@ -65,6 +65,11 @@
   		<artifactId>jasypt</artifactId>
   		<version>1.9.0</version>
   	</dependency>
+  	<dependency>
+  		<groupId>org.apache.directory.studio</groupId>
+  		<artifactId>org.apache.commons.codec</artifactId>
+  		<version>1.6</version>
+  	</dependency>
   </dependencies>
   <name>dsp</name>
 </project>
