@@ -19,6 +19,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 /**
  * Class to handle all security related database events 
@@ -75,18 +76,27 @@ public class SecurityDBHandler {
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
 			if (crypted != null && crypted.length() > 0) {
-				//TODO: DATA-54 add user with roles as array
-				//TODO: DATA-54 store crypted in db
-				userAdded = writeToDB(apiKey, crypted);
+				userAdded = writeToDB(apiKey, crypted, roles);
 			}
 		}
 		 
 		return (userAdded) ? apiKey : null;
 	}
 	
-	private boolean writeToDB(String apiKey, String crypted) {
-		
-		return true;
+	private boolean writeToDB(String apiKey, String crypted, Set<String> roles) {
+		boolean writeSuccess = false;
+		DBObject account = new BasicDBObject();
+		account.put("api_key", apiKey);
+		account.put("secret_key", crypted);
+		account.put("roles", roles.toArray(new String[roles.size()]));
+		WriteResult wr = accountsColl.insert(account);
+		if (wr.getError() != null) {
+			LOG.error("Error writing API Key {}:\t{}", apiKey, wr.getError());
+		} else {
+			LOG.info("Wrote API Key {}", apiKey);
+			writeSuccess = true;
+		}
+		return writeSuccess;
 	}
 	
 	private boolean keyIsUnique(String apiKey) {
