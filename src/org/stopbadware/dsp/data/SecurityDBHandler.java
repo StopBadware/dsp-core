@@ -47,7 +47,29 @@ public class SecurityDBHandler {
 		rolesColl = secdb.getCollection(MongoDB.ROLES);
 	}
 	
+	public void delme() {
+		Set<String> roles = new HashSet<>();
+		roles.add(Role.ADMIN.toString());
+		addUser(roles);
+		roles = new HashSet<>();
+		roles.add(Role.DATA_IMPORTER.toString());
+		addUser(roles);
+		roles = new HashSet<>();
+		roles.add(Role.DATA_SHARING_PARTICIPANT.toString());
+		addUser(roles);
+		roles = new HashSet<>();
+		roles.add(Role.IP_AS_RESOLVER.toString());
+		addUser(roles);
+		roles = new HashSet<>();
+		roles.add(Role.ADMIN.toString());
+		roles.add(Role.DATA_IMPORTER.toString());
+		roles.add(Role.DATA_SHARING_PARTICIPANT.toString());
+		roles.add(Role.IP_AS_RESOLVER.toString());
+		addUser(roles);
+	}
+	
 	public String getSecret(String apiKey) {
+		delme();
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
@@ -76,6 +98,7 @@ public class SecurityDBHandler {
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
 			if (crypted != null && crypted.length() > 0) {
+				LOG.debug("API:{}\tSEC:{}", apiKey, secret);	//DELME: DATA-54
 				userAdded = writeToDB(apiKey, crypted, roles);
 			}
 		}
