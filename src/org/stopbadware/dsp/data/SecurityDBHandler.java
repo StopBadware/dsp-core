@@ -69,7 +69,6 @@ public class SecurityDBHandler {
 	}
 	
 	public String getSecret(String apiKey) {
-		delme();
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
