@@ -1,9 +1,26 @@
 package org.stopbadware.dsp.data;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.catalina.util.Base64;
 import org.apache.shiro.authz.Permission;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionInitializationException;
@@ -40,6 +57,34 @@ public class SecurityDBHandler {
 		textEncryptor.setPassword(KEY);
 	}
 	
+	private void test() {
+		String clear = "yakabouche";
+		String crypt = "";
+		String decrypt = "";
+		try {
+//			Key key = KeyFactory.getInstance("DESede").generateKey(new PBEKeySpec(KEY.toCharArray()));
+			SecretKey k = KeyGenerator.getInstance("AES").generateKey();
+			byte[] key = k.getEncoded();
+			SecretKey key2 = new SecretKeySpec(key, 0, key.length, "AES");
+			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE, key2);
+			byte[] encrypted = cipher.doFinal(clear.getBytes());
+			crypt = Base64.encode(encrypted);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchPaddingException | InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("clear:"+clear);
+		System.out.println("crypt:"+crypt);
+		System.out.println("clear:"+decrypt);
+	}
+	
 	public SecurityDBHandler() {
 		secdb = MongoDB.getSecurityDB();
 		accountsColl = secdb.getCollection(MongoDB.ACCOUNTS);
@@ -47,6 +92,7 @@ public class SecurityDBHandler {
 	}
 	
 	public String getSecret(String apiKey) {
+		test();	//DELME: DATA-54
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
@@ -61,10 +107,12 @@ public class SecurityDBHandler {
 	
 	public String addUser(Set<String> roles) {
 		String apiKey = createAPIKey();
-		//TODO: DATA-54 verify key not already present
-		while (keyIsNotUnique(apiKey)) {
-			LOG.warn("Generated API Key is already in use, trying again...");
-			apiKey = createAPIKey();
+		if (keyIsNotUnique(apiKey)) {
+			/* unique key should be successfully generated on first attempt
+			 * odds of same UUID + timestamp extremely low, if there is a
+			 * collision, most likely symptom of something wrong */
+			LOG.error("Generated API Key {} is already in use", apiKey);
+			return null;
 		}
 		LOG.info("Unique API Key generated");
 		//TODO: DATA-54 add user with roles as array 
@@ -79,6 +127,7 @@ public class SecurityDBHandler {
 	}
 	
 	private boolean keyIsNotUnique(String apiKey) {
+		//TODO: DATA-54 verify key not already present
 		return false;
 	}
 	
