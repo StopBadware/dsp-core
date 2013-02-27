@@ -1,12 +1,9 @@
 package org.stopbadware.dsp.sec;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.shiro.authc.Account;
 import org.apache.shiro.authz.Permission;
-import org.apache.shiro.authz.permission.AllPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.stopbadware.dsp.data.SecurityDBHandler;

@@ -76,7 +76,6 @@ public class SecurityDBHandler {
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
 			if (crypted != null && crypted.length() > 0) {
-				LOG.debug("API:{}\tSEC:{}", apiKey, secret);	//DELME: DATA-54
 				userAdded = writeToDB(apiKey, crypted, roles);
 			}
 		}
