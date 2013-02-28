@@ -49,8 +49,6 @@ public class DBHandler {
 		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
-		System.out.println(eventReportColl.toString());
-		System.out.println(hostColl.toString());
 		this.subject = subject;
 	}
 	

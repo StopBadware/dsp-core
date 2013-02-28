@@ -15,6 +15,10 @@ public enum Role {
 	DATA_IMPORTER,
 	IP_AS_RESOLVER,
 	DATA_SHARING_PARTICIPANT,
+	STOPBADWARE,
+	TAKEDOWN_EXECUTER,
+	RESEARCHER,
+	PUBLIC,
 	NO_PERMISSIONS;
 	
 	private Set<Permission> objPerms = new HashSet<>();
