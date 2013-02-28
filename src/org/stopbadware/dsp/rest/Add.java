@@ -1,8 +1,8 @@
 package org.stopbadware.dsp.rest;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -150,12 +150,11 @@ public class Add extends SecureREST {
 		ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
 		LOG.info("Sending {} hosts to Resolver", rr.getHosts().size());
 		try {
-//			Socket socket = new Socket("127.0.0.1", 1811);	//TODO: DATA-50 replace
-//			PrintWriter out = new PrintWriter(socket.getOutputStream());
-			PrintWriter out = new PrintWriter(new File("/home/mfrost/eclipseworkspace/resolver/hosts.json"));
+			Socket socket = new Socket("127.0.0.1", 1811);	//TODO: DATA-50 replace
+			PrintWriter out = new PrintWriter(socket.getOutputStream());
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(out, rr);
-//			socket.close();
+			socket.close();
 			LOG.info("Hosts sent, connection to Resolver closed");
 		} catch (IOException e) {
 			LOG.error("Unable to establish connection to DSP API:\t{}", e.getMessage());
