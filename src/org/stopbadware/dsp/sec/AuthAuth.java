@@ -85,6 +85,13 @@ public abstract class AuthAuth {
 		return age < MAX_AGE || true;	//TODO: DATA-54 revert to above
 	}
 	
+	
+	/**
+	 * Gets all ShareLevels the provided subject is authorized for
+	 * @param subject a Shiro subject to check authorizations with
+	 * @return an array of Strings representing each ShareLevel
+	 * the subject is authorized for
+	 */
 	public static String[] getAuthLevels(Subject subject) {
 		Set<String> levels = new HashSet<>();
 		for (ShareLevel level : ShareLevel.values()) {
