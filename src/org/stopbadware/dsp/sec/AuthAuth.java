@@ -1,9 +1,10 @@
 package org.stopbadware.dsp.sec;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -81,10 +82,16 @@ public abstract class AuthAuth {
 	private static boolean tsIsValid(long ts) {
 		long age = (System.currentTimeMillis()/1000) - ts;
 //		return age < MAX_AGE;
-		return true;	//TODO: DATA-54 revert
+		return age < MAX_AGE || true;	//TODO: DATA-54 revert to above
 	}
 	
-	public ShareLevel getAuthLevel(String apiKey) {
-		return	ShareLevel.DSP_ONLY;	//TODO: DATA-54 implement 
+	public static String[] getAuthLevels(Subject subject) {
+		Set<String> levels = new HashSet<>();
+		for (ShareLevel level : ShareLevel.values()) {
+			if (subject.isPermitted("share_level:"+level.toString())) {
+				levels.add(level.toString());
+			}
+		}
+		return	levels.toArray(new String[levels.size()]);
 	}
 }
