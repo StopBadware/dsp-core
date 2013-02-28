@@ -19,9 +19,6 @@ public class FindEventReports extends SecureREST {
 	public Object secTest() {	//DELME: DATA-54 auth test method
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
-			for (String s : org.stopbadware.dsp.sec.AuthAuth.getAuthLevels(subject)) {
-				System.out.println(s);
-			}
 			System.out.println("(200) AUTH SUCCESS");
 			return new String("AOK");
 		} else {

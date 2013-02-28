@@ -19,18 +19,64 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
-import org.stopbadware.dsp.sec.AuthAuth;
 
 @Path("/add")
-public class Add {
+public class Add extends SecureREST {
 	
-	private static DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());	//TODO: DATA-54 add auth for each method
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
-	
+	//TODO: DATA-54 handle 403 via status code
 	@POST
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String addEvents(String data) {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			processImports(data, dbh);
+			return new String("200");
+		} else {
+			return new String("403");
+		}
+	}
+	
+	@POST
+	@Path("/clean")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String markClean(String data) {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			processMarkClean(data, dbh);
+			return new String("200");
+		} else {
+			return new String("403");
+		}
+	}
+	
+	@POST
+	@Path("/resolve/start")
+	public String startResolver() {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			beginResolving(dbh);
+			return new String("200");
+		} else {
+			return new String("403");
+		}
+	}
+	
+	@POST
+	@Path("/resolved")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String addResolved(String data) {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			processResolved(data, dbh);
+			return new String("200");
+		} else {
+			return new String("403");
+		}
+	}
+	
+	private void processImports(String data, DBHandler dbh) {
 		int numWroteToDB = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		EventReports imports = null;
@@ -50,7 +96,7 @@ public class Add {
 			if (reports != null) {
 				if (imports.getSize() == reports.size()) {
 					if (imports.isDifferentialBlacklist()) {
-						processClean(imports);
+						processClean(imports, dbh);
 					}
 					LOG.info("{} event reports to write", imports.getSize());
 					numWroteToDB = dbh.addEventReports(reports);
@@ -64,20 +110,15 @@ public class Add {
 		} else {
 			LOG.error("Add events called but no valid EventReports could be mapped from data");
 		}
-
-		return "AOK-"+numWroteToDB;
 	}
 	
-	private void processClean(EventReports er) {
+	private void processClean(EventReports er, DBHandler dbh) {
 		LOG.info("Updating blacklist flags");
 		int numCleaned = dbh.updateBlacklistFlagsFromDirtyReports(er.getSource(), er.getTime(), er.getReports());
 		LOG.info("{} events removed from blacklist", numCleaned);
 	}
 	
-	@POST
-	@Path("/clean")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String markClean(String data) {
+	private void processMarkClean(String data, DBHandler dbh) {
 		int numCleaned = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		CleanReports clean = null;
@@ -103,12 +144,9 @@ public class Add {
 		} else {
 			LOG.error("Add clean events called but no valid CleanReports could be mapped from data");
 		}
-		return "AOK-"+numCleaned;	//DELME: DATA-50
 	}
 	
-	@POST
-	@Path("/resolve/start")
-	public String startResolver() {
+	private void beginResolving(DBHandler dbh) {
 		ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
 		LOG.info("Sending {} hosts to Resolver", rr.getHosts().size());
 		try {
@@ -122,14 +160,9 @@ public class Add {
 		} catch (IOException e) {
 			LOG.error("Unable to establish connection to DSP API:\t{}", e.getMessage());
 		}	
-		
-		return "AOK";	//DELME: DATA-50
 	}
 	
-	@POST
-	@Path("/resolved")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String addResolved(String data) {
+	private void processResolved(String data, DBHandler dbh) {
 		ObjectMapper mapper = new ObjectMapper();
 		ResolverResults rr = null;
 		try {
@@ -142,7 +175,6 @@ public class Add {
 			dbh.addIPsForHosts(rr.getHostToIPMappings());
 			dbh.addASNsForIPs(rr.getIpToASMappings());
 		}
-		return "AOK";	//DELME: DATA-50
 	}
-
+	
 }
