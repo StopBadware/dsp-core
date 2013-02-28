@@ -3,10 +3,6 @@ package org.stopbadware.dsp.sec;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.data.MongoDB;
 
-/**
- * 
- *
- */
 public abstract class Permissions {
 
 	private static final String READ = "read";
