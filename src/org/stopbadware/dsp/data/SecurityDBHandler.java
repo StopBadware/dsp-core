@@ -22,7 +22,7 @@ import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 
 /**
- * Class to handle all security related database events 
+ * Class to handle all security related database operations 
  */
 public class SecurityDBHandler {
 	
@@ -191,7 +191,11 @@ public class SecurityDBHandler {
 			if (obj.containsField("permissions")) {
 				BasicDBList permList = (BasicDBList)obj.get("permissions");
 				for (Object perm : permList) {
-					perms.add(perm.toString());
+					try {
+						perms.add(perm.toString());
+					} catch (Exception e) {
+						LOG.error("Error adding permission {} to role set:\t{}", perm, e.getMessage());
+					}
 				}
 			}
 		}
