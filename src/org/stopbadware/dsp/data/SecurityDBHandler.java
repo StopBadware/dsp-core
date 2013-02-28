@@ -47,6 +47,12 @@ public class SecurityDBHandler {
 		rolesColl = secdb.getCollection(MongoDB.ROLES);
 	}
 	
+	/**
+	 * Retrieves the secret key associated with the API key provided
+	 * @param apiKey the API Key to retrieve the secret key for
+	 * @return String containing the associated secret key, or an 
+	 * empty String if one could not be retrieved for the provided API key
+	 */
 	public String getSecret(String apiKey) {
 		String crypted = "";
 		DBObject query = new BasicDBObject("api_key", apiKey);
@@ -60,7 +66,13 @@ public class SecurityDBHandler {
 		return decryptSecret(crypted);
 	}
 	
-	public String addUser(Set<String> roles) {
+	/**
+	 * Adds a new user to the security database with the provided roles
+	 * @param roles set of Roles to assign the new account
+	 * @return a String representing the API Key for the new account, or
+	 * null if an account could not be created
+	 */
+	public String addUser(Set<Role> roles) {
 		String apiKey = createAPIKey();
 		boolean userAdded = false;
 		if (!keyIsUnique(apiKey)) {
@@ -76,7 +88,11 @@ public class SecurityDBHandler {
 		if (secret != null) {
 			String crypted = encryptSecret(secret);
 			if (crypted != null && crypted.length() > 0) {
-				userAdded = writeToDB(apiKey, crypted, roles);
+				Set<String> roleStrings = new HashSet<>();
+				for (Role role : roles) {
+					roleStrings.add(role.toString());
+				}
+				userAdded = writeToDB(apiKey, crypted, roleStrings);
 			}
 		}
 		 
@@ -140,6 +156,11 @@ public class SecurityDBHandler {
 		return clear;
 	}
 	
+	/**
+	 * Retrieves roles assigned to the API Key provided
+	 * @param apiKey String of the API Key for the account
+	 * @return a set of Strings representing the roles associated with the account
+	 */
 	public Set<String> getRoles(String apiKey) {
 		Set<String> roles = new HashSet<>();
 		DBObject query = new BasicDBObject("api_key", apiKey);
@@ -156,6 +177,12 @@ public class SecurityDBHandler {
 		return roles;
 	}
 	
+	/**
+	 * Retrieves all permissions authorized to the API Key provided
+	 * @param apiKey String of the API Key for the account
+	 * @return a set of Shiro Permissions representing the all permissions
+	 * associated with the account
+	 */
 	public Set<Permission> getObjectPermissions(String apiKey) {
 		Set<Permission> perms = new HashSet<>();
 		Set<String> roles = getRoles(apiKey);
@@ -169,6 +196,12 @@ public class SecurityDBHandler {
 		return perms;
 	}
 	
+	/**
+	 * Retrieves all permissions authorized to the API Key provided
+	 * @param apiKey String of the API Key for the account
+	 * @return a set of Strings representing the all permissions
+	 * associated with the account
+	 */
 	public Set<String> getStringPermissions(String apiKey) {
 		Set<String> perms = new HashSet<>();
 		Set<String> roles = getRoles(apiKey);
@@ -182,6 +215,12 @@ public class SecurityDBHandler {
 		return perms;
 	}
 	
+	/**
+	 * Retrieves all permissions authorized to the role
+	 * @param role String representing the role to retrieve permissions for
+	 * @return a set of Strings representing the all permissions
+	 * associated with the role
+	 */
 	public Set<String> getRolePermissions(String role) {
 		Set<String> perms = new HashSet<>();
 		DBObject query = new BasicDBObject("role", role);
