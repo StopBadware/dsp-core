@@ -105,7 +105,9 @@ public class SecurityDBHandler {
 		account.put("api_key", apiKey);
 		account.put("secret_key", crypted);
 		account.put("roles", roles.toArray(new String[roles.size()]));
-		WriteResult wr = accountsColl.insert(account);
+		WriteResult wr = null;
+		//TODO: DATA-54 authorize
+		wr = accountsColl.insert(account);
 		if (wr.getError() != null) {
 			LOG.error("Error writing API Key {}:\t{}", apiKey, wr.getError());
 		} else {
