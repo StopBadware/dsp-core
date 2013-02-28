@@ -11,6 +11,7 @@ import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
+import org.stopbadware.dsp.sec.Role;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
@@ -20,7 +21,12 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object secTest() {	//DELME: DATA-54 auth test method
 		DBHandler dbh = getDBH();
-		if (subject.isAuthenticated() && subject.isPermitted("testperm")) {
+//		Set<String> foo = Role.DATA_SHARING_PARTICIPANT.getStringPermissions();
+		System.out.println("*********");
+		for (String f : Role.DATA_SHARING_PARTICIPANT.getStringPermissions()) {
+			System.out.println(f);
+		}
+		if (subject.isAuthenticated() && subject.isPermitted(Permissions.SL_RESEARCH)) {
 			//TODO: DATA-54 do db stuff
 			return new String("AOK");
 		} else {

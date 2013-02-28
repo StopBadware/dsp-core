@@ -191,7 +191,7 @@ public class SecurityDBHandler {
 			if (obj.containsField("permissions")) {
 				BasicDBList permList = (BasicDBList)obj.get("permissions");
 				for (Object perm : permList) {
-					//TODO: add
+					perms.add(perm.toString());
 				}
 			}
 		}
