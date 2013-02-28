@@ -48,7 +48,7 @@ public enum Role {
 	public static void updateRolePermissions() {
 		SecurityDBHandler db = new SecurityDBHandler();
 		for (Role role : Role.values()) {
-			Set<String> perms = db.getPermissions(role.toString());
+			Set<String> perms = db.getRolePermissions(role.toString());
 			for (String perm : perms) {
 				role.addPermission(perm);
 			}

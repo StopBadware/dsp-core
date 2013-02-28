@@ -156,29 +156,45 @@ public class SecurityDBHandler {
 		return roles;
 	}
 	
-	//TODO: DATA-54 write permissions for roles in db
-	
 	public Set<Permission> getObjectPermissions(String apiKey) {
-		//TODO: DATA-54 get perms for all roles of provided key
 		Set<Permission> perms = new HashSet<>();
-		Role.fromString("rolefromdb").getObjectPermissions();
-		//TODO: DATA-54 addall perms
+		Set<String> roles = getRoles(apiKey);
+		for (String role : roles) {
+			try {
+				perms.addAll(Role.fromString(role).getObjectPermissions());
+			} catch (Exception e) {
+				LOG.error("Error adding permissions for {} to object set:\t{}", role, e.getMessage());
+			}
+		}
 		return perms;
 	}
 	
 	public Set<String> getStringPermissions(String apiKey) {
-		//TODO: DATA-54 get perms for all roles of provided key
 		Set<String> perms = new HashSet<>();
-		Role.fromString("rolefromdb").getStringPermissions();
-		//TODO: DATA-54 addall perms
+		Set<String> roles = getRoles(apiKey);
+		for (String role : roles) {
+			try {
+				perms.addAll(Role.fromString(role).getStringPermissions());
+			} catch (Exception e) {
+				LOG.error("Error adding permissions for {} to string set:\t{}", role, e.getMessage());
+			}
+		}
 		return perms;
 	}
 	
-	public Set<String> getPermissions(String role) {
+	public Set<String> getRolePermissions(String role) {
 		Set<String> perms = new HashSet<>();
-		//TODO: DATA-54 get perms from db for provided role
-		perms.add("foo");	//DELME: DATA-54
-		perms.add("bar");	//DELME: DATA-54
+		DBObject query = new BasicDBObject("role", role);
+		DBCursor cur = rolesColl.find(query).limit(1);
+		while (cur.hasNext()) {
+			DBObject obj = cur.next();
+			if (obj.containsField("permissions")) {
+				BasicDBList permList = (BasicDBList)obj.get("permissions");
+				for (Object perm : permList) {
+					//TODO: add
+				}
+			}
+		}
 		return perms;
 	}
 }
