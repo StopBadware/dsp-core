@@ -8,7 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TimeOfLast {
+public class TimeOfLast implements Response {
 	
 	private long last;
 	private String source;

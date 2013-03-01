@@ -29,7 +29,7 @@ public class FindEventReports extends SecureREST {
 	
 	@GET
 	@Path("/since/{param}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)	//TODO: DATA-54 change all to Response
 	public SearchResults findSince(@PathParam("param") String sinceTime) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {

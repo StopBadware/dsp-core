@@ -8,7 +8,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SearchResults {
+public class SearchResults implements Response {
 	
 	private int count = 0;
 	private int duration = 0;
