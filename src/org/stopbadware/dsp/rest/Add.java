@@ -19,6 +19,7 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
+import org.stopbadware.dsp.json.Response;
 
 @Path("/add")
 public class Add extends SecureREST {
@@ -28,7 +29,7 @@ public class Add extends SecureREST {
 	@POST
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String addEvents(String data) {
+	public Response addEvents(String data) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processImports(data, dbh);
@@ -41,7 +42,7 @@ public class Add extends SecureREST {
 	@POST
 	@Path("/clean")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String markClean(String data) {
+	public Response markClean(String data) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processMarkClean(data, dbh);
@@ -53,7 +54,7 @@ public class Add extends SecureREST {
 	
 	@POST
 	@Path("/resolve/start")
-	public String startResolver() {
+	public Response startResolver() {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			beginResolving(dbh);
@@ -66,7 +67,7 @@ public class Add extends SecureREST {
 	@POST
 	@Path("/resolved")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String addResolved(String data) {
+	public Response addResolved(String data) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processResolved(data, dbh);

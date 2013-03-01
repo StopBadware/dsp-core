@@ -7,8 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
-import org.stopbadware.dsp.json.SearchResults;
-import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.json.Response;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
@@ -16,21 +15,22 @@ public class FindEventReports extends SecureREST {
 	@GET
 	@Path("/test")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object secTest() {	//DELME: DATA-54 auth test method
+	public Response secTest() {	//DELME: DATA-54 auth test method
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			System.out.println("(200) AUTH SUCCESS");
-			return new String("AOK");
-		} else {
-			System.out.println("(403) AUTH FAIL");
-			return new String("403");
-		}
+		return httpResponseCode(FORBIDDEN);
+//		if (dbh != null) {
+//			System.out.println("(200) AUTH SUCCESS");
+//			return new String("AOK");
+//		} else {
+//			System.out.println("(403) AUTH FAIL");
+//			return new String("403");
+//		}
 	}
 	
 	@GET
 	@Path("/since/{param}")
-	@Produces(MediaType.APPLICATION_JSON)	//TODO: DATA-54 change all to Response
-	public SearchResults findSince(@PathParam("param") String sinceTime) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response findSince(@PathParam("param") String sinceTime) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			return dbh.testFind(Long.valueOf(sinceTime));
@@ -43,7 +43,7 @@ public class FindEventReports extends SecureREST {
 	@GET
 	@Path("/timeoflast/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public TimeOfLast getLastReportedTime(@PathParam("source") String source) {
+	public Response getLastReportedTime(@PathParam("source") String source) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			return dbh.getTimeOfLast(source);

@@ -1,11 +1,13 @@
 package org.stopbadware.dsp.rest;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.subject.Subject;
 import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.sec.AuthAuth;
 
 /**
@@ -17,6 +19,7 @@ public abstract class SecureREST {
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
 	protected Subject subject = AuthAuth.getEmptySubject();
+	protected static final int FORBIDDEN = 403;
 	
 	/**
 	 * Instantiates a DBHandler instance with a Shiro Subject created from
@@ -31,6 +34,19 @@ public abstract class SecureREST {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Returns a response with a blank message and specified HTTP status code, the
+	 * status code's short description (i.e. 'Forbidden' for 403 or 'Not Found' for 404
+	 * will be supplied by the application server when possible). This is a convenience
+	 * method for throwing a new javax.ws.rsWebApplicationException with the 
+	 * supplied status code
+	 * @param status the HTTP status code that will be returned to the client
+	 * @return HTTP response with specified code and short description (when possible)
+	 */
+	protected Response httpResponseCode(int status) {
+		throw new WebApplicationException(status);
 	}
 
 }
