@@ -5,11 +5,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.subject.Subject;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionInitializationException;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.dsp.sec.Role;
 import org.stopbadware.lib.util.SHA2;
 
@@ -69,10 +71,12 @@ public class SecurityDBHandler {
 	/**
 	 * Adds a new user to the security database with the provided roles
 	 * @param roles set of Roles to assign the new account
+	 * @param subject a Shiro subject with sufficient authorization to add
+	 * new users
 	 * @return a String representing the API Key for the new account, or
 	 * null if an account could not be created
 	 */
-	public String addUser(Set<Role> roles) {
+	public String addUser(Set<Role> roles, Subject subject) {
 		String apiKey = createAPIKey();
 		boolean userAdded = false;
 		if (!keyIsUnique(apiKey)) {
@@ -92,27 +96,32 @@ public class SecurityDBHandler {
 				for (Role role : roles) {
 					roleStrings.add(role.toString());
 				}
-				userAdded = writeToDB(apiKey, crypted, roleStrings);
+				userAdded = writeAccount(apiKey, crypted, roleStrings, subject);
 			}
 		}
 		 
 		return (userAdded) ? apiKey : null;
 	}
 	
-	private boolean writeToDB(String apiKey, String crypted, Set<String> roles) {
+	private boolean writeAccount(String apiKey, String crypted, Set<String> roles, Subject subject) {
 		boolean writeSuccess = false;
 		DBObject account = new BasicDBObject();
 		account.put("api_key", apiKey);
 		account.put("secret_key", crypted);
 		account.put("roles", roles.toArray(new String[roles.size()]));
 		WriteResult wr = null;
-		//TODO: DATA-54 authorize
-		wr = accountsColl.insert(account);
-		if (wr.getError() != null) {
-			LOG.error("Error writing API Key {}:\t{}", apiKey, wr.getError());
+		if (subject.isPermitted(Permissions.WRITE_ACCOUNTS)) {
+			wr = accountsColl.insert(account);
+		}
+		if (wr != null) {
+			if (wr.getError() != null) {
+				LOG.error("Error writing API Key {}:\t{}", apiKey, wr.getError());
+			} else {
+				LOG.info("Wrote API Key {}", apiKey);
+				writeSuccess = true;
+			}
 		} else {
-			LOG.info("Wrote API Key {}", apiKey);
-			writeSuccess = true;
+			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_ACCOUNTS);
 		}
 		return writeSuccess;
 	}
