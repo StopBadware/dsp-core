@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
