@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
@@ -32,6 +33,7 @@ public class DBHandlerTest {
 	private static final int TEST_ASN = 18;
 	
 	static {
+		realm.setCachingEnabled(false);
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
 		String key = "DATA123456";
@@ -43,7 +45,6 @@ public class DBHandlerTest {
 		try {
 			subject.login(token);
 		} catch (AuthenticationException e) {
-			
 			fail("AuthenticationException thrown");
 		}
 		MongoDB.switchToTestDB();

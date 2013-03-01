@@ -13,7 +13,8 @@ public abstract class MongoDB {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MongoDB.class);
 	private static Mongo m = null;
-	private static DB db = null;	
+	private static DB db = null;
+	private static DB secdb = null;	
 //	private static final String PRODUCTION_DB = "clearinghouse";
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
@@ -30,11 +31,20 @@ public abstract class MongoDB {
 	public static final int ASC = 1;
 	public static final int DESC = -1;
 	
+	static {
+		try {
+			m = new Mongo();
+		} catch (UnknownHostException | MongoException e) {
+			LOG.error("Unable to access database:\t{}", e.getMessage());
+		}
+	}
+	
 	/**
 	 * Switches the database for use in unit testing
 	 */
 	public static void switchToTestDB() {
 		db = m.getDB(TESTING_DB);
+		secdb = m.getDB(TESTING_DB);
 	}
 	
 	/**
@@ -42,14 +52,6 @@ public abstract class MongoDB {
 	 * @return MongoDB database object
 	 */
 	public static DB getDB() {
-		if (m == null) {
-			try {
-				m = new Mongo();
-			} catch (UnknownHostException | MongoException e) {
-				LOG.error("Unable to access database:\t{}", e.getMessage());
-			}
-		}
-		
 		if (m != null && db == null) {
 			db = m.getDB(DEVELOPMENT_DB);	//TODO: DATA-50 change to prod
 		}
@@ -61,18 +63,9 @@ public abstract class MongoDB {
 	 * @return MongoDB database object
 	 */
 	public static DB getSecurityDB() {
-		if (m == null) {
-			try {
-				m = new Mongo();
-			} catch (UnknownHostException | MongoException e) {
-				LOG.error("Unable to access database:\t{}", e.getMessage());
-			}
+		if (m != null && secdb == null) {
+			secdb = m.getDB(SECURITY_DB);
 		}
-		
-		if (m != null) {
-			return m.getDB(SECURITY_DB);
-		} else {
-			return null;
-		}
+		return secdb;
 	}
 }
