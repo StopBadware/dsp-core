@@ -7,26 +7,53 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.subject.Subject;
 import org.junit.Before;
 import org.junit.Test;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.TimeOfLast;
-import org.stopbadware.dsp.sec.AuthAuth;
+import org.stopbadware.dsp.sec.RESTfulToken;
+import org.stopbadware.dsp.sec.Realm;
 import org.stopbadware.lib.util.SHA2;
 
 public class DBHandlerTest {
 	
-	private DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject()); 
+	private static DBHandler dbh = null; 
+	private static Realm realm = new Realm();
+	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final String TEST_SOURCE = "TESTING";
 	private static final String TEST_HOST = "example.com";
 	private static final long TEST_IP = 47L;
 	private static final int TEST_ASN = 18;
+	
+	static {
+		SecurityUtils.setSecurityManager(securityManager);
+		Subject subject = SecurityUtils.getSubject();
+		String key = "DATA123456";
+		String sig = "54fc7ffd3cdc856c09c8747b61718741166f347b93f43c8db2ce6e4f568881e1";
+		String path = "/clearinghouse/events/test";
+		long ts = 1294513200L;
+		
+		RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
+		try {
+			subject.login(token);
+		} catch (AuthenticationException e) {
+			
+			fail("AuthenticationException thrown");
+		}
+		MongoDB.switchToTestDB();
+		dbh = new DBHandler(subject);
+	}
 
 	@Before
 	public void setUp() throws Exception {
-		MongoDB.switchToTestDB();
+		
 	}
 
 	@Test
