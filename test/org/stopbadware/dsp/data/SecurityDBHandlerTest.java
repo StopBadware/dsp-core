@@ -14,11 +14,13 @@ import org.stopbadware.dsp.sec.Realm;
 
 public class SecurityDBHandlerTest {
 	
-	private static DBHandler dbh = null; 
+	private static Subject subject = null;
+	private static SecurityDBHandler dbh = null; 
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	
 	static {
+		realm.setCachingEnabled(false);
 		SecurityUtils.setSecurityManager(securityManager);
 		Subject subject = SecurityUtils.getSubject();
 		String key = "DATA123456";
@@ -30,11 +32,10 @@ public class SecurityDBHandlerTest {
 		try {
 			subject.login(token);
 		} catch (AuthenticationException e) {
-			
 			fail("AuthenticationException thrown");
 		}
 		MongoDB.switchToTestDB();
-		dbh = new DBHandler(subject);
+		dbh = new SecurityDBHandler();
 	}
 
 	@Before
