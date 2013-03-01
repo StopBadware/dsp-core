@@ -25,7 +25,7 @@ import org.stopbadware.dsp.json.Response;
 public class Add extends SecureREST {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
-	//TODO: DATA-54 handle 403 via status code
+	
 	@POST
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -33,9 +33,9 @@ public class Add extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processImports(data, dbh);
-			return new String("200");
+			return httpResponseCode(OK);
 		} else {
-			return new String("403");
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 	
@@ -46,9 +46,9 @@ public class Add extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processMarkClean(data, dbh);
-			return new String("200");
+			return httpResponseCode(OK);
 		} else {
-			return new String("403");
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 	
@@ -58,9 +58,9 @@ public class Add extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			beginResolving(dbh);
-			return new String("200");
+			return httpResponseCode(OK);
 		} else {
-			return new String("403");
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 	
@@ -71,9 +71,9 @@ public class Add extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processResolved(data, dbh);
-			return new String("200");
+			return httpResponseCode(OK);
 		} else {
-			return new String("403");
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 	

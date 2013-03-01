@@ -17,7 +17,7 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response secTest() {	//DELME: DATA-54 auth test method
 		DBHandler dbh = getDBH();
-		return httpResponseCode(FORBIDDEN);
+		return httpResponseCode(OK);
 //		if (dbh != null) {
 //			System.out.println("(200) AUTH SUCCESS");
 //			return new String("AOK");
@@ -35,8 +35,7 @@ public class FindEventReports extends SecureREST {
 		if (dbh != null) {
 			return dbh.testFind(Long.valueOf(sinceTime));
 		} else {
-			System.out.println("(403) AUTH FAIL");	//TODO: DATA-54 return 403 SearchResults
-			return null;
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 	
@@ -48,8 +47,7 @@ public class FindEventReports extends SecureREST {
 		if (dbh != null) {
 			return dbh.getTimeOfLast(source);
 		} else {
-			System.out.println("(403) AUTH FAIL");	//TODO: DATA-54 return 403 TimeOfLast
-			return null;
+			return httpResponseCode(FORBIDDEN);
 		}
 	}
 }

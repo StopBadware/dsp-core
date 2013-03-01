@@ -19,6 +19,7 @@ public abstract class SecureREST {
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
 	protected Subject subject = AuthAuth.getEmptySubject();
+	protected static final int OK = 200;
 	protected static final int FORBIDDEN = 403;
 	
 	/**
