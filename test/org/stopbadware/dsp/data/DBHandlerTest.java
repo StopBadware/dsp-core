@@ -12,7 +12,6 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
-import org.junit.Before;
 import org.junit.Test;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
@@ -49,11 +48,6 @@ public class DBHandlerTest {
 		}
 		MongoDB.switchToTestDB();
 		dbh = new DBHandler(subject);
-	}
-
-	@Before
-	public void setUp() throws Exception {
-		
 	}
 
 	@Test
