@@ -1,6 +1,10 @@
 package org.stopbadware.dsp;
 
-import java.io.IOException;
+import java.io.File;
+
+import org.apache.catalina.startup.Tomcat;
+
+/*import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -8,11 +12,32 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletHolder;*/
 
-public class Main extends HttpServlet {
+public class Main {
+	
+    public static void main(String[] args) throws Exception {
 
-    @Override
+        String webappDirLocation = "src/main/webapp/";
+        Tomcat tomcat = new Tomcat();
+
+        //The port that we should run on can be set into an environment variable
+        //Look for that variable and default to 8080 if it isn't there.
+        String webPort = System.getenv("PORT");
+        if(webPort == null || webPort.isEmpty()) {
+            webPort = "8080";
+        }
+
+        tomcat.setPort(Integer.valueOf(webPort));
+
+        tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
+        System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
+
+        tomcat.start();
+        tomcat.getServer().await();  
+    }
+
+/*    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         resp.getWriter().print("Hello from Java!\n");
@@ -26,6 +51,6 @@ public class Main extends HttpServlet {
         context.addServlet(new ServletHolder(new Main()),"/*");
         server.start();
         server.join();   
-    }
+    }*/
 
 }
