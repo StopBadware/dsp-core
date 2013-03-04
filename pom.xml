@@ -38,7 +38,7 @@
 	          <assembleDirectory>target</assembleDirectory>
 	          <programs>
 	              <program>
-	                  <mainClass>rg.stopbadware.dsp.Main</mainClass>
+	                  <mainClass>org.stopbadware.dsp.Main</mainClass>
 	                  <name>webapp</name>
 	              </program>
 	          </programs>
