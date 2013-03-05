@@ -18,8 +18,9 @@ public class Main {
 	
     public static void main(String[] args) throws Exception {
 
-        String webappDirLocation = "src/main/webapp/";
-        Tomcat tomcat = new Tomcat();
+        String webappDirLocation = "src/";
+        System.out.println("foo");
+        /*Tomcat tomcat = new Tomcat();
 
         //The port that we should run on can be set into an environment variable
         //Look for that variable and default to 8080 if it isn't there.
@@ -34,7 +35,7 @@ public class Main {
         System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
 
         tomcat.start();
-        tomcat.getServer().await();  
+        tomcat.getServer().await(); */ 
     }
 
 /*    @Override
