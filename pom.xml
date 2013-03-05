@@ -3,7 +3,7 @@
   <groupId>org.stopbadware</groupId>
   <artifactId>clearinghouse</artifactId>
   <version>0.0.1</version>
-  <packaging>pom</packaging>
+  <packaging>war</packaging>
   <repositories>
     <repository>
         <id>project.local</id>
@@ -11,50 +11,6 @@
         <url>file:${project.basedir}/repo</url>
     </repository>
   </repositories>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <warSourceDirectory>WebContent</warSourceDirectory>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
-      <plugin>
-	      <groupId>org.codehaus.mojo</groupId>
-	      <artifactId>appassembler-maven-plugin</artifactId>
-	      <version>1.3</version>
-	      <configuration>
-	          <assembleDirectory>target</assembleDirectory>
-	          <programs>
-	              <program>
-	                  <mainClass>org.stopbadware.dsp.Main</mainClass>
-	                  <name>webapp</name>
-	              </program>
-	          </programs>
-	          <useAllProjectDependencies>true</useAllProjectDependencies>
-	      </configuration>
-	      <executions>
-	          <execution>
-	              <phase>package</phase>
-	              <goals>
-	                  <goal>assemble</goal>
-	              </goals>
-	          </execution>
-	      </executions>
-        </plugin>
-    </plugins>
-  </build>
   <organization>
   	<name>StopBadware</name>
   	<url>https://www.stopbadware.org</url>
@@ -122,5 +78,51 @@
   		<version>7.0.37</version>
   	</dependency>
   </dependencies>
+  <build>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <warSourceDirectory>WebContent</warSourceDirectory>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>appassembler-maven-plugin</artifactId>
+	      <version>1.3</version>
+	      <configuration>
+	          <assembleDirectory>target</assembleDirectory>
+	          <platforms>
+	          	<platform>unix</platform>
+	          </platforms>
+	          <programs>
+              	<program>
+                  <mainClass>org.stopbadware.dsp.Main</mainClass>
+                  <name>webapp</name>
+              	</program>
+	          </programs>
+	      </configuration>
+	      <executions>
+	          <execution>
+	              <phase>package</phase>
+	              <goals>
+	                  <goal>assemble</goal>
+	              </goals>
+	          </execution>
+	      </executions>
+        </plugin>
+    </plugins>
+  </build>  
   <name>dsp</name>
 </project>
