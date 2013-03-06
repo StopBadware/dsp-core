@@ -3,6 +3,7 @@ package org.stopbadware.dsp;
 import java.io.File;
 
 import org.apache.catalina.startup.Tomcat;
+import org.stopbadware.lib.util.SHA2;
 
 /*import java.io.IOException;
 import javax.servlet.ServletException;
@@ -19,7 +20,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         String webappDirLocation = "src/";
-        System.out.println("foo");
+        System.out.println("bar");
+        System.out.println(SHA2.get256("yakabouche"));
         /*Tomcat tomcat = new Tomcat();
 
         //The port that we should run on can be set into an environment variable
