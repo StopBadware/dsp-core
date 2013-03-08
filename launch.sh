@@ -1,4 +1,4 @@
 #! /bin/sh
-bash package.sh
-bash target/bin/webapp
+sh package.sh
+sh target/bin/webapp
 
