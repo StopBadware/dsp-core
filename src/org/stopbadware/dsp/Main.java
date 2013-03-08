@@ -5,13 +5,13 @@ import java.io.File;
 import org.apache.catalina.startup.Tomcat;
 import org.stopbadware.lib.util.SHA2;
 
-/*import java.io.IOException;
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Server;
+/*import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;*/
 
@@ -19,10 +19,10 @@ public class Main {
 	
     public static void main(String[] args) throws Exception {
 
-        String webappDirLocation = "src/";
-        System.out.println("bar");
-        System.out.println(SHA2.get256("yakabouche"));
-        /*Tomcat tomcat = new Tomcat();
+        String webappDirLocation = "WebContent/";
+//        System.out.println("bar");
+//        System.out.println(SHA2.get256("yakabouche"));
+        Tomcat tomcat = new Tomcat();
 
         //The port that we should run on can be set into an environment variable
         //Look for that variable and default to 8080 if it isn't there.
@@ -37,7 +37,7 @@ public class Main {
         System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
 
         tomcat.start();
-        tomcat.getServer().await(); */ 
+        tomcat.getServer().await();  
     }
 
 /*    @Override
