@@ -6,7 +6,7 @@ import org.apache.catalina.startup.Tomcat;
 
 public class Main {
 	
-    public static void main(String[] args) throws Exception {
+/*    public static void main(String[] args) throws Exception {
 
         String webappDirLocation = "WebContent/";
         Tomcat tomcat = new Tomcat();
@@ -25,6 +25,6 @@ public class Main {
 
         tomcat.start();
         tomcat.getServer().await();  
-    }
+    }*/
 
 }

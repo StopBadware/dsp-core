@@ -108,7 +108,7 @@
 	          </platforms>
 	          <programs>
               	<program>
-                  <mainClass>org.stopbadware.dsp.Main</mainClass>
+                  <mainClass>org.stopbadware.dsp.Startup</mainClass>
                   <name>webapp</name>
               	</program>
 	          </programs>
