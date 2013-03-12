@@ -19,8 +19,8 @@ public abstract class MongoDB {
 	private static final String USERNAME = "dspcore";
 	private static final String PASSWORD = "6Im9fHJoaM4w";
 
-	private static final String PRODUCTION_DB = "security";
-	private static final String STAGING_DB = "security";
+	private static final String PRODUCTION_DB = "heroku_app12803294";
+	private static final String STAGING_DB = "TBD";	//TODO: DATA-41 set name
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
 
@@ -38,7 +38,9 @@ public abstract class MongoDB {
 	//TODO: DATA-63 add mode setting
 	static {
 		try {
-			m = new Mongo("mongodb://dspcore:6Im9fHJoaM4w@ds055897.mongolab.com:55897/heroku_app12803294");
+			m = new Mongo("ds055897.mongolab.com", 55897);
+			db = m.getDB(PRODUCTION_DB);
+			db.authenticate(USERNAME, PASSWORD.toCharArray());
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
 		}
