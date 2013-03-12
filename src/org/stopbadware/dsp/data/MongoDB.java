@@ -15,10 +15,14 @@ public abstract class MongoDB {
 	private static Mongo m = null;
 	private static DB db = null;
 	private static DB secdb = null;	
-//	private static final String PRODUCTION_DB = "clearinghouse";
+	
+	private static final String USERNAME = "dspcore";
+	private static final String PASSWORD = "clearinghouse";
+
+	private static final String PRODUCTION_DB = "security";
+	private static final String STAGING_DB = "security";
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
-	private static final String SECURITY_DB = "security";
 
 	public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";
@@ -33,7 +37,7 @@ public abstract class MongoDB {
 	
 	static {
 		try {
-			m = new Mongo();
+			m = new Mongo("localhost");
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
 		}
@@ -64,7 +68,7 @@ public abstract class MongoDB {
 	 */
 	public static DB getSecurityDB() {
 		if (m != null && secdb == null) {
-			secdb = m.getDB(SECURITY_DB);
+			secdb = m.getDB(DEVELOPMENT_DB);
 		}
 		return secdb;
 	}

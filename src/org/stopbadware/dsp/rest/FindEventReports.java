@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.sec.AuthAuth;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
@@ -17,7 +18,9 @@ public class FindEventReports extends SecureREST {
 	@Path("/test")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response secTest() {	//DELME: DATA-54 auth test method
-		DBHandler dbh = getDBH();
+//		DBHandler dbh = getDBH();
+		DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());
+		dbh.test();
 		LoggerFactory.getLogger(FindEventReports.class).debug("200 OK");
 		return httpResponseCode(OK);
 //		if (dbh != null) {

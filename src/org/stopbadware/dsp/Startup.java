@@ -32,9 +32,9 @@ public class Startup implements ServletContextListener {
         System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
 
         tomcat.start();
-        tomcat.getServer().await();  
+        tomcat.getServer().await();
     }
-
+    
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		LOG.info(ASTERISK_LINE);
