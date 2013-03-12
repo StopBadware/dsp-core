@@ -67,7 +67,7 @@ public class DBHandler {
 			LOG.debug("{}", cur.next());
 		}
 		LOG.debug("{}", cur.size());
-		LOG.debug("ENV:{}", System.getenv("mode"));
+		LOG.debug("ENV:{}", System.getenv("MODE"));
 		LOG.debug("END TEST");
 	}
 	
