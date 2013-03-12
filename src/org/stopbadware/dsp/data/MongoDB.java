@@ -35,9 +35,10 @@ public abstract class MongoDB {
 	public static final int ASC = 1;
 	public static final int DESC = -1;
 	
+	//TODO: DATA-63 add mode setting
 	static {
 		try {
-			m = new Mongo("localhost");
+			m = new Mongo("mongodb://"+USERNAME+":"+PASSWORD+"@ds055897.mongolab.com:55897/heroku_app12803294");
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
 		}
@@ -56,8 +57,9 @@ public abstract class MongoDB {
 	 * @return MongoDB database object
 	 */
 	public static DB getDB() {
-		if (m != null && db == null) {
-			db = m.getDB(DEVELOPMENT_DB);	//TODO: DATA-50 change to prod
+		if (m != null && db == null) {		//heroku_app12803294
+			db = m.getDB("heroku_app12803294");
+//			db = m.getDB(DEVELOPMENT_DB);	//TODO: DATA-50 change to prod
 		}
 		return db;
 	}
