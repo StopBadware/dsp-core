@@ -49,7 +49,7 @@ public abstract class MongoDB {
 	public enum Mode {
 		DEV,
 		TEST,
-		STAGE,
+		STAGING,
 		PRODUCTION
 	}
 	
