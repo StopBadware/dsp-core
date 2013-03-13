@@ -44,7 +44,7 @@ public class SecurityDBHandler {
 	}
 	
 	public SecurityDBHandler() {
-		secdb = MongoDB.getSecurityDB();
+		secdb = MongoDB.getDB();
 		accountsColl = secdb.getCollection(MongoDB.ACCOUNTS);
 		rolesColl = secdb.getCollection(MongoDB.ROLES);
 	}

@@ -15,10 +15,6 @@ public abstract class MongoDB {
 	private static final Logger LOG = LoggerFactory.getLogger(MongoDB.class);
 	private static Mongo m = null;
 	private static DB db = null;
-	private static DB secdb = null;	
-	
-	private static String USERNAME = "dspcore";
-	private static char[] PASSWORD = "6Im9fHJoaM4w".toCharArray();
 
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
@@ -34,7 +30,6 @@ public abstract class MongoDB {
 	public static final int ASC = 1;
 	public static final int DESC = -1;
 	
-	//TODO: DATA-63 add mode setting
 	static {
 		String host = (System.getenv("MONGO_HOST")!=null) ? System.getenv("MONGO_HOST") : "localhost";
 		int port = (System.getenv("MONGO_PORT")!=null) ? Integer.valueOf(System.getenv("MONGO_PORT")) : 27017;
@@ -42,7 +37,6 @@ public abstract class MongoDB {
 		String username = (System.getenv("MONGO_USER")!=null) ? System.getenv("MONGO_USER") : "";
 		char[] password = (System.getenv("MONGO_PW")!=null) ? System.getenv("MONGO_PW").toCharArray() : new char[0];
 		try {
-//			m = new Mongo("ds055897.mongolab.com", 55897);
 			m = new Mongo(host, port);
 			db = m.getDB(dbname);
 			if (username != null && username.length() > 0) {
@@ -76,29 +70,16 @@ public abstract class MongoDB {
 	 */
 	public static void switchToTestDB() {
 		db = m.getDB(TESTING_DB);
-		secdb = m.getDB(TESTING_DB);
 	}
 	
 	/**
-	 * Gets the general purpose clearinghouse database object
+	 * Gets the mongodb clearinghouse database object
 	 * @return MongoDB database object
 	 */
 	public static DB getDB() {
-		if (m != null && db == null) {		//heroku_app12803294
-			db = m.getDB("heroku_app12803294");
-//			db = m.getDB(DEVELOPMENT_DB);	//TODO: DATA-50 change to prod
+		if (db == null) {
+			LOG.error("***No database connected, returning NULL***");
 		}
 		return db;
-	}
-	
-	/**
-	 * Gets the security database object
-	 * @return MongoDB database object
-	 */
-	public static DB getSecurityDB() {
-		if (m != null && secdb == null) {
-			secdb = m.getDB(DEVELOPMENT_DB);
-		}
-		return secdb;
 	}
 }
