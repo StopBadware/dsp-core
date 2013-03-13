@@ -68,10 +68,12 @@ public class DBHandler {
 		while (cur.hasNext()) {
 			LOG.debug("{}", cur.next());
 		}
+		
 		LOG.debug("{}", cur.size());
-		String mode = System.getenv("MODE");
-		LOG.debug("ENV:{}", mode);
-		LOG.debug("MODE:{}", Mode.valueOf(mode));
+		String modeStr = System.getenv("MODE");
+		LOG.debug("ENV:{}", modeStr);
+		Mode mode = Mode.castFromString(modeStr);
+		LOG.debug("MODE:{}", mode);
 		LOG.debug("END TEST");
 	}
 	

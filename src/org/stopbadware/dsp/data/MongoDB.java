@@ -16,11 +16,9 @@ public abstract class MongoDB {
 	private static DB db = null;
 	private static DB secdb = null;	
 	
-	private static final String USERNAME = "dspcore";
-	private static final char[] PASSWORD = "6Im9fHJoaM4w".toCharArray();
+	private static String USERNAME = "dspcore";
+	private static char[] PASSWORD = "6Im9fHJoaM4w".toCharArray();
 
-	private static final String PRODUCTION_DB = "heroku_app12803294";
-	private static final String STAGING_DB = "TBD";	//TODO: DATA-41 set name
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
 
@@ -37,10 +35,18 @@ public abstract class MongoDB {
 	
 	//TODO: DATA-63 add mode setting
 	static {
+		String host = (System.getenv("MONGO_HOST")!=null) ? System.getenv("MONGO_HOST") : "localhost";
+		int port = (System.getenv("MONGO_PORT")!=null) ? Integer.valueOf(System.getenv("MONGO_PORT")) : 27017;
+		String dbname = (System.getenv("MONGO_DB")!=null) ? System.getenv("MONGO_DB") : DEVELOPMENT_DB;
+		String username = (System.getenv("MONGO_USER")!=null) ? System.getenv("MONGO_USER") : "";
+		char[] password = (System.getenv("MONGO_PW")!=null) ? System.getenv("MONGO_PW").toCharArray() : new char[0];
 		try {
-			m = new Mongo("ds055897.mongolab.com", 55897);
-			db = m.getDB(PRODUCTION_DB);
-			db.authenticate(USERNAME, PASSWORD);
+//			m = new Mongo("ds055897.mongolab.com", 55897);
+			m = new Mongo(host, port);
+			db = m.getDB(dbname);
+			if (username != null && username.length() > 0) {
+				db.authenticate(username, password);
+			}
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
 		}
@@ -52,7 +58,7 @@ public abstract class MongoDB {
 		STAGING,
 		PRODUCTION;
 		
-		public Mode castFromString(String str) {
+		public static Mode castFromString(String str) {
 			Mode mode = DEV;
 			for (Mode m : Mode.values()) {
 				if (str.equalsIgnoreCase(m.toString())) {
