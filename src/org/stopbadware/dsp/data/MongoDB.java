@@ -50,7 +50,11 @@ public abstract class MongoDB {
 		DEV,
 		TEST,
 		STAGING,
-		PRODUCTION
+		PRODUCTION;
+		
+		/*public Mode castFromString(String str) {
+			for (Mode m : )
+		}*/
 	}
 	
 	/**

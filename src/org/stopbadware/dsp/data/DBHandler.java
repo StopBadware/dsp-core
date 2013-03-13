@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.xml.ws.Service.Mode;
+
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,13 +63,16 @@ public class DBHandler {
 	
 	public void test() {	//DELME: DATA-41
 		LOG.debug("BEGIN TEST");
+		
 		DBCollection testColl = db.getCollection("delme");
 		DBCursor cur = testColl.find();
 		while (cur.hasNext()) {
 			LOG.debug("{}", cur.next());
 		}
 		LOG.debug("{}", cur.size());
-		LOG.debug("ENV:{}", System.getenv("MODE"));
+		String mode = System.getenv("MODE");
+		LOG.debug("ENV:{}", mode);
+		LOG.debug("MODE:{}", Mode.valueOf(mode));
 		LOG.debug("END TEST");
 	}
 	
