@@ -43,13 +43,11 @@ public abstract class MongoDB {
 		char[] password = (System.getenv("MONGO_PW")!=null) ? System.getenv("MONGO_PW").toCharArray() : new char[0];
 		try {
 //			m = new Mongo("ds055897.mongolab.com", 55897);
-//			db = Mongo.connect(new DBAddress(System.getenv("MONGOLAB_URI")));
-			db = Mongo.connect(new DBAddress("mongodb://dspcore:6Im9fHJoaM4w@ds055897.mongolab.com:55897/heroku_app12803294"));
-//			m = new Mongo(host, port);
-//			db = m.getDB(dbname);
-//			if (username != null && username.length() > 0) {
-//				db.authenticate(username, password);
-//			}
+			m = new Mongo(host, port);
+			db = m.getDB(dbname);
+			if (username != null && username.length() > 0) {
+				db.authenticate(username, password);
+			}
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
 		}
