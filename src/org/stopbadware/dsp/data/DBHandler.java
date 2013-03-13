@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.xml.ws.Service.Mode;
-
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +18,7 @@ import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
+import org.stopbadware.dsp.data.MongoDB.Mode;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;

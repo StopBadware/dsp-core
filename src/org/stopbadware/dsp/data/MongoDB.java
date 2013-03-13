@@ -52,9 +52,16 @@ public abstract class MongoDB {
 		STAGING,
 		PRODUCTION;
 		
-		/*public Mode castFromString(String str) {
-			for (Mode m : )
-		}*/
+		public Mode castFromString(String str) {
+			Mode mode = DEV;
+			for (Mode m : Mode.values()) {
+				if (str.equalsIgnoreCase(m.toString())) {
+					mode = m;
+					break;
+				}
+			}
+			return mode;
+		}
 	}
 	
 	/**
