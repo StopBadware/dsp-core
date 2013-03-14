@@ -30,7 +30,7 @@ import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 /**
- * Class to handle all non security related database operations 
+ * Class to handle all MongoDB database operations 
  */
 public class DBHandler {
 	

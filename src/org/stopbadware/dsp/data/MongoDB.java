@@ -59,7 +59,7 @@ public abstract class MongoDB {
 	 */
 	public static DB getDB() {
 		if (db == null) {
-			LOG.error("***No database connected, returning NULL***");
+			LOG.error("***NO DATABASE CONNECTED, RETURNING NULL***");
 		}
 		return db;
 	}
