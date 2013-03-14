@@ -14,24 +14,6 @@ public class Startup implements ServletContextListener {
 	private static final String ASTERISK_LINE = "**********************************************";
 	private static final Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
-	public enum Mode {
-		DEV,
-		TEST,
-		STAGING,
-		PRODUCTION;
-		
-		public static Mode castFromString(String str) {
-			Mode mode = DEV;
-			for (Mode m : Mode.values()) {
-				if (str.equalsIgnoreCase(m.toString())) {
-					mode = m;
-					break;
-				}
-			}
-			return mode;
-		}
-	}
-	
     public static void main(String[] args) throws Exception {
 
         String webappDirLocation = "WebContent/";
