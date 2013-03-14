@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
-import com.mongodb.DBAddress;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
@@ -44,24 +43,6 @@ public abstract class MongoDB {
 			}
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
-		}
-	}
-	
-	public enum Mode {
-		DEV,
-		TEST,
-		STAGING,
-		PRODUCTION;
-		
-		public static Mode castFromString(String str) {
-			Mode mode = DEV;
-			for (Mode m : Mode.values()) {
-				if (str.equalsIgnoreCase(m.toString())) {
-					mode = m;
-					break;
-				}
-			}
-			return mode;
 		}
 	}
 	
