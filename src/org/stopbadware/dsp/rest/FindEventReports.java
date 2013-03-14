@@ -17,10 +17,11 @@ public class FindEventReports extends SecureREST {
 	@GET
 	@Path("/test")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response test() {	//DELME: DATA-54 test method
+	public Response test(Object data) {	//DELME: DATA-54 test method
 //		http://127.0.0.1:5000/events/test/
 //		DBHandler dbh = getDBH();
 //		DBHandler dbh = new DBHandler(AuthAuth.getEmptySubject());
+		LoggerFactory.getLogger(FindEventReports.class).debug("REC:{}", data.toString());
 		LoggerFactory.getLogger(FindEventReports.class).debug("200 OK");
 		return httpResponseCode(OK);
 //		if (dbh != null) {
