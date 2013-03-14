@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -17,6 +18,7 @@ public class FindEventReports extends SecureREST {
 	@GET
 	@Path("/test")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response test(Object data) {	//DELME: DATA-54 test method
 //		http://127.0.0.1:5000/events/test/
 //		DBHandler dbh = getDBH();
