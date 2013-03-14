@@ -60,23 +60,6 @@ public class DBHandler {
 		}
 	}
 	
-	public void test() {	//DELME: DATA-41
-		LOG.debug("BEGIN TEST");
-		
-		DBCollection testColl = db.getCollection("delme");
-		DBCursor cur = testColl.find();
-		while (cur.hasNext()) {
-			LOG.debug("{}", cur.next());
-		}
-		
-		LOG.debug("{}", cur.size());
-		String modeStr = System.getenv("MODE");
-		LOG.debug("ENV:{}", modeStr);
-		Mode mode = Mode.castFromString(modeStr);
-		LOG.debug("MODE:{}", mode);
-		LOG.debug("END TEST");
-	}
-	
 	/**
 	 * Convenience method for creating an exact case insensitive regex Pattern
 	 * @param str String to match
