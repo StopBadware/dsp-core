@@ -31,8 +31,9 @@ public class Add extends SecureREST {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addEvents(String data) {
 		DBHandler dbh = getDBH();
+		LOG.debug("RX:{}", data);			//DELME: DATA-41
 		if (dbh != null) {
-			processImports(data, dbh);
+//			processImports(data, dbh);		//TODO: DATA-41 revert
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
@@ -44,8 +45,9 @@ public class Add extends SecureREST {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markClean(String data) {
 		DBHandler dbh = getDBH();
+		LOG.debug("RX:{}", data);			//DELME: DATA-41
 		if (dbh != null) {
-			processMarkClean(data, dbh);
+//			processMarkClean(data, dbh);	//TODO: DATA-41 revert
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
@@ -57,7 +59,7 @@ public class Add extends SecureREST {
 	public Response startResolver() {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
-			beginResolving(dbh);
+//			beginResolving(dbh);			//TODO: DATA-41 revert
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
@@ -69,8 +71,9 @@ public class Add extends SecureREST {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addResolved(String data) {
 		DBHandler dbh = getDBH();
+		LOG.debug("RX:{}", data);			//DELME: DATA-41
 		if (dbh != null) {
-			processResolved(data, dbh);
+//			processResolved(data, dbh);		//TODO: DATA-41 revert
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
