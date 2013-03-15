@@ -21,10 +21,10 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince(@PathParam("param") String sinceTime) {
 		DBHandler dbh = getDBH();
-		LOG.debug("RX:{}", sinceTime);						//DELME: DATA-41
+		LOG.debug("RX:{}", sinceTime);						//DELME: DATA-53
 		if (dbh != null) {			
-			return httpResponseCode(OK);					//DELME: DATA-41
-//			return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-41 revert
+			return httpResponseCode(OK);					//DELME: DATA-53
+//			return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 revert
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}
@@ -35,10 +35,8 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getLastReportedTime(@PathParam("source") String source) {
 		DBHandler dbh = getDBH();
-		LOG.debug("RX:{}", source);				//DELME: DATA-41
 		if (dbh != null) {
-			return httpResponseCode(OK);		//DELME: DATA-41
-//			return dbh.getTimeOfLast(source);	//TODO: DATA-41 revert
+			return dbh.getTimeOfLast(source);
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}
