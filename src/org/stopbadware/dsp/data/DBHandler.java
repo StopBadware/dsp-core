@@ -43,7 +43,7 @@ public class DBHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
-	//TODO: DATA-53 add auth checks for each public subroutine
+
 	//TODO: DATA-53 populate prefix/fullname mapping
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();

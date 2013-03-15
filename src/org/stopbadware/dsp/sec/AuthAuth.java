@@ -81,8 +81,7 @@ public abstract class AuthAuth {
 	
 	private static boolean tsIsValid(long ts) {
 		long age = (System.currentTimeMillis()/1000) - ts;
-//		return age < MAX_AGE;
-		return age < MAX_AGE || true;	//TODO: DATA-54 revert to above
+		return age < MAX_AGE;
 	}
 	
 	
