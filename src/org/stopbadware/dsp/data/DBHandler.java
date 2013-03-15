@@ -18,7 +18,6 @@ import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
-import org.stopbadware.dsp.Mode;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;

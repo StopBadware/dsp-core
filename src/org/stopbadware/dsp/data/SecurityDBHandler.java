@@ -28,7 +28,7 @@ import com.mongodb.WriteResult;
  */
 public class SecurityDBHandler {
 	
-	private DB secdb;
+	private DB db;
 	private DBCollection accountsColl;
 	private DBCollection rolesColl;
 	private static final String KEY = "La Forge Theta-2-9-9-7"; /* Geordi's command code from "The Mind's Eye" */
@@ -44,9 +44,9 @@ public class SecurityDBHandler {
 	}
 	
 	public SecurityDBHandler() {
-		secdb = MongoDB.getDB();
-		accountsColl = secdb.getCollection(MongoDB.ACCOUNTS);
-		rolesColl = secdb.getCollection(MongoDB.ROLES);
+		db = MongoDB.getDB();
+		accountsColl = db.getCollection(MongoDB.ACCOUNTS);
+		rolesColl = db.getCollection(MongoDB.ROLES);
 	}
 	
 	/**
