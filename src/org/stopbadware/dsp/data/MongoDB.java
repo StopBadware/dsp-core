@@ -12,11 +12,8 @@ import com.mongodb.MongoURI;
 
 public abstract class MongoDB {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(MongoDB.class);
-//	private static Mongo m = null;
-	private static MongoURI m = null;
 	private static DB db = null;
-
+	private static final Logger LOG = LoggerFactory.getLogger(MongoDB.class);
 	private static final String TESTING_DB = "testdb";
 	private static final String DEVELOPMENT_DB = "devdb";
 
@@ -32,18 +29,17 @@ public abstract class MongoDB {
 	public static final int DESC = -1;
 	
 	static {
-		String host = (System.getenv("MONGO_HOST")!=null) ? System.getenv("MONGO_HOST") : "localhost";
-		int port = (System.getenv("MONGO_PORT")!=null) ? Integer.valueOf(System.getenv("MONGO_PORT")) : 27017;
-		String dbname = (System.getenv("MONGO_DB")!=null) ? System.getenv("MONGO_DB") : DEVELOPMENT_DB;
-		String username = (System.getenv("MONGO_USER")!=null) ? System.getenv("MONGO_USER") : "";
-		char[] password = (System.getenv("MONGO_PW")!=null) ? System.getenv("MONGO_PW").toCharArray() : new char[0];
+		String mongoURI = System.getenv("MONGOLAB_URI");
 		try {
-			m = new MongoURI("mongodb://heroku_app12803294:t0lgft3vcvfk5v6no92a05rdk7@ds055897.mongolab.com:55897/heroku_app12803294");
-//			m = new Mongo(host, port);
-			db = m.connectDB();
-//			db = m.getDB(dbname);
-			if (username != null && username.length() > 0) {
-				db.authenticate(username, password);
+			if (mongoURI != null) {
+				MongoURI m = new MongoURI(mongoURI);
+				if (m != null) {
+					db = m.connectDB();
+					db.authenticate(m.getUsername(), m.getPassword());
+				}
+			} else {
+				Mongo mongo = new Mongo();
+				db = mongo.getDB(DEVELOPMENT_DB);
 			}
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
@@ -55,8 +51,8 @@ public abstract class MongoDB {
 	 * @throws UnknownHostException 
 	 */
 	public static void switchToTestDB() throws UnknownHostException {
-		Mongo m = new Mongo();
-		db = m.getDB(TESTING_DB);
+		Mongo mongo = new Mongo();
+		db = mongo.getDB(TESTING_DB);
 	}
 	
 	/**
