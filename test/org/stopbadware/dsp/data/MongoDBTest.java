@@ -2,6 +2,8 @@ package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
 
+import java.net.UnknownHostException;
+
 import org.junit.Test;
 
 import com.mongodb.DB;
@@ -12,7 +14,11 @@ public class MongoDBTest {
 	public void testSwitchToTestDB() {
 		String origName = MongoDB.getDB().getName();
 		assertTrue(!origName.equalsIgnoreCase("testdb"));
-		MongoDB.switchToTestDB();
+		try {
+			MongoDB.switchToTestDB();
+		} catch (UnknownHostException e) {
+			fail("UnknownHostException thrown when switching to test db");
+		}
 		String newName = MongoDB.getDB().getName();
 		assertTrue(newName.equalsIgnoreCase("testdb"));
 	}
