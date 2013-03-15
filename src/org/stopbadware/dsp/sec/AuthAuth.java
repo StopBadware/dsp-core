@@ -55,7 +55,6 @@ public abstract class AuthAuth {
 		
 		try {
 			path = uri.getPath().toString();
-			LOG.debug("PATH:{}", path);	//DELME: DATA-41
 			key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");
 			sig = httpHeaders.getRequestHeaders().getFirst("SBW-Signature");
 			ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("SBW-Timestamp"));
