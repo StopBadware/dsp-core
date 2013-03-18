@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.rest;
 
+import java.net.HttpURLConnection;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -19,8 +21,8 @@ public abstract class SecureREST {
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
 	protected Subject subject = AuthAuth.getEmptySubject();
-	protected static final int OK = 200;
-	protected static final int FORBIDDEN = 403;
+	protected static final int OK = HttpURLConnection.HTTP_OK;
+	protected static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
 	
 	/**
 	 * Instantiates a DBHandler instance with a Shiro Subject created from
