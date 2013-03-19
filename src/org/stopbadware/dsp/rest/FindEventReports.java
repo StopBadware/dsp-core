@@ -6,25 +6,19 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(FindEventReports.class);	//DELME: DATA-41	
-			
 	@GET
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince(@PathParam("param") String sinceTime) {
 		DBHandler dbh = getDBH();
-		LOG.debug("RX:{}", sinceTime);						//DELME: DATA-53
 		if (dbh != null) {			
-			return httpResponseCode(OK);					//DELME: DATA-53
-//			return dbh.testFind(Long.valueOf(sinceTime));	//TODO: DATA-53 revert
+			return dbh.testFind(Long.valueOf(sinceTime));
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}
