@@ -1,1 +1,2 @@
-web: sh launch.sh
+web: sh launch.sh webapp
+scheduler: sh launch.sh scheduler
