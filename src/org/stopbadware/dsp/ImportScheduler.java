@@ -47,6 +47,10 @@ public class ImportScheduler {
 	
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
+			beginImporting();
+		}
+		
+		private void beginImporting() {
 			LOG.debug("BEGINNING IMPORTS");		//DELME: DATA-66
 		}
 	}
@@ -57,7 +61,6 @@ public class ImportScheduler {
 		
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
-			LOG.debug("BEGINNING RESOLVER");	//DELME: DATA-66
 			beginResolving();
 		}
 		
@@ -71,10 +74,6 @@ public class ImportScheduler {
 				for (String key : authHeaders.keySet()) {
 					conn.setRequestProperty(key, authHeaders.get(key));
 				}
-//				conn.setDoOutput(true);
-//				PrintStream out = new PrintStream(conn.getOutputStream());
-//				ObjectMapper mapper = new ObjectMapper();
-//				mapper.writeValue(out, rr);
 				int resCode = conn.getResponseCode();
 				if (resCode == 200) {
 					LOG.info("Begin resolving request sent to Resolver");
