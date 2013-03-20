@@ -116,6 +116,10 @@
                   <mainClass>org.stopbadware.dsp.Startup</mainClass>
                   <name>webapp</name>
               	</program>
+              	<program>
+                  <mainClass>org.stopbadware.dsp.ImportScheduler</mainClass>
+                  <name>scheduler</name>
+              	</program>
 	          </programs>
 	      </configuration>
 	      <executions>
