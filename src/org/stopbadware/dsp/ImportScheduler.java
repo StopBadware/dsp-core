@@ -63,7 +63,7 @@ public class ImportScheduler {
 		
 		private void beginResolving() {
 			try {
-				URL url = new URL(resHost+"/resolve/begin/");
+				URL url = new URL(resHost+"/resolve/hosts/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("POST");
 				conn.setRequestProperty("Content-Type", "application/json");
