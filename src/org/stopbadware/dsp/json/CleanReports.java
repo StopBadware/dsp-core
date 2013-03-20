@@ -9,7 +9,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CleanReports {
+public class CleanReports implements Response {
 	
 	private int size;
 	private long time;

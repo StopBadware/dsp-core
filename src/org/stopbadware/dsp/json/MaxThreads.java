@@ -9,7 +9,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MaxThreads {
+public class MaxThreads implements Response {
 	
 	@JsonProperty("as_of")
 	private long asOf;

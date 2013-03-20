@@ -10,7 +10,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResolverRequest {
+public class ResolverRequest implements Response {
 	
 	private Set<String> hosts;
 	

@@ -10,7 +10,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EventReports {
+public class EventReports implements Response {
 	
 	private int size;
 	private long time;

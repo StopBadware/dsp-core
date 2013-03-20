@@ -8,7 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AutonomousSystem {
+public class AutonomousSystem implements Response {
 
 	private int asn;
 	private String country;

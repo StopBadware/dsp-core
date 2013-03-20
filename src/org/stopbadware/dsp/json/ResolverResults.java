@@ -11,7 +11,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResolverResults {
+public class ResolverResults implements Response {
 	
 	private long time;
 	@JsonProperty("host_to_ip_size")

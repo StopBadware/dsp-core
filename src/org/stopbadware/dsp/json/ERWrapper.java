@@ -10,7 +10,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ERWrapper {
+public class ERWrapper implements Response {
 
 	private String host;
 	@JsonProperty("share_level")
