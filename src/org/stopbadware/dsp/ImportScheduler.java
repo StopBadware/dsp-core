@@ -11,7 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;
+import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;;	//TODO: DATA-66 change to hourly
+//import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;	
 
 public class ImportScheduler {
 
@@ -20,25 +21,29 @@ public class ImportScheduler {
 	public static void main(String[] args) throws Exception {
 		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 		scheduler.start();
-		String[] sources = {"mdl"};
-		for (String source : sources) {
-			JobDetail job = newJob(Import.class).build();
-			Trigger trigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(5)).build();
-			scheduler.scheduleJob(job, trigger);
-		}
+		
+		JobDetail importer = newJob(Import.class).build();
+		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(10)).build();
+		scheduler.scheduleJob(importer, importTrigger);
+		
+		JobDetail resolver = newJob(Resolve.class).build();
+		Trigger resolverTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(12)).build();
+		scheduler.scheduleJob(resolver, resolverTrigger);
 	}
 	
 	public static class Import implements Job {
 	
-		private String source = "";
-		
-		public Import(String source) {
-			this.source = source;
-		}
-
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
-			LOG.debug("BEGINNING IMPORT OF {}", source);	//DELME: DATA-66
+			LOG.debug("BEGINNING IMPORTS");		//DELME: DATA-66
+		}
+	}
+	
+	public static class Resolve implements Job {
+		
+		@Override
+		public void execute(JobExecutionContext context) throws JobExecutionException {
+			LOG.debug("BEGINNING RESOLVER");	//DELME: DATA-66
 		}
 	}
 
