@@ -29,7 +29,6 @@ import org.stopbadware.lib.util.SHA2;
 public class Add extends SecureREST {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
-	protected static String resHost = (System.getenv("RES_HOST")!=null) ? System.getenv("RES_HOST") : "http://127.0.0.1";	
 	
 	@POST
 	@Path("/events")
@@ -62,7 +61,7 @@ public class Add extends SecureREST {
 	public Response startResolver() {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
-			beginResolving(dbh);
+//			beginResolving(dbh);
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
@@ -152,31 +151,7 @@ public class Add extends SecureREST {
 		}
 	}
 	
-	private void beginResolving(DBHandler dbh) {
-		ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
-		try {
-			URL url = new URL(resHost+"/resolve/hosts/");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
-			Map<String, String> authHeaders = createResolverAuthHeaders(url.getPath().toString());
-			for (String key : authHeaders.keySet()) {
-				conn.setRequestProperty(key, authHeaders.get(key));
-			}
-			conn.setDoOutput(true);
-			PrintStream out = new PrintStream(conn.getOutputStream());
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(out, rr);
-			int resCode = conn.getResponseCode();
-			if (resCode == 200) {
-				LOG.info("{} hosts sent to Resolver", rr.getHosts().size());
-			} else {
-				LOG.error("Unable to send hosts to resolver, received HTTP Status Code {}", resCode);
-			}
-		} catch (IOException e) {
-			LOG.error("Unable to send hosts to resolver:\t", e.getMessage());
-		}	
-	}
+
 	
 	private void processResolved(String data, DBHandler dbh) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -191,16 +166,6 @@ public class Add extends SecureREST {
 			dbh.addIPsForHosts(rr.getHostToIPMappings());
 			dbh.addASNsForIPs(rr.getIpToASMappings());
 		}
-	}
-	
-	private Map<String, String> createResolverAuthHeaders(String path) {
-		Map<String, String> headers = new HashMap<>();
-		String secret = (System.getenv("SBW_RES_SECRET")!=null) ? System.getenv("SBW_RES_SECRET") : "";
-		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-		String signature = SHA2.get256(timestamp+secret);
-		headers.put("SBW-RES-Timestamp", timestamp);
-		headers.put("SBW-RES-Signature", signature);
-		return headers;
 	}
 	
 }
