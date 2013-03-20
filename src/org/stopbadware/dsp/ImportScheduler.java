@@ -1,13 +1,12 @@
 package org.stopbadware.dsp;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -17,14 +16,12 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.stopbadware.dsp.data.DBHandler;
-import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.lib.util.SHA2;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;;	//TODO: DATA-66 change to hourly
-//import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;	
+import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;	//TODO: DATA-66 change to hourly
+import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;	
 
 public class ImportScheduler {
 
@@ -35,16 +32,18 @@ public class ImportScheduler {
 		scheduler.start();
 		
 		JobDetail importer = newJob(Import.class).build();
-		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(10)).build();
+		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(30)).build();
 		scheduler.scheduleJob(importer, importTrigger);
 		
 		JobDetail resolver = newJob(Resolve.class).build();
-		Trigger resolverTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(12)).build();
+		Trigger resolverTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(12)).build();
 		scheduler.scheduleJob(resolver, resolverTrigger);
 	}
 	
 	public static class Import implements Job {
-	
+
+		private static String impHost = (System.getenv("IMP_HOST")!=null) ? System.getenv("IMP_HOST") : "http://127.0.0.1";
+		
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
 			beginImporting();
@@ -52,6 +51,33 @@ public class ImportScheduler {
 		
 		private void beginImporting() {
 			LOG.debug("BEGINNING IMPORTS");		//DELME: DATA-66
+			try {
+				URL url = new URL(impHost+"/import/all/");
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("POST");
+				Map<String, String> authHeaders = createImporterAuthHeaders(url.getPath().toString());
+				for (String key : authHeaders.keySet()) {
+					conn.setRequestProperty(key, authHeaders.get(key));
+				}
+				int resCode = conn.getResponseCode();
+				if (resCode == 200) {
+					LOG.info("Begin importing [all] request sent to Importer");
+				} else {
+					LOG.error("Unable to connect to Importer, received HTTP Status Code {}", resCode);
+				}
+			} catch (IOException e) {
+				LOG.error("Unable to connect to Importer:\t{}", e.getMessage());
+			}
+		}
+		
+		private Map<String, String> createImporterAuthHeaders(String path) {
+			Map<String, String> headers = new HashMap<>();
+			String secret = (System.getenv("SBW_IMP_SECRET")!=null) ? System.getenv("SBW_IMP_SECRET") : "";
+			String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+			String signature = SHA2.get256(timestamp+secret);
+			headers.put("SBW-IMP-Timestamp", timestamp);
+			headers.put("SBW-IMP-Signature", signature);
+			return headers;
 		}
 	}
 	
@@ -69,7 +95,6 @@ public class ImportScheduler {
 				URL url = new URL(resHost+"/resolve/hosts/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("POST");
-				conn.setRequestProperty("Content-Type", "application/json");
 				Map<String, String> authHeaders = createResolverAuthHeaders(url.getPath().toString());
 				for (String key : authHeaders.keySet()) {
 					conn.setRequestProperty(key, authHeaders.get(key));
@@ -81,7 +106,7 @@ public class ImportScheduler {
 					LOG.error("Unable to connect to resolver, received HTTP Status Code {}", resCode);
 				}
 			} catch (IOException e) {
-				LOG.error("Unable to connect to resolver:\t", e.getMessage());
+				LOG.error("Unable to connect to Resolver:\t{}", e.getMessage());
 			}	
 		}
 		
