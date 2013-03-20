@@ -58,12 +58,12 @@ public class ImportScheduler {
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
 			LOG.debug("BEGINNING RESOLVER");	//DELME: DATA-66
+			beginResolving();
 		}
 		
 		private void beginResolving() {
-			ResolverRequest rr = new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
 			try {
-				URL url = new URL(resHost+"/resolve/hosts/");
+				URL url = new URL(resHost+"/resolve/begin/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("POST");
 				conn.setRequestProperty("Content-Type", "application/json");
@@ -71,18 +71,18 @@ public class ImportScheduler {
 				for (String key : authHeaders.keySet()) {
 					conn.setRequestProperty(key, authHeaders.get(key));
 				}
-				conn.setDoOutput(true);
-				PrintStream out = new PrintStream(conn.getOutputStream());
-				ObjectMapper mapper = new ObjectMapper();
-				mapper.writeValue(out, rr);
+//				conn.setDoOutput(true);
+//				PrintStream out = new PrintStream(conn.getOutputStream());
+//				ObjectMapper mapper = new ObjectMapper();
+//				mapper.writeValue(out, rr);
 				int resCode = conn.getResponseCode();
 				if (resCode == 200) {
-					LOG.info("{} hosts sent to Resolver", rr.getHosts().size());
+					LOG.info("Begin resolving request sent to Resolver");
 				} else {
-					LOG.error("Unable to send hosts to resolver, received HTTP Status Code {}", resCode);
+					LOG.error("Unable to connect to resolver, received HTTP Status Code {}", resCode);
 				}
 			} catch (IOException e) {
-				LOG.error("Unable to send hosts to resolver:\t", e.getMessage());
+				LOG.error("Unable to connect to resolver:\t", e.getMessage());
 			}	
 		}
 		
