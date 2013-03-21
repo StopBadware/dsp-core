@@ -2,7 +2,6 @@ package org.stopbadware.dsp;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,6 @@ import org.stopbadware.lib.util.SHA2;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;	//TODO: DATA-66 change to hourly
 import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;	
 
 public class ImportScheduler {
@@ -32,7 +30,7 @@ public class ImportScheduler {
 		scheduler.start();
 		
 		JobDetail importer = newJob(Import.class).build();
-		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatSecondlyForever(30)).build();
+		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(1)).build();
 		scheduler.scheduleJob(importer, importTrigger);
 		
 		JobDetail resolver = newJob(Resolve.class).build();
@@ -50,7 +48,6 @@ public class ImportScheduler {
 		}
 		
 		private void beginImporting() {
-			LOG.debug("BEGINNING IMPORTS");		//DELME: DATA-66
 			try {
 				URL url = new URL(impHost+"/import/all/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
