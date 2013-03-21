@@ -21,6 +21,6 @@ public enum Mode {
 		
 	
 	public static Mode getCurrentMode() {
-		return castFromString(System.getenv("MODE"));
+		return castFromString(System.getenv("SBW_MODE"));
 	}
 }

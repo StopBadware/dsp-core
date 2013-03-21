@@ -40,7 +40,7 @@ public class ImportScheduler {
 	
 	public static class Import implements Job {
 
-		private static String impHost = (System.getenv("IMP_HOST")!=null) ? System.getenv("IMP_HOST") : "http://127.0.0.1";
+		private static String impHost = (System.getenv("SBW_IMP_HOST")!=null) ? System.getenv("SBW_IMP_HOST") : "http://127.0.0.1";
 		
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -80,7 +80,7 @@ public class ImportScheduler {
 	
 	public static class Resolve implements Job {
 		
-		private static String resHost = (System.getenv("RES_HOST")!=null) ? System.getenv("RES_HOST") : "http://127.0.0.1";
+		private static String resHost = (System.getenv("SBW_RES_HOST")!=null) ? System.getenv("SBW_RES_HOST") : "http://127.0.0.1";
 		
 		@Override
 		public void execute(JobExecutionContext context) throws JobExecutionException {
