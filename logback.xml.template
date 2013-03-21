@@ -17,6 +17,7 @@
   </appender>
 
   <logger name="org.apache" level="ERROR"/>
+  <logger name="org.quartz" level="ERROR"/>
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT" />
