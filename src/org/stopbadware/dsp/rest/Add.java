@@ -1,11 +1,6 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -20,10 +15,8 @@ import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
-import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.ResolverResults;
 import org.stopbadware.dsp.json.Response;
-import org.stopbadware.lib.util.SHA2;
 
 @Path("/add")
 public class Add extends SecureREST {
@@ -50,18 +43,6 @@ public class Add extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			processMarkClean(data, dbh);
-			return httpResponseCode(OK);
-		} else {
-			return httpResponseCode(FORBIDDEN);
-		}
-	}
-	
-	@POST
-	@Path("/resolve/start")
-	public Response startResolver() {
-		DBHandler dbh = getDBH();
-		if (dbh != null) {
-//			beginResolving(dbh);
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);

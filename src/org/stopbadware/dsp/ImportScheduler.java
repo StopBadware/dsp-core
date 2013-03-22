@@ -30,11 +30,13 @@ public class ImportScheduler {
 		scheduler.start();
 		
 		JobDetail importer = newJob(Import.class).build();
-		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(1)).build();
+		int impHours = (System.getenv("SBW_IMPORT_HOURS") != null) ? Integer.valueOf(System.getenv("SBW_IMPORT_HOURS")) : 1;
+		Trigger importTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(impHours)).build();
 		scheduler.scheduleJob(importer, importTrigger);
 		
 		JobDetail resolver = newJob(Resolve.class).build();
-		Trigger resolverTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(12)).build();
+		int resHours = (System.getenv("SBW_RESOLVE_HOURS") != null) ? Integer.valueOf(System.getenv("SBW_RESOLVE_HOURS")) : 24;
+		Trigger resolverTrigger = newTrigger().startNow().withSchedule(repeatHourlyForever(resHours)).build();
 		scheduler.scheduleJob(resolver, resolverTrigger);
 	}
 	
