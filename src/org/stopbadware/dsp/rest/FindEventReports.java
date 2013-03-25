@@ -16,12 +16,15 @@ public class FindEventReports extends SecureREST {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince(@PathParam("param") String sinceTime) {
+		Response response = null;
 		DBHandler dbh = getDBH();
-		if (dbh != null) {			
-			return dbh.testFind(Long.valueOf(sinceTime));
+		if (dbh != null) {	
+			
+			response = dbh.testFind(Long.valueOf(sinceTime));
 		} else {
-			return httpResponseCode(FORBIDDEN);
+			response = httpResponseCode(FORBIDDEN);
 		}
+		return response;
 	}
 	
 	@GET
