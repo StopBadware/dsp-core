@@ -22,7 +22,7 @@ public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
-	private static final long MAX_AGE = 15L;
+	private static final long MAX_AGE = 60L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	public static String REALMNAME = "SBW-DSP";
 	
