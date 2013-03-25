@@ -25,7 +25,7 @@ public class FindEventReports extends SecureREST {
 				time = Long.valueOf(sinceTime);
 				response = dbh.testFind(time);
 			} catch (NumberFormatException e) {
-				response = new Error(400, "Bad Request: invalid timestamp to retreive reports since");
+				response = new Error(400, "Bad Request: invalid timestamp to retrieve reports since");
 			}
 		} else {
 			response = httpResponseCode(FORBIDDEN);

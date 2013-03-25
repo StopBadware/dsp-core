@@ -86,19 +86,20 @@ public class DBHandler {
 	 * "prefix" otherwise
 	 */
 	private String getReporterField(String reporter) {
-		//TODO: DATA-53 refactor logic to check if <=5 retrun prefix else find prefix 
+		//TODO: DATA-53 refactor logic to check if <=5 return prefix else find prefix 
 		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
 	public SearchResults testFind(long sinceTime) {
 		SearchResults sr = new SearchResults();
-		DBObject query = new BasicDBObject();
-		query.put("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-		int limit = 2500;
+		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+		DBObject keys = new BasicDBObject("_id", 0);
+		DBObject sort = new BasicDBObject ("reported_at", DESC);
+		int limit = 25000;
 		//TODO: DATA-53 revert
 		if (sinceTime>=0) {
 //		if (subject.isPermitted(Permissions.READ_EVENTS)) {
-			List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
+			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
 			sr.setCount(res.size());
 			sr.setSearchCriteria(String.valueOf(sinceTime));
 			sr.setResults(res);
