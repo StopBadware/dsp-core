@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.json.Error;
 
 @Path("/events")
 public class FindEventReports extends SecureREST {
@@ -19,8 +20,13 @@ public class FindEventReports extends SecureREST {
 		Response response = null;
 		DBHandler dbh = getDBH();
 		if (dbh != null) {	
-			
-			response = dbh.testFind(Long.valueOf(sinceTime));
+			long time = 0L;
+			try {
+				time = Long.valueOf(sinceTime);
+				response = dbh.testFind(time);
+			} catch (NumberFormatException e) {
+				response = new Error(400, "Bad Request: invalid timestamp to retreive reports since");
+			}
 		} else {
 			response = httpResponseCode(FORBIDDEN);
 		}
