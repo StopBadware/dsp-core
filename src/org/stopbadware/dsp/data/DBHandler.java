@@ -57,6 +57,10 @@ public class DBHandler {
 			LOG.warn("Non authenticated subject received, instantiating with empty subject with no authorizations");
 			this.subject = AuthAuth.getEmptySubject();
 		}
+		//Make sure Shiro created a valid session (see DATA-68)
+		if (subject.getSession(true) == null) {
+			LOG.error("Session NOT created for {}", subject.getPrincipal());
+		}
 	}
 	
 	/**
