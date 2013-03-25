@@ -90,11 +90,17 @@ public class DBHandler {
 		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
-	public SearchResults testFind(long sinceTime) {
+	/**
+	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
+	 * sorted by reported at time ascending
+	 * @param sinceTime UNIX timestamp to retrieve reports since
+	 * @return SearchResults with the results or null if not authorized
+	 */
+	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		DBObject keys = new BasicDBObject("_id", 0);
-		DBObject sort = new BasicDBObject ("reported_at", DESC);
+		DBObject sort = new BasicDBObject ("reported_at", ASC);
 		int limit = 25000;
 		//TODO: DATA-53 revert
 		if (sinceTime>=0) {
@@ -104,6 +110,7 @@ public class DBHandler {
 			sr.setSearchCriteria(String.valueOf(sinceTime));
 			sr.setResults(res);
 		} else {
+			sr = null;
 			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
 		}
 		return sr;
