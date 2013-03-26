@@ -57,7 +57,7 @@ public class DBHandler {
 			LOG.warn("Non authenticated subject received, instantiating with empty subject with no authorizations");
 			this.subject = AuthAuth.getEmptySubject();
 		}
-		//Make sure Shiro created a valid session (see DATA-68)
+		//Make sure Shiro created a valid session (see DATA-69)
 		if (subject.getSession(true) == null) {
 			LOG.error("Session NOT created for {}", subject.getPrincipal());
 		}
@@ -85,21 +85,30 @@ public class DBHandler {
 	 * "prefix" otherwise
 	 */
 	private String getReporterField(String reporter) {
-		//TODO: DATA-53 refactor logic to check if <=5 retrun prefix else find prefix 
+		//TODO: DATA-53 refactor logic to check if <=5 return prefix else find prefix 
 		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
-	public SearchResults testFind(long sinceTime) {
+	/**
+	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
+	 * sorted by reported at time ascending
+	 * @param sinceTime UNIX timestamp to retrieve reports since
+	 * @return SearchResults with the results or null if not authorized
+	 */
+	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = new SearchResults();
-		DBObject query = new BasicDBObject();
-		query.put("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-		int limit = 2500;
-		if (subject.isPermitted(Permissions.READ_EVENTS)) {
-			List<DBObject> res = eventReportColl.find(query).limit(limit).toArray();
+		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+		DBObject keys = new BasicDBObject("_id", 0);
+		keys.put("_created", 0);
+		DBObject sort = new BasicDBObject("reported_at", ASC);
+		int limit = 25000;
+		if (sinceTime>=0 && subject.isPermitted(Permissions.READ_EVENTS)) {
+			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
 			sr.setCount(res.size());
 			sr.setSearchCriteria(String.valueOf(sinceTime));
 			sr.setResults(res);
 		} else {
+			sr = null;
 			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
 		}
 		return sr;
