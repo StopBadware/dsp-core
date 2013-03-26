@@ -44,7 +44,7 @@ public class DBHandler {
 	public static final int ASC = MongoDB.ASC;
 	public static final int DESC = MongoDB.DESC;
 
-	//TODO: DATA-53 populate prefix/fullname mapping
+	//TODO: DATA-72 populate prefix/fullname mapping
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
 		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
@@ -85,7 +85,7 @@ public class DBHandler {
 	 * "prefix" otherwise
 	 */
 	private String getReporterField(String reporter) {
-		//TODO: DATA-53 refactor logic to check if <=5 return prefix else find prefix 
+		//TODO: DATA-72 refactor logic to check if <=5 return prefix else find prefix 
 		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
