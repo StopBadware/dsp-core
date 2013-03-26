@@ -32,13 +32,11 @@ public abstract class SecureREST {
 	 */
 	protected DBHandler getDBH() {
 		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
-//		if (subject.isAuthenticated()) {
-//			return new DBHandler(subject);
-//		} else {
-//			return null;
-//		}
-		//TODO: DATA-53 revert
-		return new DBHandler(subject);
+		if (subject.isAuthenticated()) {
+			return new DBHandler(subject);
+		} else {
+			return null;
+		}
 	}
 	
 	/**

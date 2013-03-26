@@ -51,14 +51,13 @@ public class DBHandler {
 		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
-		if (subject.isAuthenticated()) {	//TODO: DATA-53 revert
+		if (subject.isAuthenticated()) {
 			this.subject = subject;
 		} else {
 			LOG.warn("Non authenticated subject received, instantiating with empty subject with no authorizations");
-//			this.subject = AuthAuth.getEmptySubject();	//TODO: DATA-53 revert
-			this.subject = subject;						//DELME: DATA-53
+			this.subject = AuthAuth.getEmptySubject();
 		}
-		//Make sure Shiro created a valid session (see DATA-68)
+		//Make sure Shiro created a valid session (see DATA-69)
 		if (subject.getSession(true) == null) {
 			LOG.error("Session NOT created for {}", subject.getPrincipal());
 		}
@@ -100,11 +99,10 @@ public class DBHandler {
 		SearchResults sr = new SearchResults();
 		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		DBObject keys = new BasicDBObject("_id", 0);
-		DBObject sort = new BasicDBObject ("reported_at", ASC);
+		keys.put("_created", 0);
+		DBObject sort = new BasicDBObject("reported_at", ASC);
 		int limit = 25000;
-		//TODO: DATA-53 revert
-		if (sinceTime>=0) {
-//		if (subject.isPermitted(Permissions.READ_EVENTS)) {
+		if (sinceTime>=0 && subject.isPermitted(Permissions.READ_EVENTS)) {
 			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
 			sr.setCount(res.size());
 			sr.setSearchCriteria(String.valueOf(sinceTime));

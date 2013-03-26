@@ -19,11 +19,14 @@ public class FindEventReports extends SecureREST {
 	public Response findSince(@PathParam("param") String sinceTime) {
 		Response response = null;
 		DBHandler dbh = getDBH();
-		if (dbh != null) {	
+		if (dbh != null) {
 			long time = 0L;
 			try {
 				time = Long.valueOf(sinceTime);
 				response = dbh.findEventReportsSince(time);
+				if (response == null) {
+					response = httpResponseCode(FORBIDDEN);
+				}
 			} catch (NumberFormatException e) {
 				response = new Error(400, "Bad Request: invalid timestamp to retrieve reports since");
 			}
