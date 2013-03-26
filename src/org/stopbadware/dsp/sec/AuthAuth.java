@@ -22,8 +22,7 @@ public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
-//	private static final long MAX_AGE = 120L;
-	private static final long MAX_AGE = 12000000000L;	//TODO:DATA-53 revert
+	private static final long MAX_AGE = 120L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	public static String REALMNAME = "SBW-DSP";
 	
@@ -68,6 +67,7 @@ public abstract class AuthAuth {
 		if (subject.getSession(true) == null) {
 			LOG.error("Session NOT created for {}", subject.getPrincipal());
 		}
+		
 		if (sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
 			try {
