@@ -38,7 +38,7 @@ public class DBHandler {
 	private DBCollection ipColl;
 	private DBCollection asColl;
 	private DBCollection eventReportColl;
-	private Subject subject = AuthAuth.getEmptySubject();
+	private Subject subject; 
 	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final int ASC = MongoDB.ASC;
@@ -54,12 +54,8 @@ public class DBHandler {
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
 		} else {
-			LOG.warn("Non authenticated subject received, instantiating with empty subject with no authorizations");
+			LOG.warn("Non authenticated subject received - this instance will not have ANY authorizations");
 			this.subject = AuthAuth.getEmptySubject();
-		}
-		//Make sure Shiro created a valid session (see DATA-69)
-		if (subject.getSession(true) == null) {
-			LOG.error("Session NOT created for {}", subject.getPrincipal());
 		}
 	}
 	

@@ -36,7 +36,12 @@ public abstract class AuthAuth {
 	 * authentication or authorization checks
 	 */
 	public static Subject getEmptySubject() {
-		return SecurityUtils.getSubject();
+		Subject subject = SecurityUtils.getSubject();
+		//Make sure Shiro created a valid session (see DATA-69)
+		if (subject.getSession(true) == null) {
+			LOG.error("Session NOT created for {}", subject.getPrincipal());
+		}
+		return subject;
 	}
 
 	/**
