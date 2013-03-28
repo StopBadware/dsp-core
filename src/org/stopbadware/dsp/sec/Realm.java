@@ -10,9 +10,12 @@ import org.stopbadware.dsp.sec.RESTfulToken.Credentials;
 
 public class Realm extends AuthorizingRealm {
 
+	public static String REALMNAME = "SBW-DSP";
+	
 	public Realm() {
 		this.setAuthenticationTokenClass(RESTfulToken.class);
-		this.setName(AuthAuth.REALMNAME);
+//		this.setName(AuthAuth.REALMNAME);	//TODO: DATA-69
+		this.setName(REALMNAME);			//TODO: DATA-69
 	}
 	
 	@Override

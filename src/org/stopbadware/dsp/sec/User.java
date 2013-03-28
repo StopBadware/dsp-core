@@ -19,7 +19,7 @@ public class User implements Account {
 	private static final long serialVersionUID = -8172191017152833255L;
 
 	public User(String principal) {
-		pc.add(principal, AuthAuth.REALMNAME);
+		pc.add(principal, Realm.REALMNAME);
 	}
 	
 	public User(String principal, Credentials credentials) {

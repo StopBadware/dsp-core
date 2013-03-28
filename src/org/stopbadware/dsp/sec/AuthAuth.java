@@ -10,8 +10,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.session.UnknownSessionException;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +22,13 @@ import org.stopbadware.dsp.ShareLevel;
 public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
-	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
+	private static DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final long MAX_AGE = 120L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
-	public static String REALMNAME = "SBW-DSP";
 	
 	static {
 		SecurityUtils.setSecurityManager(securityManager);
+		((DefaultSessionManager)securityManager.getSessionManager()).setSessionValidationSchedulerEnabled(false);
 	}
 	
 	/**
@@ -40,9 +39,9 @@ public abstract class AuthAuth {
 	public static Subject getEmptySubject() {
 		Subject subject = SecurityUtils.getSubject();
 		//Make sure Shiro created a valid session (see DATA-69)
-		if (subject.getSession(true) == null) {
-			LOG.error("Session NOT created for {}", subject.getPrincipal());
-		}
+//		if (subject.getSession(true) == null) {	//TODO: DATA-69
+//			LOG.error("Session NOT created for {}", subject.getPrincipal());
+//		}
 		return subject;
 	}
 
@@ -70,11 +69,11 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
-		Session session = subject.getSession(true);
+//		Session session = subject.getSession(true);
 		//Make sure Shiro created a valid session (see DATA-69)
-		if (session == null) {
-			LOG.error("Session NOT created for {}", subject.getPrincipal());
-		}
+//		if (session == null) {	//TODO: DATA-69
+//			LOG.error("Session NOT created for {}", subject.getPrincipal());
+//		}
 		
 		if (sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
@@ -82,9 +81,9 @@ public abstract class AuthAuth {
 				subject.login(token);
 			} catch (AuthenticationException e) {
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
-			} catch (UnknownSessionException e) {
+			} /*catch (UnknownSessionException e) {
 				LOG.warn("UnknownSessionException :-(\t{}", e.getMessage());
-			}
+			}*/	//TODO: DATA-69
 		}
 		
 		return subject;
