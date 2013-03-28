@@ -8,8 +8,11 @@ import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
+import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -29,6 +32,8 @@ public abstract class AuthAuth {
 	static {
 		SecurityUtils.setSecurityManager(securityManager);
 		((DefaultSessionManager)securityManager.getSessionManager()).setSessionValidationSchedulerEnabled(false);
+		SessionStorageEvaluator sessionDAO = ((DefaultSubjectDAO)securityManager.getSubjectDAO()).getSessionStorageEvaluator();
+		((DefaultSessionStorageEvaluator)sessionDAO).setSessionStorageEnabled(false);
 	}
 	
 	/**
