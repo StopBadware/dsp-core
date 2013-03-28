@@ -10,6 +10,8 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +70,9 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
+		Session session = subject.getSession(true);
 		//Make sure Shiro created a valid session (see DATA-69)
-		if (subject.getSession(true) == null) {
+		if (session == null) {
 			LOG.error("Session NOT created for {}", subject.getPrincipal());
 		}
 		
@@ -79,6 +82,8 @@ public abstract class AuthAuth {
 				subject.login(token);
 			} catch (AuthenticationException e) {
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
+			} catch (UnknownSessionException e) {
+				LOG.warn("UnknownSessionException :-(\t{}", e.getMessage());
 			}
 		}
 		
