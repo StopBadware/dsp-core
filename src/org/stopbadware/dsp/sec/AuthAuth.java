@@ -71,8 +71,8 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
-		if (key != null && subject!= null && subject.getPrincipal() != null) { 
-			System.out.println("IN AUTHAUTH w/"+subject.getPrincipal().toString()+"\t>>"+key+"<<");									//DELME: DATA-69
+		if (key != null && subject!= null) { 
+			System.out.println("IN AUTHAUTH w/"+subject.toString()+"\t>>"+key+"<<");									//DELME: DATA-69
 		} else {
 			System.out.println("IN AUTHAUTH");
 		}
