@@ -56,9 +56,9 @@ public abstract class AuthAuth {
 	 * @return a Subject for use in authorization and authentication checks
 	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
-		String path = "";
-		String key = "";
-		String sig = "";
+		String path = null;
+		String key = null;
+		String sig = null;
 		long ts = 0L;
 		
 		try {
@@ -71,7 +71,11 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
-		System.out.println("IN AUTHAUTH w/"+subject.getPrincipal().toString()+"\t>>"+key+"<<");									//DELME: DATA-69
+		if (key != null && subject!= null && subject.getPrincipal() != null) { 
+			System.out.println("IN AUTHAUTH w/"+subject.getPrincipal().toString()+"\t>>"+key+"<<");									//DELME: DATA-69
+		} else {
+			System.out.println("IN AUTHAUTH");
+		}
 		System.out.println("Authenticated:\t" + subject.isAuthenticated());	//DELME: DATA-69
 		System.out.println("Remembered:\t" + subject.isRemembered());		//DELME: DATA-69
 		System.out.println("Authorized:\t" + subject.isPermitted(Permissions.READ_EVENTS));	//DELME: DATA-69
