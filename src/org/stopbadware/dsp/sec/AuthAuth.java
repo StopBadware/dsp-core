@@ -10,8 +10,10 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
+import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -24,14 +26,15 @@ import org.stopbadware.dsp.ShareLevel;
 public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
-	private static DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
+//	private static DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
+	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final long MAX_AGE = 120L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	
 	static {
 		SecurityUtils.setSecurityManager(securityManager);
-		((DefaultSessionManager)securityManager.getSessionManager()).setSessionValidationSchedulerEnabled(false);
-		SessionStorageEvaluator sessionDAO = ((DefaultSubjectDAO)securityManager.getSubjectDAO()).getSessionStorageEvaluator();
+		((DefaultSessionManager)((SessionsSecurityManager) securityManager).getSessionManager()).setSessionValidationSchedulerEnabled(false);
+		SessionStorageEvaluator sessionDAO = ((DefaultSubjectDAO)((DefaultSecurityManager) securityManager).getSubjectDAO()).getSessionStorageEvaluator();
 		((DefaultSessionStorageEvaluator)sessionDAO).setSessionStorageEnabled(false);
 	}
 	
