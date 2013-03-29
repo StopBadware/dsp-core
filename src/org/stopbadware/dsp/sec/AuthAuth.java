@@ -72,9 +72,10 @@ public abstract class AuthAuth {
 		
 		Subject subject = SecurityUtils.getSubject();
 		
-		if (sigIsValid(sig) && tsIsValid(ts)) {
+		if (keyIsValid(key) && sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
 			try {
+				System.out.println("LOGGING IN");	//DELME: DATA-69
 				subject.login(token);
 			} catch (AuthenticationException e) {
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
@@ -82,6 +83,10 @@ public abstract class AuthAuth {
 		}
 		
 		return subject;
+	}
+	
+	private static boolean keyIsValid(String key) {
+		return (key != null && key.length() > 0);
 	}
 	
 	private static boolean sigIsValid(String sig) {
