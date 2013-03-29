@@ -14,8 +14,7 @@ public class Realm extends AuthorizingRealm {
 	
 	public Realm() {
 		this.setAuthenticationTokenClass(RESTfulToken.class);
-//		this.setName(AuthAuth.REALMNAME);	//TODO: DATA-69
-		this.setName(REALMNAME);			//TODO: DATA-69
+		this.setName(REALMNAME);
 	}
 	
 	@Override

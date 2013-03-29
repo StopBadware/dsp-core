@@ -10,7 +10,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
-import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
@@ -43,10 +42,6 @@ public abstract class AuthAuth {
 	 */
 	public static Subject getEmptySubject() {
 		Subject subject = SecurityUtils.getSubject();
-		//Make sure Shiro created a valid session (see DATA-69)
-//		if (subject.getSession(true) == null) {	//TODO: DATA-69
-//			LOG.error("Session NOT created for {}", subject.getPrincipal());
-//		}
 		return subject;
 	}
 
@@ -74,11 +69,6 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
-//		Session session = subject.getSession(true);
-		//Make sure Shiro created a valid session (see DATA-69)
-//		if (session == null) {	//TODO: DATA-69
-//			LOG.error("Session NOT created for {}", subject.getPrincipal());
-//		}
 		
 		if (sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
@@ -86,9 +76,7 @@ public abstract class AuthAuth {
 				subject.login(token);
 			} catch (AuthenticationException e) {
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
-			} /*catch (UnknownSessionException e) {
-				LOG.warn("UnknownSessionException :-(\t{}", e.getMessage());
-			}*/	//TODO: DATA-69
+			} 
 		}
 		
 		return subject;
