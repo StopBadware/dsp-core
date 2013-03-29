@@ -36,16 +36,6 @@ public abstract class AuthAuth {
 		SessionStorageEvaluator sessionDAO = ((DefaultSubjectDAO)((DefaultSecurityManager) securityManager).getSubjectDAO()).getSessionStorageEvaluator();
 		((DefaultSessionStorageEvaluator)sessionDAO).setSessionStorageEnabled(false);
 	}
-	
-	/**
-	 * Returns an unauthenticated Subject with no authorizations
-	 * @return a placeholder Subject that will return false to any
-	 * authentication or authorization checks
-	 */
-	public static Subject getEmptySubject() {
-		Subject subject = SecurityUtils.getSubject();
-		return subject;
-	}
 
 	/**
 	 * Creates and returns a subject from the provided parameters
@@ -53,7 +43,8 @@ public abstract class AuthAuth {
 	 * "SBW-Key", "SBW-Signature", and "SBW-Timestamp" - a warning will be 
 	 * thrown otherwise and an unauthenticated subject returned
 	 * @param uri destination URI of the request
-	 * @return a Subject for use in authorization and authentication checks
+	 * @return an authenticated Subject for use in authorization and 
+	 * authentication checks, or null if authentication failed
 	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
 		String path = null;
@@ -72,20 +63,12 @@ public abstract class AuthAuth {
 		
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
-		if (key != null && subject!= null) { 
-			System.out.println("IN AUTHAUTH w/"+subject.toString()+"\t>>"+key+"<<");									//DELME: DATA-69
-		} else {
-			System.out.println("IN AUTHAUTH");
-		}
-		System.out.println("Authenticated:\t" + subject.isAuthenticated());	//DELME: DATA-69
-		System.out.println("Remembered:\t" + subject.isRemembered());		//DELME: DATA-69
-		System.out.println("Authorized:\t" + subject.isPermitted(Permissions.READ_EVENTS));	//DELME: DATA-69
 		if (keyIsValid(key) && sigIsValid(sig) && tsIsValid(ts)) {
 			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
 			try {
-				System.out.println("LOGGING IN");							//DELME: DATA-69
 				subject.login(token);
 			} catch (AuthenticationException e) {
+				subject = null;
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
 			} 
 		}

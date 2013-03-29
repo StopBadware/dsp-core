@@ -11,7 +11,6 @@ import org.apache.shiro.subject.Subject;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.sec.AuthAuth;
-import org.stopbadware.dsp.sec.Permissions;
 
 /**
  * Super-class ALL other classes in org.stopbadware.dsp.rest should extend. This
@@ -33,7 +32,7 @@ public abstract class SecureREST {
 	 */
 	protected DBHandler getDBH() {
 		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
-		if (subject.isAuthenticated()) {
+		if (subject != null && subject.isAuthenticated()) {
 			return new DBHandler(subject);
 		} else {
 			return null;

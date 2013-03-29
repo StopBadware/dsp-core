@@ -14,7 +14,6 @@ import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
-import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
@@ -53,9 +52,6 @@ public class DBHandler {
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
-		} else {
-			LOG.warn("Non authenticated subject received - this instance will not have ANY authorizations");
-			this.subject = AuthAuth.getEmptySubject();
 		}
 	}
 	
