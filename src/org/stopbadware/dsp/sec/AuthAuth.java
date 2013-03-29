@@ -26,7 +26,6 @@ import org.stopbadware.dsp.ShareLevel;
 public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
-//	private static DefaultSecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final long MAX_AGE = 120L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
