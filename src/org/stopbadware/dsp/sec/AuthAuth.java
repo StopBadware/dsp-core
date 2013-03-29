@@ -71,7 +71,7 @@ public abstract class AuthAuth {
 		}
 		
 		Subject subject = SecurityUtils.getSubject();
-		System.out.println("IN AUTHAUTH");									//DELME: DATA-69
+		System.out.println("IN AUTHAUTH w/"+subject.getPrincipal().toString()+"\t>>"+key+"<<");									//DELME: DATA-69
 		System.out.println("Authenticated:\t" + subject.isAuthenticated());	//DELME: DATA-69
 		System.out.println("Remembered:\t" + subject.isRemembered());		//DELME: DATA-69
 		System.out.println("Authorized:\t" + subject.isPermitted(Permissions.READ_EVENTS));	//DELME: DATA-69
