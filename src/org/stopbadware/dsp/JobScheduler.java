@@ -21,9 +21,9 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;	
 
-public class ImportScheduler {
+public class JobScheduler {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ImportScheduler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(JobScheduler.class);
 			
 	public static void main(String[] args) throws Exception {
 		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();

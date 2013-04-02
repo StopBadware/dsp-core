@@ -117,7 +117,7 @@
                   <name>webapp</name>
               	</program>
               	<program>
-                  <mainClass>org.stopbadware.dsp.ImportScheduler</mainClass>
+                  <mainClass>org.stopbadware.dsp.JobScheduler</mainClass>
                   <name>scheduler</name>
               	</program>
 	          </programs>
