@@ -1,5 +1,9 @@
 package org.stopbadware.dsp;
 
+import io.iron.ironmq.Client;
+import io.iron.ironmq.Cloud;
+import io.iron.ironmq.Queue;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,6 +27,9 @@ import static org.quartz.SimpleScheduleBuilder.repeatHourlyForever;
 
 public class JobScheduler {
 
+	private static final String IRON_PROJECT_ID = System.getenv("IRON_MQ_PROJECT_ID");
+	private static final String IRON_TOKEN = System.getenv("IRON_MQ_TOKEN");
+	private static final Cloud IRON_CLOUD = Cloud.ironAWSUSEast;
 	private static final Logger LOG = LoggerFactory.getLogger(JobScheduler.class);
 			
 	public static void main(String[] args) throws Exception {
@@ -50,6 +57,18 @@ public class JobScheduler {
 		}
 		
 		private void beginImporting() {
+			if (IRON_PROJECT_ID != null && IRON_TOKEN != null) {
+				Client client = new Client(IRON_PROJECT_ID, IRON_TOKEN, IRON_CLOUD);
+				Queue queue = client.queue("import_queue");
+				try {
+					queue.push("all");
+				} catch (IOException e) {
+					LOG.error("Unable to add import request for all to queue:\t{}", e.getMessage());
+				}
+			}
+		}
+		
+		private void OLDbeginImporting() {		//DELME: DATA-74
 			try {
 				URL url = new URL(impHost+"/import/all/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -90,6 +109,18 @@ public class JobScheduler {
 		}
 		
 		private void beginResolving() {
+			if (IRON_PROJECT_ID != null && IRON_TOKEN != null) {
+				Client client = new Client(IRON_PROJECT_ID, IRON_TOKEN, IRON_CLOUD);
+				Queue queue = client.queue("resolve_queue");
+				try {
+					queue.push("resolve_all_current");
+				} catch (IOException e) {
+					LOG.error("Unable to add resolve request to queue:\t{}", e.getMessage());
+				}
+			}
+		}
+		
+		private void OLDbeginResolving() {		//DELME: DATA-74
 			try {
 				URL url = new URL(resHost+"/resolve/hosts/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
