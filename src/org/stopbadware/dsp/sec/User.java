@@ -12,7 +12,7 @@ import org.stopbadware.lib.util.SHA2;
 
 public class User implements Account {
 
-	private Credentials credentials;
+	private Credentials credentials = null;
 	private SimplePrincipalCollection pc = new SimplePrincipalCollection();
 	private SecurityDBHandler secdb = new SecurityDBHandler();
 	
@@ -24,8 +24,11 @@ public class User implements Account {
 	
 	public User(String principal, Credentials credentials) {
 		this(principal);
-		String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+secdb.getSecret(principal));
-		this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
+		String secret = secdb.getSecret(principal);
+		if (secret != null) {
+			String signature = SHA2.get256(principal+credentials.getTimestamp()+credentials.getPath()+secret);
+			this.credentials = new Credentials(signature, credentials.getPath(), credentials.getTimestamp());
+		}
 	}
 	
 	@Override

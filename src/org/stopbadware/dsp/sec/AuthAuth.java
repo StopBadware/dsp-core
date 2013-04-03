@@ -51,7 +51,6 @@ public abstract class AuthAuth {
 		String key = null;
 		String sig = null;
 		long ts = 0L;
-		
 		try {
 			path = uri.getPath().toString();
 			key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");

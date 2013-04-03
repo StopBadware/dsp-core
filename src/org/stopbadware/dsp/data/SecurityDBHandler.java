@@ -52,8 +52,8 @@ public class SecurityDBHandler {
 	/**
 	 * Retrieves the secret key associated with the API key provided
 	 * @param apiKey the API Key to retrieve the secret key for
-	 * @return String containing the associated secret key, or an 
-	 * empty String if one could not be retrieved for the provided API key
+	 * @return String containing the associated secret key, or 
+	 * null if one could not be retrieved for the provided API key
 	 * (i.e. key doesn't exist or account is disabled)
 	 */
 	public String getSecret(String apiKey) {
@@ -67,12 +67,12 @@ public class SecurityDBHandler {
 				crypted = obj.get("secret_key").toString();
 			}
 			if (obj.containsField("enabled")) {
-				System.out.println(obj.get("enabled"));	//DELME: DATA-79
+				LOG.info("mdb:\t{}",obj.get("enabled"));	//DELME: DATA-79
 				enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
 			}
 		}
-		System.out.println("enabled:\t"+enabled);		//DELME: DATA-79
-		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
+		LOG.info("java:\t{}", enabled);						//DELME: DATA-79
+		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : null;
 	}
 	
 	/**
@@ -80,10 +80,11 @@ public class SecurityDBHandler {
 	 * @param roles set of Roles to assign the new account
 	 * @param subject a Shiro subject with sufficient authorization to add
 	 * new users
+	 * @param participantPrefix the prefix of the organization associated with this key
 	 * @return a String representing the API Key for the new account, or
 	 * null if an account could not be created
 	 */
-	public String addUser(Set<Role> roles, Subject subject) {
+	public String addUser(Set<Role> roles, Subject subject, String participantPrefix) {
 		String apiKey = createAPIKey();
 		boolean userAdded = false;
 		if (!keyIsUnique(apiKey)) {
@@ -103,19 +104,23 @@ public class SecurityDBHandler {
 				for (Role role : roles) {
 					roleStrings.add(role.toString());
 				}
-				userAdded = writeAccount(apiKey, crypted, roleStrings, subject);
+				userAdded = writeAccount(apiKey, crypted, roleStrings, subject, participantPrefix);
 			}
 		}
 		 
 		return (userAdded) ? apiKey : null;
 	}
 	
-	private boolean writeAccount(String apiKey, String crypted, Set<String> roles, Subject subject) {
+	private boolean writeAccount(String apiKey, String crypted, Set<String> roles, Subject subject, String participantPrefix) {
 		boolean writeSuccess = false;
 		DBObject account = new BasicDBObject();
 		account.put("api_key", apiKey);
 		account.put("secret_key", crypted);
 		account.put("roles", roles.toArray(new String[roles.size()]));
+		account.put("participant", participantPrefix);
+		account.put("enabled", true);
+		account.put("last_access", 0);
+		account.put("num_access", 0);
 		WriteResult wr = null;
 		if (subject.isPermitted(Permissions.WRITE_ACCOUNTS)) {
 			wr = accountsColl.insert(account);
