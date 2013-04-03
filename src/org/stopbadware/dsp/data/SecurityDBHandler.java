@@ -72,7 +72,12 @@ public class SecurityDBHandler {
 			}
 		}
 		LOG.info("java:\t{}", enabled);						//DELME: DATA-79
+		touch(apiKey);
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : null;
+	}
+	
+	private void touch(String apiKey) {
+		//TODO: DATA-79 update timestamp and count
 	}
 	
 	/**
