@@ -54,9 +54,11 @@ public class SecurityDBHandler {
 	 * @param apiKey the API Key to retrieve the secret key for
 	 * @return String containing the associated secret key, or an 
 	 * empty String if one could not be retrieved for the provided API key
+	 * (i.e. key doesn't exist or account is disabled)
 	 */
 	public String getSecret(String apiKey) {
 		String crypted = "";
+		boolean enabled = false;
 		DBObject query = new BasicDBObject("api_key", apiKey);
 		DBCursor cur = accountsColl.find(query).limit(1);
 		while (cur.hasNext()) {
@@ -64,8 +66,13 @@ public class SecurityDBHandler {
 			if (obj.containsField("secret_key")) {
 				crypted = obj.get("secret_key").toString();
 			}
+			if (obj.containsField("enabled")) {
+				System.out.println(obj.get("enabled"));	//DELME: DATA-79
+				enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
+			}
 		}
-		return decryptSecret(crypted);
+		System.out.println("enabled:\t"+enabled);		//DELME: DATA-79
+		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
 	}
 	
 	/**
