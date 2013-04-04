@@ -3,3 +3,5 @@
 .settings/
 logs/*
 target/
+tomcat.5000/
+tomcat.9000/
