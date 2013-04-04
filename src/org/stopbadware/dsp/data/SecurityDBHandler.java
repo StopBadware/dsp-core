@@ -75,6 +75,10 @@ public class SecurityDBHandler {
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : null;
 	}
 	
+	/**
+	 * Updates the account's access fields (last access time, number of access attempts)
+	 * @param apiKey API Key of the account to update
+	 */
 	private void touch(String apiKey) {
 		DBObject doc = new BasicDBObject("api_key", apiKey);
 		DBObject upd = new BasicDBObject();
