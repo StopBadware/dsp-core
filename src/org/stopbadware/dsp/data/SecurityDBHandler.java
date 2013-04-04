@@ -21,6 +21,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 /**
@@ -67,17 +68,28 @@ public class SecurityDBHandler {
 				crypted = obj.get("secret_key").toString();
 			}
 			if (obj.containsField("enabled")) {
-				LOG.info("mdb:\t{}",obj.get("enabled"));	//DELME: DATA-79
 				enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
 			}
 		}
-		LOG.info("java:\t{}", enabled);						//DELME: DATA-79
 		touch(apiKey);
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : null;
 	}
 	
 	private void touch(String apiKey) {
-		//TODO: DATA-79 update timestamp and count
+		DBObject doc = new BasicDBObject("api_key", apiKey);
+		DBObject upd = new BasicDBObject();
+		upd.put("$inc", new BasicDBObject("num_access", 1));
+		upd.put("$set", new BasicDBObject("last_access", System.currentTimeMillis()/1000));
+		WriteResult wr = null;
+		try {
+			wr = accountsColl.update(doc, upd);
+			if (wr.getError() != null) {
+				LOG.error("Unable to update access fields:\t{}", wr.getError());
+			}
+		} catch (MongoException e) {
+			LOG.error("Unable to update access fields:\t{}", e.getMessage());
+		}
+		
 	}
 	
 	/**

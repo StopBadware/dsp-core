@@ -57,7 +57,7 @@ public class SecurityDBHandlerTest {
 	@Test
 	public void testAddUser() {
 		Set<Role> roles = new HashSet<>();
-		String newAPIKey = dbh.addUser(roles, subject);
+		String newAPIKey = dbh.addUser(roles, subject, "test");
 		assertTrue(newAPIKey != null); 
 		assertTrue(newAPIKey.length() > 0);
 	}
