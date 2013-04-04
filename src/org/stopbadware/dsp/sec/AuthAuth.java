@@ -56,6 +56,7 @@ public abstract class AuthAuth {
 			key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");
 			sig = httpHeaders.getRequestHeaders().getFirst("SBW-Signature");
 			ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("SBW-Timestamp"));
+			LOG.info("{} accessing '{}'", key, path);
 		} catch (NullPointerException | IllegalStateException | NumberFormatException e) {
 			LOG.warn("Exception thrown parsing headers:\t{}", e.toString());
 		}
