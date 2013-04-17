@@ -30,7 +30,7 @@ public class SecurityDBHandlerTest {
 		SecurityUtils.setSecurityManager(securityManager);
 		subject = SecurityUtils.getSubject();
 		String sig = "54fc7ffd3cdc856c09c8747b61718741166f347b93f43c8db2ce6e4f568881e1";
-		String path = "/clearinghouse/events/test";
+		String path = "/v0.2/events/since/0";
 		long ts = 1294513200L;
 		
 		RESTfulToken token = new RESTfulToken(TEST_APIKEY, sig, path, ts); 

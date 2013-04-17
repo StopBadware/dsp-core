@@ -38,7 +38,7 @@ public class DBHandlerTest {
 		Subject subject = SecurityUtils.getSubject();
 		String key = "DATA123456";
 		String sig = "54fc7ffd3cdc856c09c8747b61718741166f347b93f43c8db2ce6e4f568881e1";
-		String path = "/clearinghouse/events/test";
+		String path = "/v0.2/events/since/0";
 		long ts = 1294513200L;
 		
 		RESTfulToken token = new RESTfulToken(key, sig, path, ts); 

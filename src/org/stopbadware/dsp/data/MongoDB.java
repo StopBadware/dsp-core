@@ -56,7 +56,7 @@ public abstract class MongoDB {
 	}
 	
 	/**
-	 * Gets the mongodb clearinghouse database object
+	 * Gets the mongodb database object
 	 * @return MongoDB database object
 	 */
 	public static DB getDB() {
