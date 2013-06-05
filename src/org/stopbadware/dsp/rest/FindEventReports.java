@@ -61,7 +61,7 @@ public class FindEventReports extends SecureREST {
 	 */
 	
 	@GET
-	@Path("/stats/{param}")
+	@Path("/stats/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStats(@PathParam("source") String source) {
 		DBHandler dbh = getDBH();

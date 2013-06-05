@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.data;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -82,31 +83,51 @@ public class DBHandler {
 	}
 	
 	/**
+	 * Convenience method to check for authorization and log a
+	 * warning for unauthorized access attempts
+	 * @param permission the permission to check if the principal is
+	 * authorized for
+	 * @return true if the principal has the appropriate permission
+	 */
+	private boolean isAuthorized(String permission) {
+		boolean auth = subject.isPermitted(permission);
+		if (!auth) {
+			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), permission);
+		}
+		return auth;
+	}
+	
+	/**
 	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
 	 * sorted by reported at time ascending
 	 * @param sinceTime UNIX timestamp to retrieve reports since
 	 * @return SearchResults with the results or null if not authorized
 	 */
 	public SearchResults findEventReportsSince(long sinceTime) {
+		if (sinceTime < 0 || !isAuthorized(Permissions.READ_EVENTS)) {
+			return null;
+		}
 		SearchResults sr = new SearchResults(String.valueOf(sinceTime));
 		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		DBObject keys = new BasicDBObject("_id", 0);
 		keys.put("_created", 0);
 		DBObject sort = new BasicDBObject("reported_at", ASC);
 		int limit = 25000;
-		if (sinceTime>=0 && subject.isPermitted(Permissions.READ_EVENTS)) {
-			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
-			sr.setCount(res.size());
-			sr.setResults(res);
-		} else {
-			sr = null;
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
-		}
+		List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
+		sr.setCount(res.size());
+		sr.setResults(res);
 		return sr;
 	}
 	
 	public SearchResults getEventReportsStats(String source) {
+		if (!isAuthorized(Permissions.READ_EVENTS)) {
+			return null;
+		}
 		SearchResults sr = new SearchResults(source);
+		Map<String, Object> stats = new HashMap<>();
+//		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+		sr.setCount(stats.size());
+		sr.setResults(stats);
 		
 		return sr;
 	}
@@ -127,10 +148,8 @@ public class DBHandler {
 		keys.put("_id", 0);
 		keys.put("reported_at", 1);
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_EVENTS)) {
+		if (isAuthorized(Permissions.READ_EVENTS)) {
 			cur = eventReportColl.find(query, keys).sort(new BasicDBObject ("reported_at", DESC)).limit(1);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
 		}
 		while (cur != null && cur.hasNext()) {
 			try {
@@ -154,10 +173,8 @@ public class DBHandler {
 		keys.put("_id", 0);
 		keys.put("host", 1);
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_EVENTS)) {
+		if (isAuthorized(Permissions.READ_EVENTS)) {
 			cur = eventReportColl.find(query, keys);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
 		}
 		while (cur != null && cur.hasNext()) {
 			try {
@@ -211,7 +228,7 @@ public class DBHandler {
 		
 		WriteResult wr = null;
 		try {
-			if (subject.isPermitted(Permissions.WRITE_EVENTS)) {
+			if (isAuthorized(Permissions.WRITE_EVENTS)) {
 				wr = eventReportColl.insert(doc);
 				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 					if (doc.get("url") != null) {
@@ -220,8 +237,6 @@ public class DBHandler {
 						LOG.error("Error writing report with null URL to collection: {}", wr.getError());
 					}
 				}
-			} else {
-				LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_EVENTS);
 			}
 		} catch (MongoException e) {
 			LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
@@ -244,10 +259,8 @@ public class DBHandler {
 		DBObject query = new BasicDBObject();
 		query.put("host", host);
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_HOSTS)) {
+		if (isAuthorized(Permissions.READ_HOSTS)) {
 			cur = hostColl.find(query);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_HOSTS);
 		}
 		while (cur.hasNext()) {
 			String levelString = (String) cur.next().get("share_level");
@@ -262,10 +275,8 @@ public class DBHandler {
 		updateDoc.put("share_level", level.toString());
 
 		WriteResult wr = null;
-		if (subject.isPermitted(Permissions.WRITE_HOSTS)) {
+		if (isAuthorized(Permissions.WRITE_HOSTS)) {
 			wr = hostColl.update(query, updateDoc, true, false);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_HOSTS);
 		}
 		if (wr != null && wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 			LOG.error("Error writing {} to host collection: {}", host, wr.getError());
@@ -297,15 +308,13 @@ public class DBHandler {
 			DBObject updateDoc = new BasicDBObject();
 			updateDoc.put("$push", new BasicDBObject("ips", ipDoc));
 			if (ipHasChanged(host, ip)) {
-				if (subject.isPermitted(Permissions.WRITE_HOSTS)) {
+				if (isAuthorized(Permissions.WRITE_HOSTS)) {
 					WriteResult wr = hostColl.update(hostDoc, updateDoc);
 					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 						LOG.error("Error writing to collection: {}", wr.getError());
 					} else  {
 						dbWrites += wr.getN();
 					}
-				} else {
-					LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_HOSTS);
 				}
 			}
 		}
@@ -323,10 +332,8 @@ public class DBHandler {
 		long mostRecentTimestamp = 0L;
 		long mostRecentIP = -1;
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_HOSTS)) {
+		if (isAuthorized(Permissions.READ_HOSTS)) {
 			cur = hostColl.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_HOSTS);
 		}
 		
 		while (cur != null && cur.hasNext()) {
@@ -364,15 +371,13 @@ public class DBHandler {
 		boolean wroteToDB = false;
 		DBObject ipDoc = new BasicDBObject();
 		ipDoc.put("ip", ip);
-		if (subject.isPermitted(Permissions.WRITE_IPS)) {
+		if (isAuthorized(Permissions.WRITE_IPS)) {
 			WriteResult wr = ipColl.insert(ipDoc);
 			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 				LOG.error("Error writing {} / {} to database", ip, IP.longToDots(ip));
 			} else {
 				wroteToDB = true;
 			}
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_IPS);
 		}
 		return wroteToDB;
 	}
@@ -398,15 +403,13 @@ public class DBHandler {
 			DBObject updateDoc = new BasicDBObject();
 			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
 			if (asnHasChanged(ip, asns.get(ip).getAsn())) {
-				if (subject.isPermitted(Permissions.WRITE_IPS)) {
+				if (isAuthorized(Permissions.WRITE_IPS)) {
 					WriteResult wr = ipColl.update(ipDoc, updateDoc);
 					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 						LOG.error("Error writing to collection: {}", wr.getError());
 					} else  {
 						dbWrites += wr.getN();
 					}
-				} else {
-					LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_IPS);
 				}
 			}
 			
@@ -428,10 +431,8 @@ public class DBHandler {
 		int mostRecentASN = asn;
 		
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_IPS)) {
+		if (isAuthorized(Permissions.READ_IPS)) {
 			cur = ipColl.find(new BasicDBObject("ip", ip), new BasicDBObject("asns", 1));
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_IPS);
 		}
 		
 		while (cur != null && cur.hasNext()) {
@@ -486,15 +487,13 @@ public class DBHandler {
 				DBObject asnDoc = new BasicDBObject();
 				asnDoc.put("asn", asn);
 				
-				if (subject.isPermitted(Permissions.WRITE_ASNS)) {
+				if (isAuthorized(Permissions.WRITE_ASNS)) {
 					WriteResult wr = asColl.update(asnDoc, doc, true, false);
 					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
 						LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
 					} else {
 						dbWrites += wr.getN();
 					}
-				} else {
-					LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_ASNS);
 				}
 			}
 		}
@@ -516,10 +515,8 @@ public class DBHandler {
 		DBObject keys = new BasicDBObject(field, 1);
 		keys.put("_id", 0);
 		DBCursor cur = null;
-		if (subject.isPermitted(Permissions.READ_EVENTS)) {
+		if (isAuthorized(Permissions.READ_EVENTS)) {
 			cur = eventReportColl.find(query, keys);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.READ_EVENTS);
 		}
 		Set<String> blacklisted = new HashSet<>();
 
@@ -554,10 +551,8 @@ public class DBHandler {
 		update.put("is_on_blacklist", false);
 		update.put("removed_from_blacklist", removedTime);
 		WriteResult wr = null;
-		if (subject.isPermitted(Permissions.WRITE_EVENTS)) {
+		if (isAuthorized(Permissions.WRITE_EVENTS)) {
 			wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
-		} else {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_EVENTS);
 		}
 		if (wr != null) {
 			if (wr.getError() != null) {
