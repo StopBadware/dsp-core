@@ -128,13 +128,11 @@ public class DBHandler {
 		Map<String, Object> stats = new HashMap<>();
 		stats.put("total_count", eventReportColl.getCount());
 		stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
-		DBObject firstOp = new BasicDBObject("$group", "sha2_256");
+		DBObject firstOp = new BasicDBObject("$group", new BasicDBObject("_id", "$sha2_256"));
 		DBObject secondGroup = new BasicDBObject("_id", 1);
-//		secondGroup.put("count", new BasicDBObject("$sum", 1));
+		secondGroup.put("count", new BasicDBObject("$sum", 1));
 		DBObject secondOp = new BasicDBObject("$group", secondGroup);
-		DBObject thirdOp = new BasicDBObject("$group", new BasicDBObject("count", new BasicDBObject("$sum", 1)));
-		AggregationOutput ao = eventReportColl.aggregate(firstOp, secondOp, thirdOp);
-		System.out.println(ao);	//DELME
+		AggregationOutput ao = eventReportColl.aggregate(firstOp, secondOp);
 		sr.setCount(stats.size());
 		sr.setResults(stats);
 		
