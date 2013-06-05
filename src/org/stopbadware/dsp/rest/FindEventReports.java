@@ -13,6 +13,12 @@ import org.stopbadware.dsp.json.Error;
 @Path("/events")
 public class FindEventReports extends SecureREST {
 	
+	/*
+	 * **********************************
+	 * **************v0.2****************
+	 * **********************************
+	 */
+	
 	@GET
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -43,6 +49,24 @@ public class FindEventReports extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			return dbh.getTimeOfLast(source);
+		} else {
+			return httpResponseCode(FORBIDDEN);
+		}
+	}
+	
+	/*
+	 * **********************************
+	 * ***************v2*****************
+	 * **********************************
+	 */
+	
+	@GET
+	@Path("/stats/{param}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getStats(@PathParam("source") String source) {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			return dbh.getEventReportsStats(source);
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}

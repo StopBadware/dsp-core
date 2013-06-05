@@ -106,6 +106,12 @@ public class DBHandler {
 		return sr;
 	}
 	
+	public SearchResults getEventReportsStats(String source) {
+		SearchResults sr = new SearchResults();
+		
+		return sr;
+	}
+	
 	/**
 	 * Retrieves and returns timestamp of last event report for the requested source
 	 * @param source either full name or prefix of reporting source (case insensitive)
