@@ -19,6 +19,7 @@ import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -125,7 +126,15 @@ public class DBHandler {
 		}
 		SearchResults sr = new SearchResults(source);
 		Map<String, Object> stats = new HashMap<>();
-//		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+		stats.put("total_count", eventReportColl.getCount());
+		stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
+		DBObject firstOp = new BasicDBObject("$group", "sha2_256");
+		DBObject secondGroup = new BasicDBObject("_id", 1);
+//		secondGroup.put("count", new BasicDBObject("$sum", 1));
+		DBObject secondOp = new BasicDBObject("$group", secondGroup);
+		DBObject thirdOp = new BasicDBObject("$group", new BasicDBObject("count", new BasicDBObject("$sum", 1)));
+		AggregationOutput ao = eventReportColl.aggregate(firstOp, secondOp, thirdOp);
+		System.out.println(ao);	//DELME
 		sr.setCount(stats.size());
 		sr.setResults(stats);
 		
