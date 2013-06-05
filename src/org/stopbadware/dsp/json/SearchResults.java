@@ -17,8 +17,9 @@ public class SearchResults implements Response {
 	private String searchCriteria = "";
 	private Object results = null;
 	
-	public SearchResults() {
+	public SearchResults(String searchCriteria) {
 		startedAt = System.currentTimeMillis();
+		this.searchCriteria = searchCriteria;
 	}
 	
 	public int getCount() {
@@ -42,10 +43,6 @@ public class SearchResults implements Response {
 	public String getSearchCriteria() {
 		return searchCriteria;
 	}
-
-	public void setSearchCriteria(String searchCriteria) {
-		this.searchCriteria = searchCriteria;
-	}
 	
 	@JsonProperty("search_results")
 	public Object getResults() {
@@ -61,7 +58,7 @@ public class SearchResults implements Response {
 		return duration;
 	}
 
-	public void setDuration() {
+	private void setDuration() {
 		setCompletedAt(System.currentTimeMillis());
 		this.duration = (int) (completedAt - startedAt);
 	}

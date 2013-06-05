@@ -88,7 +88,7 @@ public class DBHandler {
 	 * @return SearchResults with the results or null if not authorized
 	 */
 	public SearchResults findEventReportsSince(long sinceTime) {
-		SearchResults sr = new SearchResults();
+		SearchResults sr = new SearchResults(String.valueOf(sinceTime));
 		DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 		DBObject keys = new BasicDBObject("_id", 0);
 		keys.put("_created", 0);
@@ -97,7 +97,6 @@ public class DBHandler {
 		if (sinceTime>=0 && subject.isPermitted(Permissions.READ_EVENTS)) {
 			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
 			sr.setCount(res.size());
-			sr.setSearchCriteria(String.valueOf(sinceTime));
 			sr.setResults(res);
 		} else {
 			sr = null;
@@ -107,7 +106,7 @@ public class DBHandler {
 	}
 	
 	public SearchResults getEventReportsStats(String source) {
-		SearchResults sr = new SearchResults();
+		SearchResults sr = new SearchResults(source);
 		
 		return sr;
 	}
