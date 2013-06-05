@@ -126,13 +126,17 @@ public class DBHandler {
 		}
 		SearchResults sr = new SearchResults(source);
 		Map<String, Object> stats = new HashMap<>();
+		long start = System.currentTimeMillis();		//DELME
 		stats.put("total_count", eventReportColl.getCount());
+		long er = System.currentTimeMillis()-start;		//DELME
 		stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
-		DBObject firstOp = new BasicDBObject("$group", new BasicDBObject("_id", "$sha2_256"));
-		DBObject secondGroup = new BasicDBObject("_id", 1);
-		secondGroup.put("count", new BasicDBObject("$sum", 1));
-		DBObject secondOp = new BasicDBObject("$group", secondGroup);
-		AggregationOutput ao = eventReportColl.aggregate(firstOp, secondOp);
+		long bl = System.currentTimeMillis()-start;		//DELME
+		stats.put("unique_host_count", eventReportColl.distinct("host").size());
+		long host = System.currentTimeMillis()-start;	//DELME
+		System.out.println(start);	//DELME
+		System.out.println(er);		//DELME
+		System.out.println(bl);		//DELME
+		System.out.println(host);	//DELME
 		sr.setCount(stats.size());
 		sr.setResults(stats);
 		
