@@ -38,6 +38,7 @@ public class DBHandler {
 	private DBCollection ipColl;
 	private DBCollection asColl;
 	private DBCollection eventReportColl;
+	private EventReportsHandler eventsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
@@ -53,7 +54,7 @@ public class DBHandler {
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
-			EventReportsHandler eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), isAuthorized(Permissions.READ_EVENTS), isAuthorized(Permissions.WRITE_EVENTS));
+			eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), isAuthorized(Permissions.READ_EVENTS), isAuthorized(Permissions.WRITE_EVENTS));
 		}
 	}
 	
@@ -105,44 +106,38 @@ public class DBHandler {
 	 * @return SearchResults with the results or null if not authorized
 	 */
 	public SearchResults findEventReportsSince(long sinceTime) {
-		SearchResults sr = null;
-		if (sinceTime > 0 || isAuthorized(Permissions.READ_EVENTS)) {
-			sr = new SearchResults(String.valueOf(sinceTime));
-			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			DBObject keys = new BasicDBObject("_id", 0);
-			keys.put("_created", 0);
-			DBObject sort = new BasicDBObject("reported_at", ASC);
-			int limit = 25000;
-			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
-			sr.setCount(res.size());
-			sr.setResults(res);
-		}
-		return sr;
+//		SearchResults sr = null;
+//		if (sinceTime > 0 || isAuthorized(Permissions.READ_EVENTS)) {
+//			sr = new SearchResults(String.valueOf(sinceTime));
+//			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+//			DBObject keys = new BasicDBObject("_id", 0);
+//			keys.put("_created", 0);
+//			DBObject sort = new BasicDBObject("reported_at", ASC);
+//			int limit = 25000;
+//			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
+//			sr.setCount(res.size());
+//			sr.setResults(res);
+//		}
+//		return sr;	//DELME?
+		return eventsHandler.findEventReportsSince(sinceTime);
 	}
 	
 	public SearchResults getEventReportsStats(String source) {
-		SearchResults sr = null;
-		if (isAuthorized(Permissions.READ_EVENTS)) {
-			sr = new SearchResults(source);
-			Map<String, Object> stats = new HashMap<>();
-			stats.put("total_count", eventReportColl.getCount());
-			stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
-			//TODO: DATA-96 get added between start & end
-			stats.put("added_last24h", getEventReportsAddedBetween(0, 0));
-			stats.put("added_last7d", getEventReportsAddedBetween(0, 0));
-			stats.put("added_last4w", getEventReportsAddedBetween(0, 0));
-			sr.setCount(stats.size());
-			sr.setResults(stats);
-		}
-		return sr;
-	}
-	
-	private int getEventReportsAddedBetween(long start, long end) {
-		//TODO: DATA-96 get added between start & end
-		if (isAuthorized(Permissions.READ_EVENTS)) {
-			
-		}
-		return 0;
+//		SearchResults sr = null;
+//		if (isAuthorized(Permissions.READ_EVENTS)) {
+//			sr = new SearchResults(source);
+//			Map<String, Object> stats = new HashMap<>();
+//			stats.put("total_count", eventReportColl.getCount());
+//			stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
+//			//TODO: DATA-96 get added between start & end
+//			stats.put("added_last24h", getEventReportsAddedBetween(0, 0));
+//			stats.put("added_last7d", getEventReportsAddedBetween(0, 0));
+//			stats.put("added_last4w", getEventReportsAddedBetween(0, 0));
+//			sr.setCount(stats.size());
+//			sr.setResults(stats);
+//		}
+//		return sr;	//DELME?
+		return eventsHandler.getEventReportsStats(source);
 	}
 	
 	/**
