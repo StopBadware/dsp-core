@@ -24,6 +24,7 @@ import com.mongodb.WriteResult;
 
 public class EventReportsHandler extends MDBCollectionHandler {
 	
+	private static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
 	public EventReportsHandler(DB db, DBCollection coll, Subject subject) {
@@ -57,26 +58,37 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	public SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
 		if (canRead) {
-			sr = new SearchResults(source);
+			//TODO: DATA-96 add source handling
+			sr = new SearchResults("er_stats");
 			Map<String, Object> stats = new HashMap<>();
 			stats.put("total_count", coll.getCount());
 			stats.put("on_blacklist_count", coll.getCount(new BasicDBObject("is_on_blacklist", true)));
-			//TODO: DATA-96 get added between start & end
-			stats.put("added_last24h", getEventReportsAddedBetween(0, 0));
-			stats.put("added_last7d", getEventReportsAddedBetween(0, 0));
-			stats.put("added_last4w", getEventReportsAddedBetween(0, 0));
+			long now = System.currentTimeMillis() / 1000;
+			long dayAgo = now - SECONDS_IN_DAY;
+			long weekAgo = now - (SECONDS_IN_DAY * 7);
+			long monthAgo = now - (SECONDS_IN_DAY * 30);
+			stats.put("added_last_1", getNumEventReportsAdded(dayAgo, now, source));
+			stats.put("added_last_7", getNumEventReportsAdded(weekAgo, now, source));
+			stats.put("added_last_30", getNumEventReportsAdded(monthAgo, now, source));
 			sr.setCount(stats.size());
 			sr.setResults(stats);
 		}
 		return sr;
 	}
 	
-	private int getEventReportsAddedBetween(long start, long end) {
-		//TODO: DATA-96 get added between start & end
+	private long getNumEventReportsAdded(long start, long end, String source) {
+		long cnt = 0;
 		if (canRead) {
-			
+			DBObject timeframe = new BasicDBObject();
+			timeframe.put("$gte", start);
+			timeframe.put("$lt", end);
+			DBObject search = new BasicDBObject("reported_at", timeframe);
+			if (!source.equalsIgnoreCase("all")) {
+				search.put("prefix", source);
+			}
+			cnt = coll.getCount(search);
 		}
-		return 0;
+		return cnt;
 	}
 	
 	/**
