@@ -1,11 +1,8 @@
 package org.stopbadware.dsp.data;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -25,7 +22,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 /**
@@ -37,51 +33,21 @@ public class DBHandler {
 	private DBCollection hostColl;
 	private DBCollection ipColl;
 	private DBCollection asColl;
-	private DBCollection eventReportColl;
 	private EventReportsHandler eventsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
-	public static final int ASC = MongoDB.ASC;		//DELME?
-	public static final int DESC = MongoDB.DESC;		//DELME?
 	
 	//TODO: DATA-72 populate prefix/fullname mapping
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
-		eventReportColl = db.getCollection(MongoDB.EVENT_REPORTS);
 		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
-			eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), isAuthorized(Permissions.READ_EVENTS), isAuthorized(Permissions.WRITE_EVENTS));
+			eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), this.subject);
 		}
-	}
-	
-	/**
-	 * Convenience method for creating an exact case insensitive regex Pattern
-	 * @param str String to match
-	 * @return java.util.regex Pattern or null if could not create Pattern
-	 */
-	private Pattern getRegex(String str) {
-		Pattern p = null;
-		try {
-			p = Pattern.compile("^" + str + "$", Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
-		} catch (IllegalArgumentException e) {
-			LOG.warn("Unable to create Pattern for >>{}<<\t{}", str, e.getMessage());
-		}
-		return p;
-	}
-	
-	/**
-	 * Convenience method for retrieving the field to use as the reported by
-	 * @param reporter reporting source for the record
-	 * @return "_reported_by" if the length of reporter is greater than 5 chars, 
-	 * "prefix" otherwise
-	 */
-	private String getReporterField(String reporter) {
-		//TODO: DATA-72 refactor logic to check if <=5 return prefix else find prefix 
-		return (reporter.length() > 5) ? "reported_by" : "prefix";
 	}
 	
 	/**
@@ -97,7 +63,7 @@ public class DBHandler {
 			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), permission);
 		}
 		return auth;
-	}
+	}	//DELME?
 	
 	/**
 	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
@@ -106,37 +72,10 @@ public class DBHandler {
 	 * @return SearchResults with the results or null if not authorized
 	 */
 	public SearchResults findEventReportsSince(long sinceTime) {
-//		SearchResults sr = null;
-//		if (sinceTime > 0 || isAuthorized(Permissions.READ_EVENTS)) {
-//			sr = new SearchResults(String.valueOf(sinceTime));
-//			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-//			DBObject keys = new BasicDBObject("_id", 0);
-//			keys.put("_created", 0);
-//			DBObject sort = new BasicDBObject("reported_at", ASC);
-//			int limit = 25000;
-//			List<DBObject> res = eventReportColl.find(query, keys).sort(sort).limit(limit).toArray();
-//			sr.setCount(res.size());
-//			sr.setResults(res);
-//		}
-//		return sr;	//DELME?
 		return eventsHandler.findEventReportsSince(sinceTime);
 	}
 	
 	public SearchResults getEventReportsStats(String source) {
-//		SearchResults sr = null;
-//		if (isAuthorized(Permissions.READ_EVENTS)) {
-//			sr = new SearchResults(source);
-//			Map<String, Object> stats = new HashMap<>();
-//			stats.put("total_count", eventReportColl.getCount());
-//			stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
-//			//TODO: DATA-96 get added between start & end
-//			stats.put("added_last24h", getEventReportsAddedBetween(0, 0));
-//			stats.put("added_last7d", getEventReportsAddedBetween(0, 0));
-//			stats.put("added_last4w", getEventReportsAddedBetween(0, 0));
-//			sr.setCount(stats.size());
-//			sr.setResults(stats);
-//		}
-//		return sr;	//DELME?
 		return eventsHandler.getEventReportsStats(source);
 	}
 	
@@ -146,27 +85,7 @@ public class DBHandler {
 	 * @return TimeOfLast with UNIX timestamp (0 if unable to determine)
 	 */
 	public TimeOfLast getTimeOfLast(String source) {
-		long time = 0L;
-		DBObject query = new BasicDBObject();
-		Pattern sourceRegex = getRegex(source);
-		String sourceField = getReporterField(source);
-		query.put(sourceField, sourceRegex);
-		
-		DBObject keys = new BasicDBObject();
-		keys.put("_id", 0);
-		keys.put("reported_at", 1);
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_EVENTS)) {
-			cur = eventReportColl.find(query, keys).sort(new BasicDBObject ("reported_at", DESC)).limit(1);
-		}
-		while (cur != null && cur.hasNext()) {
-			try {
-				time = Long.valueOf(cur.next().get("reported_at").toString());
-			} catch (NumberFormatException | NullPointerException e) {
-				time = 0L;
-			}
-		}
-		return new TimeOfLast(source, time);
+		return eventsHandler.getTimeOfLast(source);
 	}
 	
 	/**
@@ -174,24 +93,7 @@ public class DBHandler {
 	 * @return Set of Strings containing the blacklisted hosts
 	 */
 	public Set<String> getCurrentlyBlacklistedHosts() {
-		Set<String> hosts = new HashSet<>();
-		DBObject query = new BasicDBObject();
-		query.put("is_on_blacklist", true);
-		DBObject keys = new BasicDBObject();
-		keys.put("_id", 0);
-		keys.put("host", 1);
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_EVENTS)) {
-			cur = eventReportColl.find(query, keys);
-		}
-		while (cur != null && cur.hasNext()) {
-			try {
-				hosts.add(cur.next().get("host").toString());
-			} catch (MongoException | NullPointerException e) {
-				LOG.error("Unable to retrieve object from cursor:\t{}", e.getMessage());
-			}
-		}
-		return hosts;
+		return eventsHandler.getCurrentlyBlacklistedHosts();
 	}
 	
 	/**
@@ -206,7 +108,7 @@ public class DBHandler {
 		for (ERWrapper er : reports) {
 			WriteResult wr = null;
 			if (er.getErMap() != null && er.getErMap().size() > 0) {
-				wr = addEventReport(er.getErMap());
+				wr = eventsHandler.addEventReport(er.getErMap());
 			}
 			if (wr != null) {
 				if (wr.getError() != null && wr.getError().contains(DUPE_ERR)) {
@@ -221,36 +123,6 @@ public class DBHandler {
 		LOG.info("{} new event reports added", dbWrites);
 		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
-	}
-	
-	/**
-	 * Inserts a single Event Report into database, ignoring duplicates.
-	 * @param event key/value map to be inserted
-	 * @return WriteResult: the WriteResult associated with the write attempt
-	 * or null if the attempt was unsuccessful
-	 */
-	private WriteResult addEventReport(Map<String, Object> event) {
-		DBObject doc = new BasicDBObject();
-		doc.putAll(event);
-		doc.put("_created", System.currentTimeMillis() / 1000);
-		
-		WriteResult wr = null;
-		try {
-			if (isAuthorized(Permissions.WRITE_EVENTS)) {
-				wr = eventReportColl.insert(doc);
-				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-					if (doc.get("url") != null) {
-						LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-					} else {
-						LOG.error("Error writing report with null URL to collection: {}", wr.getError());
-					}
-				}
-			}
-		} catch (MongoException e) {
-			LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
-		}
-		
-		return wr;	
 	}
 	
 	/**
@@ -509,69 +381,6 @@ public class DBHandler {
 		return dbWrites;
 	}
 	
-	/**
-	 * Find the event reports currently marked as blacklisted for the reporter provided
-	 * @param reporter blacklisting source
-	 * @param field the key to retrieve from each report
-	 * @return a Set of Strings containing the value for the corresponding key
-	 */
-	private Set<String> findCurrentlyBlacklistedBySource(String reporter, String field) {
-		DBObject query = new BasicDBObject();
-		String sourceField = getReporterField(reporter);
-		query.put(sourceField, getRegex(reporter));
-		query.put("is_on_blacklist", true);
-		DBObject keys = new BasicDBObject(field, 1);
-		keys.put("_id", 0);
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_EVENTS)) {
-			cur = eventReportColl.find(query, keys);
-		}
-		Set<String> blacklisted = new HashSet<>();
-
-		while (cur != null && cur.hasNext()) {
-			Object val = cur.next().get(field);
-			if (val != null) {
-				blacklisted.add(val.toString());
-			}
-		}
-		
-		return blacklisted;
-	}
-	
-	/**
-	 * Updates event reports for the specified reporter matching the provided key/value 
-	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time
-	 * @param reporter either the full name or prefix of the reporting entity
-	 * @param key db document field to match
-	 * @param value matching value
-	 * @param removedTime UNIXTimestamp as a long to set as the removed time
-	 * @return int: the number of event reports updated
-	 */
-	private int removeFromBlacklist(String reporter, String key, Object value, long removedTime) {
-		int updated = 0;
-		String sourceField = getReporterField(reporter);
-		DBObject query = new BasicDBObject();
-		query.put(key, value);
-		query.put(sourceField, reporter);
-		query.put("is_on_blacklist", true);
-		
-		DBObject update = new BasicDBObject();
-		update.put("is_on_blacklist", false);
-		update.put("removed_from_blacklist", removedTime);
-		WriteResult wr = null;
-		if (isAuthorized(Permissions.WRITE_EVENTS)) {
-			wr = eventReportColl.update(query, new BasicDBObject("$set", update), false, true);
-		}
-		if (wr != null) {
-			if (wr.getError() != null) {
-				LOG.error("Error changing blacklist flag for {}:\t{}", value, wr.getError());
-			} else if (wr.getError() == null) {
-				updated += wr.getN();
-			}
-		}
-		
-		return updated;
-	}
 	
 	/**
 	 * Updates event reports for the specified reporter matching hosts in the provided set
@@ -584,10 +393,10 @@ public class DBHandler {
 	public int updateBlacklistFlagsFromCleanHosts(String reporter, long removedTime, Set<String> cleanHosts) {
 		int updated = 0;
 		String key = "host";
-		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, key);
+		Set<String> blacklisted = eventsHandler.findCurrentlyBlacklistedBySource(reporter, key);
 		for (String blHost : blacklisted) {
 			if (cleanHosts.contains(blHost)) {
-				updated += removeFromBlacklist(reporter, key, blHost, removedTime);
+				updated += eventsHandler.removeFromBlacklist(reporter, key, blHost, removedTime);
 			}
 		}
 		
@@ -632,11 +441,11 @@ public class DBHandler {
 	 */
 	private int updateBlacklistFlagsFromDirty(String reporter, long removedTime, Set<String> dirtyValues, String key) {
 		int updated = 0;
-		Set<String> blacklisted = findCurrentlyBlacklistedBySource(reporter, key);
+		Set<String> blacklisted = eventsHandler.findCurrentlyBlacklistedBySource(reporter, key);
 
 		for (String blValue : blacklisted) {
 			if (!dirtyValues.contains(blValue)) {
-				updated += removeFromBlacklist(reporter, key, blValue, removedTime);
+				updated += eventsHandler.removeFromBlacklist(reporter, key, blValue, removedTime);
 			}
 		}
 		
