@@ -19,7 +19,6 @@ import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -40,11 +39,11 @@ public class DBHandler {
 	private DBCollection asColl;
 	private DBCollection eventReportColl;
 	private Subject subject; 
-	private static final String DUPE_ERR = "E11000";
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
-	public static final int ASC = MongoDB.ASC;
-	public static final int DESC = MongoDB.DESC;
-
+	public static final String DUPE_ERR = "E11000";	//DELME?
+	public static final int ASC = MongoDB.ASC;		//DELME?
+	public static final int DESC = MongoDB.DESC;		//DELME?
+	
 	//TODO: DATA-72 populate prefix/fullname mapping
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
@@ -54,6 +53,7 @@ public class DBHandler {
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
+			EventReportsHandler eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), isAuthorized(Permissions.READ_EVENTS), isAuthorized(Permissions.WRITE_EVENTS));
 		}
 	}
 	
@@ -127,10 +127,22 @@ public class DBHandler {
 			Map<String, Object> stats = new HashMap<>();
 			stats.put("total_count", eventReportColl.getCount());
 			stats.put("on_blacklist_count", eventReportColl.getCount(new BasicDBObject("is_on_blacklist", true)));
+			//TODO: DATA-96 get added between start & end
+			stats.put("added_last24h", getEventReportsAddedBetween(0, 0));
+			stats.put("added_last7d", getEventReportsAddedBetween(0, 0));
+			stats.put("added_last4w", getEventReportsAddedBetween(0, 0));
 			sr.setCount(stats.size());
 			sr.setResults(stats);
 		}
 		return sr;
+	}
+	
+	private int getEventReportsAddedBetween(long start, long end) {
+		//TODO: DATA-96 get added between start & end
+		if (isAuthorized(Permissions.READ_EVENTS)) {
+			
+		}
+		return 0;
 	}
 	
 	/**
