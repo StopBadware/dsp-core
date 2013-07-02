@@ -75,8 +75,18 @@ public class DBHandler {
 		return eventsHandler.findEventReportsSince(sinceTime);
 	}
 	
+	/**
+	 * High level statistics of the Event Reports collection
+	 * @param source the source to retrieve statistics for, or 'all'
+	 * @return SearchResults containing the collection statistics
+	 */
 	public SearchResults getEventReportsStats(String source) {
 		return eventsHandler.getEventReportsStats(source);
+	}
+	
+	public SearchResults eventReportSearch() {
+		//TODO: DATA-96 javadoc & args
+		return eventsHandler.eventReportSearch();
 	}
 	
 	/**

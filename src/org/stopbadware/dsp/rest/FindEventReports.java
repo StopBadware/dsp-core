@@ -71,4 +71,19 @@ public class FindEventReports extends SecureREST {
 			return httpResponseCode(FORBIDDEN);
 		}
 	}
+	
+	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response search() {
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			System.out.println(uri.toString());	//DELME
+			System.out.println(uri.getQueryParameters());	//DELME
+			System.out.println(uri.getQueryParameters().getClass());	//DELME
+			return dbh.eventReportSearch();
+		} else {
+			return httpResponseCode(FORBIDDEN);
+		}
+	}	
 }

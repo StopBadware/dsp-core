@@ -33,13 +33,11 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
 	
-	/**
-	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
-	 * sorted by reported at time ascending
-	 * @param sinceTime UNIX timestamp to retrieve reports since
-	 * @return SearchResults with the results or null if not authorized
+	/*
+	 * Using default (package-level) access for methods wrapped by DBHandler
 	 */
-	public SearchResults findEventReportsSince(long sinceTime) {
+	
+	SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
 		if (canRead && sinceTime > 0) {
 			sr = new SearchResults(String.valueOf(sinceTime));
@@ -49,13 +47,12 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			DBObject sort = new BasicDBObject("reported_at", ASC);
 			int limit = 25000;
 			List<DBObject> res = coll.find(query, keys).sort(sort).limit(limit).toArray();
-			sr.setCount(res.size());
 			sr.setResults(res);
 		}
 		return sr;
 	}
 	
-	public SearchResults getEventReportsStats(String source) {
+	SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
 		if (canRead) {
 			//TODO: DATA-96 add source handling
@@ -70,33 +67,21 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			stats.put("added_last_1", getNumEventReportsAdded(dayAgo, now, source));
 			stats.put("added_last_7", getNumEventReportsAdded(weekAgo, now, source));
 			stats.put("added_last_30", getNumEventReportsAdded(monthAgo, now, source));
-			sr.setCount(stats.size());
 			sr.setResults(stats);
 		}
 		return sr;
 	}
 	
-	private long getNumEventReportsAdded(long start, long end, String source) {
-		long cnt = 0;
+	SearchResults eventReportSearch() {
+		SearchResults sr = null;
 		if (canRead) {
-			DBObject timeframe = new BasicDBObject();
-			timeframe.put("$gte", start);
-			timeframe.put("$lt", end);
-			DBObject search = new BasicDBObject("reported_at", timeframe);
-			if (!source.equalsIgnoreCase("all")) {
-				search.put("prefix", source);
-			}
-			cnt = coll.getCount(search);
+			//TODO: DATA-96 perform ER search
+			sr = new SearchResults("event_reports");
 		}
-		return cnt;
+		return sr;
 	}
 	
-	/**
-	 * Retrieves and returns timestamp of last event report for the requested source
-	 * @param source either full name or prefix of reporting source (case insensitive)
-	 * @return TimeOfLast with UNIX timestamp (0 if unable to determine)
-	 */
-	public TimeOfLast getTimeOfLast(String source) {
+	TimeOfLast getTimeOfLast(String source) {
 		long time = 0L;
 		DBObject query = new BasicDBObject();
 		Pattern sourceRegex = getRegex(source);
@@ -119,11 +104,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return new TimeOfLast(source, time);
 	}
 	
-	/**
-	 * Finds and returns all hosts of currently blacklisted event reports
-	 * @return Set of Strings containing the blacklisted hosts
-	 */
-	public Set<String> getCurrentlyBlacklistedHosts() {
+	Set<String> getCurrentlyBlacklistedHosts() {
 		Set<String> hosts = new HashSet<>();
 		DBObject query = new BasicDBObject();
 		query.put("is_on_blacklist", true);
@@ -143,6 +124,21 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		}
 		return hosts;
 	}
+	
+	private long getNumEventReportsAdded(long start, long end, String source) {
+		long cnt = 0;
+		if (canRead) {
+			DBObject timeframe = new BasicDBObject();
+			timeframe.put("$gte", start);
+			timeframe.put("$lt", end);
+			DBObject search = new BasicDBObject("reported_at", timeframe);
+			if (!source.equalsIgnoreCase("all")) {
+				search.put("prefix", source);
+			}
+			cnt = coll.getCount(search);
+		}
+		return cnt;
+	}	
 	
 	/**
 	 * Inserts a single Event Report into database, ignoring duplicates.
