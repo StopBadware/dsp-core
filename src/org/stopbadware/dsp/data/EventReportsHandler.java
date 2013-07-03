@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,11 +74,12 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return sr;
 	}
 	
-	SearchResults eventReportSearch() {
+	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) {
 		SearchResults sr = null;
 		if (canRead) {
 			//TODO: DATA-96 perform ER search
 			sr = new SearchResults("event_reports");
+			DBObject searchFor = createCriteriaObject(criteria);
 		}
 		return sr;
 	}
@@ -123,6 +126,54 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			}
 		}
 		return hosts;
+	}
+	
+	private DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) {
+		DBObject critDoc = new BasicDBObject();
+		System.out.println("size:\t"+criteria.size());	//DELME
+		for (String key : criteria.keySet()) {
+			String value = criteria.getFirst(key);
+			if (!value.isEmpty()) {
+				//TODO: DATA-96 map criteria
+				System.out.println(key+"\t\t"+criteria.getFirst(key));	//DELME
+				switch (key	.toLowerCase()) {
+					case "url":
+						critDoc.put("", value);
+						break;
+					case "scheme":
+						critDoc.put("", value);
+						break;
+					case "host":
+						critDoc.put("", value);
+						break;
+					case "path":
+						critDoc.put("", value);
+						break;
+					case "query":
+						critDoc.put("", value);
+						break;
+					case "reportedby":
+						critDoc.put("", value);
+						break;
+					case "reptype":
+						critDoc.put("", value);
+						break;
+					case "blacklist":
+						critDoc.put("", value);
+						break;
+					case "after":
+						critDoc.put("", value);
+						break;
+					case "before":
+						critDoc.put("", value);
+						break;
+					default:
+						break;
+				}
+					
+			}
+		}
+		return critDoc;
 	}
 	
 	private long getNumEventReportsAdded(long start, long end, String source) {

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,9 +86,9 @@ public class DBHandler {
 		return eventsHandler.getEventReportsStats(source);
 	}
 	
-	public SearchResults eventReportSearch() {
+	public SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) {
 		//TODO: DATA-96 javadoc & args
-		return eventsHandler.eventReportSearch();
+		return eventsHandler.eventReportSearch(criteria);
 	}
 	
 	/**
