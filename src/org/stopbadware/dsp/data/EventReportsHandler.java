@@ -45,7 +45,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
 		if (canRead && sinceTime > 0) {
-			sr = new SearchResults(String.valueOf(sinceTime));
+			sr = new SearchResults();
 			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 			DBObject sort = new BasicDBObject("reported_at", ASC);
 			int limit = 25000;
@@ -59,7 +59,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		SearchResults sr = null;
 		if (canRead) {
 			//TODO: DATA-96 add source handling
-			sr = new SearchResults("er_stats");
+			sr = new SearchResults();
 			Map<String, Object> stats = new HashMap<>();
 			stats.put("total_count", coll.getCount());
 			stats.put("on_blacklist_count", coll.getCount(new BasicDBObject("is_on_blacklist", true)));
@@ -78,7 +78,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
 		SearchResults sr = null;
 		if (canRead) {
-			sr = new SearchResults(criteria.toString());
+			sr = new SearchResults();
 			DBObject searchFor = createCriteriaObject(criteria);
 			System.out.println(searchFor);	//DELME
 			List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();

@@ -13,21 +13,28 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResults implements Response {
 	
+	private int code = 20;
 	private int count = 0;
 	private int duration = 0;
 	private long startedAt = 0L;
 	private long completedAt = 0L;
-	private String searchCriteria = "";
 	private Object results = null;
 	
-	public SearchResults(String searchCriteria) {
+	public SearchResults() {
 		startedAt = System.currentTimeMillis();
 		completedAt = System.currentTimeMillis();
-		this.searchCriteria = searchCriteria;
 	}
 	
 	public int getCount() {
 		return count;
+	}
+	
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
 	}
 	
 	@JsonProperty("completed_at")
@@ -37,11 +44,6 @@ public class SearchResults implements Response {
 
 	private void setCompletedAt(long completedAt) {
 		this.completedAt = completedAt;
-	}
-
-	@JsonProperty("search_criteria")
-	public String getSearchCriteria() {
-		return searchCriteria;
 	}
 	
 	@JsonProperty("search_results")
