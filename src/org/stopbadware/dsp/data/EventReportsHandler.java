@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
+import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -79,7 +80,9 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		if (canRead) {
 			//TODO: DATA-96 perform ER search
 			sr = new SearchResults("event_reports");
+			//TODO: DATA-96 return error on invalid criteria
 			DBObject searchFor = createCriteriaObject(criteria);
+			System.out.println(searchFor);	//DELME
 		}
 		return sr;
 	}
@@ -135,37 +138,47 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
 				//TODO: DATA-96 map criteria
+				//TODO: DATA-96 add Regex
 				System.out.println(key+"\t\t"+criteria.getFirst(key));	//DELME
 				switch (key	.toLowerCase()) {
 					case "url":
-						critDoc.put("", value);
+						critDoc.put("sha2_256", SHA2.get256(value));
 						break;
 					case "scheme":
-						critDoc.put("", value);
+						critDoc.put("scheme", value);
 						break;
 					case "host":
-						critDoc.put("", value);
+						critDoc.put("host", value);
 						break;
 					case "path":
-						critDoc.put("", value);
+						critDoc.put("path", value);
 						break;
 					case "query":
-						critDoc.put("", value);
+						critDoc.put("query", value);
 						break;
 					case "reportedby":
-						critDoc.put("", value);
+						//TODO: DATA-72 check if prefix/fullname
+						critDoc.put("prefix", value);
 						break;
 					case "reptype":
-						critDoc.put("", value);
+						critDoc.put("report_type", value);
 						break;
 					case "blacklist":
-						critDoc.put("", value);
+						if (value.equalsIgnoreCase("never")) {
+							critDoc.put("report_type", new BasicDBObject("$ne", "BLACKLISTED"));
+						} else if (value.equalsIgnoreCase("currently")) {
+							critDoc.put("report_type", "BLACKLISTED");
+							critDoc.put("is_on_blacklist", true);
+						} else if (value.equalsIgnoreCase("previously")) {
+							critDoc.put("report_type", "BLACKLISTED");
+							critDoc.put("is_on_blacklist", false);
+						}
 						break;
 					case "after":
-						critDoc.put("", value);
+						critDoc.put("reported_at", new BasicDBObject("$gte", ensureLong(value)));
 						break;
 					case "before":
-						critDoc.put("", value);
+						critDoc.put("reported_at", new BasicDBObject("$lte", ensureLong(value)));
 						break;
 					default:
 						break;
@@ -174,6 +187,15 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			}
 		}
 		return critDoc;
+	}
+	
+	private long ensureLong(String str) {
+		//TODO: DATA-96 move to throws
+		try {
+			return Long.valueOf(str);
+		} catch (NumberFormatException e) {
+			return 0L;
+		}
 	}
 	
 	private long getNumEventReportsAdded(long start, long end, String source) {
