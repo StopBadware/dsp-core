@@ -3,11 +3,20 @@ package org.stopbadware.dsp.json;
 public class Error implements Response {
 
 	private int code = 0;
-	private String msg = null;
+	private String error = null;
 	
-	public Error(int code, String msg) {
-		this.setCode(code);
-		this.setMsg(msg);
+	public static final int BAD_FORMAT = 47;
+	
+	public Error(int code, String error) {
+		this.code = code;
+		switch (code) {
+			case BAD_FORMAT:
+				this.error = "Incorrectly formatted request:"+error;
+				break;
+			default:
+				this.error = error;
+				break;
+		}
 	}
 
 	public int getCode() {
@@ -18,11 +27,11 @@ public class Error implements Response {
 		this.code = code;
 	}
 
-	public String getMsg() {
-		return msg;
+	public String getError() {
+		return error;
 	}
 
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public void setError(String error) {
+		this.error = error;
 	}
 }

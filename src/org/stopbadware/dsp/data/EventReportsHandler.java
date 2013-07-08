@@ -13,6 +13,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
+import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
@@ -174,14 +175,14 @@ public class EventReportsHandler extends MDBCollectionHandler {
 							critDoc.put("report_type", "BLACKLISTED");
 							critDoc.put("is_on_blacklist", false);
 						} else {
-							throw new SearchException("'"+value+"' is not a valid 'blacklist' value");
+							throw new SearchException("'"+value+"' is not a valid 'blacklist' value", Error.BAD_FORMAT);
 						}
 						break;
 					case "after":
 						try {
 							critDoc.put("reported_at", new BasicDBObject("$gte", Long.valueOf(value)));
 						} catch (NumberFormatException e) {
-							throw new SearchException("'"+value+"' is not a valid 'after' value");
+							throw new SearchException("'"+value+"' is not a valid 'after' value", Error.BAD_FORMAT);
 						}
 						
 						break;
@@ -189,7 +190,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						try {
 							critDoc.put("reported_at", new BasicDBObject("$lte", Long.valueOf(value)));
 						} catch (NumberFormatException e) {
-							throw new SearchException("'"+value+"' is not a valid 'before' value");
+							throw new SearchException("'"+value+"' is not a valid 'before' value", Error.BAD_FORMAT);
 						}
 						break;
 					default:

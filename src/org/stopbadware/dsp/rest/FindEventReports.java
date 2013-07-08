@@ -36,7 +36,7 @@ public class FindEventReports extends SecureREST {
 					response = httpResponseCode(FORBIDDEN);
 				}
 			} catch (NumberFormatException e) {
-				response = new Error(400, "Bad Request: invalid timestamp to retrieve reports since");
+				response = new Error(Error.BAD_FORMAT, "Invalid timestamp to retrieve reports since");
 			}
 		} else {
 			response = httpResponseCode(FORBIDDEN);
@@ -85,7 +85,7 @@ public class FindEventReports extends SecureREST {
 			try {
 				return dbh.eventReportSearch(params);
 			} catch (SearchException e) {
-				return new Error(400, e.getMessage());
+				return new Error(e.getCode(), e.getMessage());
 			}
 		} else {
 			return httpResponseCode(FORBIDDEN);
