@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.Error;
@@ -81,7 +82,11 @@ public class FindEventReports extends SecureREST {
 		if (dbh != null) {
 			System.out.println(uri.getQueryParameters());	//DELME: DATA-96
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
-			return dbh.eventReportSearch(params);
+			try {
+				return dbh.eventReportSearch(params);
+			} catch (SearchException e) {
+				return new Error(400, e.getMessage());
+			}
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}

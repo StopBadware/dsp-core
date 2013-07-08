@@ -12,6 +12,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
@@ -75,7 +76,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return sr;
 	}
 	
-	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) {
+	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
 		SearchResults sr = null;
 		if (canRead) {
 			//TODO: DATA-96 perform ER search
@@ -131,7 +132,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return hosts;
 	}
 	
-	private DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) {
+	private DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
 		DBObject critDoc = new BasicDBObject();
 		System.out.println("size:\t"+criteria.size());	//DELME
 		for (String key : criteria.keySet()) {
@@ -172,30 +173,31 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						} else if (value.equalsIgnoreCase("previously")) {
 							critDoc.put("report_type", "BLACKLISTED");
 							critDoc.put("is_on_blacklist", false);
+						} else {
+							throw new SearchException("'"+value+"' is not a valid 'blacklist' value");
 						}
 						break;
 					case "after":
-						critDoc.put("reported_at", new BasicDBObject("$gte", ensureLong(value)));
+						try {
+							critDoc.put("reported_at", new BasicDBObject("$gte", Long.valueOf(value)));
+						} catch (NumberFormatException e) {
+							throw new SearchException("'"+value+"' is not a valid 'after' value");
+						}
+						
 						break;
 					case "before":
-						critDoc.put("reported_at", new BasicDBObject("$lte", ensureLong(value)));
+						try {
+							critDoc.put("reported_at", new BasicDBObject("$lte", Long.valueOf(value)));
+						} catch (NumberFormatException e) {
+							throw new SearchException("'"+value+"' is not a valid 'before' value");
+						}
 						break;
 					default:
 						break;
 				}
-					
 			}
 		}
 		return critDoc;
-	}
-	
-	private long ensureLong(String str) {
-		//TODO: DATA-96 move to throws
-		try {
-			return Long.valueOf(str);
-		} catch (NumberFormatException e) {
-			return 0L;
-		}
 	}
 	
 	private long getNumEventReportsAdded(long start, long end, String source) {

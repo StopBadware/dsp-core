@@ -9,6 +9,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
@@ -86,7 +87,7 @@ public class DBHandler {
 		return eventsHandler.getEventReportsStats(source);
 	}
 	
-	public SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) {
+	public SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
 		//TODO: DATA-96 javadoc & args
 		return eventsHandler.eventReportSearch(criteria);
 	}
