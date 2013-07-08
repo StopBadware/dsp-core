@@ -41,7 +41,6 @@ public class DBHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
 	
-	//TODO: DATA-72 populate prefix/fullname mapping
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
 		hostColl = db.getCollection(MongoDB.HOSTS);

@@ -47,11 +47,9 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		if (canRead && sinceTime > 0) {
 			sr = new SearchResults(String.valueOf(sinceTime));
 			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			DBObject keys = new BasicDBObject("_id", 0);
-			keys.put("_created", 0);
 			DBObject sort = new BasicDBObject("reported_at", ASC);
 			int limit = 25000;
-			List<DBObject> res = coll.find(query, keys).sort(sort).limit(limit).toArray();
+			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(limit).toArray();
 			sr.setResults(res);
 		}
 		return sr;
@@ -80,11 +78,12 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
 		SearchResults sr = null;
 		if (canRead) {
-			//TODO: DATA-96 perform ER search
-			sr = new SearchResults("event_reports");
-			//TODO: DATA-96 return error on invalid criteria
+			sr = new SearchResults(criteria.toString());
 			DBObject searchFor = createCriteriaObject(criteria);
 			System.out.println(searchFor);	//DELME
+			List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();
+			System.out.println(res.size());	//DELME
+			sr.setResults(res);
 		}
 		return sr;
 	}
@@ -139,7 +138,6 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		for (String key : criteria.keySet()) {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
-				//TODO: DATA-96 map criteria
 				//TODO: DATA-96 add Regex
 				System.out.println(key+"\t\t"+criteria.getFirst(key));	//DELME
 				switch (key	.toLowerCase()) {
@@ -159,7 +157,6 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						critDoc.put("query", value);
 						break;
 					case "reportedby":
-						//TODO: DATA-72 check if prefix/fullname
 						critDoc.put("prefix", value);
 						break;
 					case "reptype":

@@ -4,8 +4,11 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 public abstract class MDBCollectionHandler {
 	
@@ -38,6 +41,15 @@ public abstract class MDBCollectionHandler {
 			LOG.warn("Unable to create Pattern for >>{}<<\t{}", str, e.getMessage());
 		}
 		return p;
+	}
+	
+	protected DBObject hideKeys(String... keysToHide) {
+		DBObject keys = new BasicDBObject("_id", 0);
+		keys.put("_created", 0);
+		for (String key : keysToHide) {
+			keys.put(key, 0);
+		}
+		return keys;
 	}
 
 }

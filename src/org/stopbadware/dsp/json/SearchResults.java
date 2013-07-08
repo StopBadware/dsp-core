@@ -22,6 +22,7 @@ public class SearchResults implements Response {
 	
 	public SearchResults(String searchCriteria) {
 		startedAt = System.currentTimeMillis();
+		completedAt = System.currentTimeMillis();
 		this.searchCriteria = searchCriteria;
 	}
 	
