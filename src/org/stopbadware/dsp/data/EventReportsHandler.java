@@ -138,7 +138,6 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		for (String key : criteria.keySet()) {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
-				//TODO: DATA-96 add Regex
 				System.out.println(key+"\t\t"+criteria.getFirst(key));	//DELME
 				switch (key	.toLowerCase()) {
 					case "url":
