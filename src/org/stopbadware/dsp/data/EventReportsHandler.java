@@ -80,9 +80,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		if (canRead) {
 			sr = new SearchResults();
 			DBObject searchFor = createCriteriaObject(criteria);
-			System.out.println(searchFor);	//DELME
 			List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();
-			System.out.println(res.size());	//DELME
 			sr.setResults(res);
 		}
 		return sr;
@@ -134,11 +132,9 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	
 	private DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
 		DBObject critDoc = new BasicDBObject();
-		System.out.println("size:\t"+criteria.size());	//DELME
 		for (String key : criteria.keySet()) {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
-				System.out.println(key+"\t\t"+criteria.getFirst(key));	//DELME
 				switch (key	.toLowerCase()) {
 					case "url":
 						critDoc.put("sha2_256", SHA2.get256(value));
