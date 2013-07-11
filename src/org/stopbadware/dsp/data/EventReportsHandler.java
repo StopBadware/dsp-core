@@ -80,8 +80,12 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		if (canRead) {
 			sr = new SearchResults();
 			DBObject searchFor = createCriteriaObject(criteria);
-			List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();
-			sr.setResults(res);
+			if (searchFor.keySet().size() < 1) {
+				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
+			} else {
+				List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();
+				sr.setResults(res);
+			}
 		}
 		return sr;
 	}

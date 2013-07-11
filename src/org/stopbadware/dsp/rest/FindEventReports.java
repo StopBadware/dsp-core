@@ -80,7 +80,6 @@ public class FindEventReports extends SecureREST {
 	public Response search() {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
-			System.out.println(uri.getQueryParameters());	//DELME: DATA-96
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
 			try {
 				return dbh.eventReportSearch(params);
