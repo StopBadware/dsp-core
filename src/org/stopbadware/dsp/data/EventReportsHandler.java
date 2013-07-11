@@ -29,6 +29,7 @@ import com.mongodb.WriteResult;
 
 public class EventReportsHandler extends MDBCollectionHandler {
 	
+	private static final int MAX = 25000;
 	private static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
@@ -48,8 +49,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			sr = new SearchResults();
 			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 			DBObject sort = new BasicDBObject("reported_at", ASC);
-			int limit = 25000;
-			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(limit).toArray();
+			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
 			sr.setResults(res);
 		}
 		return sr;
@@ -83,7 +83,32 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			if (searchFor.keySet().size() < 1) {
 				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
 			} else {
-				List<DBObject> res = coll.find(searchFor, hideKeys()).toArray();
+				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
+				sr.setResults(res);
+			}
+		}
+		return sr;
+	}
+	
+	SearchResults getEventReport(String uid) throws SearchException {
+		SearchResults sr = null;
+		if (canRead) {
+			sr = new SearchResults();
+			String[] tokens = uid.split("-");
+			if (tokens.length != 3) {
+				throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
+			} else {
+				DBObject searchFor = new BasicDBObject();
+				searchFor.put("sha2_256", tokens[0]);
+				searchFor.put("prefix", tokens[1]);
+				Long reportedAt = 0L;
+				try {
+					reportedAt = Long.valueOf(tokens[2]);
+				} catch (NumberFormatException e) {
+					throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
+				}
+				searchFor.put("reported_at", reportedAt);
+				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(1).toArray();
 				sr.setResults(res);
 			}
 		}

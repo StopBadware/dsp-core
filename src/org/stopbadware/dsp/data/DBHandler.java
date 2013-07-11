@@ -86,9 +86,24 @@ public class DBHandler {
 		return eventsHandler.getEventReportsStats(source);
 	}
 	
+	/**
+	 * Searches for Event Reports and returns those matching the provided criteria
+	 * @param criteria Map of search criteria
+	 * @return SearchResults containing the matching Event Reports
+	 * @throws SearchException
+	 */
 	public SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
-		//TODO: DATA-96 javadoc & args
 		return eventsHandler.eventReportSearch(criteria);
+	}
+	
+	/**
+	 * Finds a specific Event Report based on the UID
+	 * @param UID (SHA2-PREFIX-UNIXTIME) of the Event Report to find
+	 * @return SearchResults containing the Event Report
+	 * @throws SearchException
+	 */
+	public SearchResults findEventReport(String uid) throws SearchException {
+		return eventsHandler.getEventReport(uid);
 	}
 	
 	/**
