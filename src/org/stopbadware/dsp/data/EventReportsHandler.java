@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
+import org.stopbadware.lib.util.Domain;
 import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.BasicDBObject;
@@ -166,7 +168,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			if (!value.isEmpty()) {
 				switch (key	.toLowerCase()) {
 					case "url":
-						critDoc.put("sha2_256", SHA2.get256(value));
+						critDoc.putAll(createURLDoc(value));
 						break;
 					case "scheme":
 						critDoc.put("scheme", value);
@@ -220,6 +222,33 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			}
 		}
 		return critDoc;
+	}
+	
+	private DBObject createURLDoc(String url) {
+		DBObject urlDoc = new BasicDBObject();
+		if (url.matches("^\\w+://.*")) {
+			urlDoc.put("sha2_256", SHA2.get256(url));
+		} else {
+			List<DBObject> orList = new ArrayList<>();
+			orList.add(new BasicDBObject("sha2_256", SHA2.get256(url)));
+			if (url.contains("/")) {
+				int firstSlash = url.indexOf("/");
+				String host = url.substring(0, firstSlash);
+				String path = url.substring(firstSlash);
+				DBObject hostAndPath = new BasicDBObject();
+				hostAndPath.put("host", host);
+				hostAndPath.put("path", path);
+				orList.add(hostAndPath);
+			} else {
+				List<DBObject> hostOr = new ArrayList<>();
+				hostOr.add(new BasicDBObject("host", url));
+				String reversed = "^"+Domain.reverseDomain(url)+"\\..+$";
+				hostOr.add(new BasicDBObject("reversed_host", new BasicDBObject("$regex", reversed)));
+				orList.add(new BasicDBObject("$or", hostOr));
+			}
+			urlDoc.put("$or", orList);
+		}
+		return urlDoc;
 	}
 	
 	private long getNumEventReportsAdded(long start, long end, String source) {
