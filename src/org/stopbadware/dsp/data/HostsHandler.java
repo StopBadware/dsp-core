@@ -1,8 +1,11 @@
 package org.stopbadware.dsp.data;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.sec.Permissions;
 
@@ -23,11 +26,13 @@ public class HostsHandler extends MDBCollectionHandler {
 		canWrite = subject.isPermitted(Permissions.WRITE_HOSTS);
 	}
 	
-	/*
-	 * Using default (package-level) access for methods wrapped by DBHandler
-	 */
+	@Override
+	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
+		//TODO: DATA-96 create search criteria obj
+		return null;
+	}
 	
-	boolean addHost(String host, ShareLevel level) {
+	public boolean addHost(String host, ShareLevel level) {
 		if (host == null || host.length() < 1) {
 			return false;
 		}
@@ -126,4 +131,5 @@ public class HostsHandler extends MDBCollectionHandler {
 		
 		return (mostRecentIP != ip);
 	}
+
 }

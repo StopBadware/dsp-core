@@ -30,7 +30,6 @@ import com.mongodb.WriteResult;
 
 public class EventReportsHandler extends MDBCollectionHandler {
 	
-	private static final int MAX = 25000;
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
 	public EventReportsHandler(DB db, Subject subject) {
@@ -39,11 +38,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
 	
-	/*
-	 * Using default (package-level) access for methods wrapped by DBHandler
-	 */
-	
-	SearchResults findEventReportsSince(long sinceTime) {
+	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
 		if (canRead && sinceTime > 0) {
 			sr = new SearchResults();
@@ -55,7 +50,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return sr;
 	}
 	
-	SearchResults getEventReportsStats(String source) {
+	public SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
@@ -74,22 +69,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return sr;
 	}
 	
-	SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
-		SearchResults sr = null;
-		if (canRead) {
-			sr = new SearchResults();
-			DBObject searchFor = createCriteriaObject(criteria);
-			if (searchFor.keySet().size() < 1) {
-				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
-			} else {
-				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
-				sr.setResults(res);
-			}
-		}
-		return sr;
-	}
-	
-	SearchResults getEventReport(String uid) throws SearchException {
+	public SearchResults getEventReport(String uid) throws SearchException {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
@@ -114,7 +94,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return sr;
 	}
 	
-	TimeOfLast getTimeOfLast(String source) {
+	public TimeOfLast getTimeOfLast(String source) {
 		long time = 0L;
 		DBObject query = new BasicDBObject();
 		Pattern sourceRegex = getRegex(source);
@@ -137,7 +117,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return new TimeOfLast(source, time);
 	}
 	
-	Set<String> getCurrentlyBlacklistedHosts() {
+	public Set<String> getCurrentlyBlacklistedHosts() {
 		Set<String> hosts = new HashSet<>();
 		DBObject query = new BasicDBObject();
 		query.put("is_on_blacklist", true);
@@ -158,7 +138,8 @@ public class EventReportsHandler extends MDBCollectionHandler {
 		return hosts;
 	}
 	
-	private DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
+	@Override
+	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
 		DBObject critDoc = new BasicDBObject();
 		for (String key : criteria.keySet()) {
 			String value = criteria.getFirst(key);

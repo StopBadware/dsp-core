@@ -13,6 +13,7 @@ import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
+import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
@@ -40,6 +41,13 @@ public class DBHandler {
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
+	
+	public enum SearchType {
+		EVENT_REPORT,
+		HOST,
+		IP,
+		AS
+	}
 	
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
@@ -87,13 +95,37 @@ public class DBHandler {
 	}
 	
 	/**
-	 * Searches for Event Reports and returns those matching the provided criteria
+	 * Searches for documents matching the provided criteria
 	 * @param criteria Map of search criteria
-	 * @return SearchResults containing the matching Event Reports
+	 * @return SearchResults containing the matching documents
 	 * @throws SearchException
 	 */
-	public SearchResults eventReportSearch(MultivaluedMap<String, String> criteria) throws SearchException {
-		return eventsHandler.eventReportSearch(criteria);
+	public SearchResults search(SearchType type, MultivaluedMap<String, String> criteria) throws SearchException {
+		if (criteria == null || criteria.size() < 1) {
+			throw new SearchException("Insufficient search criteria", Error.BAD_FORMAT);
+		}
+		
+		SearchResults sr = null;
+		switch (type) {
+			case EVENT_REPORT:
+				sr = eventsHandler.search(criteria);
+				break;
+			case HOST:
+				sr = hostsHandler.search(criteria);
+				break;
+			case IP:
+				break;
+			case AS:
+				break;
+			default:
+				break;
+		}
+		
+		if (sr == null) {
+			throw new SearchException("Invalid search type", Error.BAD_FORMAT);
+		}
+		
+		return sr;
 	}
 	
 	/**
