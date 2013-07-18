@@ -23,7 +23,6 @@ import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
@@ -32,11 +31,10 @@ import com.mongodb.WriteResult;
 public class EventReportsHandler extends MDBCollectionHandler {
 	
 	private static final int MAX = 25000;
-	private static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
-	public EventReportsHandler(DB db, DBCollection coll, Subject subject) {
-		super(db, coll);
+	public EventReportsHandler(DB db, Subject subject) {
+		super(db, db.getCollection(MongoDB.EVENT_REPORTS));
 		canRead = subject.isPermitted(Permissions.READ_EVENTS);
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
@@ -60,7 +58,6 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
 		if (canRead) {
-			//TODO: DATA-96 add source handling
 			sr = new SearchResults();
 			Map<String, Object> stats = new HashMap<>();
 			stats.put("total_count", coll.getCount());

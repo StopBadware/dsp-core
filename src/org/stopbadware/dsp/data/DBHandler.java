@@ -33,22 +33,22 @@ import com.mongodb.WriteResult;
 public class DBHandler {
 	
 	private DB db;
-	private DBCollection hostColl;
 	private DBCollection ipColl;
 	private DBCollection asColl;
 	private EventReportsHandler eventsHandler;
+	private HostsHandler hostsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
 	
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
-		hostColl = db.getCollection(MongoDB.HOSTS);
 		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
-			eventsHandler = new EventReportsHandler(db, db.getCollection(MongoDB.EVENT_REPORTS), this.subject);
+			eventsHandler = new EventReportsHandler(db, this.subject);
+			hostsHandler = new HostsHandler(db, this.subject);
 		}
 	}
 	
@@ -159,38 +159,7 @@ public class DBHandler {
 	 * @return boolean: true if the insert (or update) was successful
 	 */
 	private boolean addHost(String host, ShareLevel level) {
-		if (host == null || host.length() < 1) {
-			return false;
-		}
-		boolean wroteToDB = false;
-		DBObject query = new BasicDBObject();
-		query.put("host", host);
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_HOSTS)) {
-			cur = hostColl.find(query);
-		}
-		while (cur.hasNext()) {
-			String levelString = (String) cur.next().get("share_level");
-			if (levelString != null) {
-				ShareLevel curLevel = ShareLevel.castFromString(levelString);
-				level = ShareLevel.getLeastRestrictive(curLevel, level);
-			}
-		}
-		
-		DBObject updateDoc = new BasicDBObject();
-		updateDoc.put("host", host);
-		updateDoc.put("share_level", level.toString());
-
-		WriteResult wr = null;
-		if (isAuthorized(Permissions.WRITE_HOSTS)) {
-			wr = hostColl.update(query, updateDoc, true, false);
-		}
-		if (wr != null && wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-			LOG.error("Error writing {} to host collection: {}", host, wr.getError());
-		} else {
-			wroteToDB = true;
-		}
-		return wroteToDB;	
+		return hostsHandler.addHost(host, level);	
 	}
 	
 	/**
@@ -201,73 +170,17 @@ public class DBHandler {
 	public int addIPsForHosts(Map<String, Long> ips) {
 		int dbWrites = 0;
 		for (String host : ips.keySet()) {
-			DBObject hostDoc = new BasicDBObject();
-			hostDoc.put("host", host);
-			
 			long ip = ips.get(host);
 			if (ip > 0) {
 				addIP(ip);
 			}
-			DBObject ipDoc = new BasicDBObject();
-			ipDoc.put("ip", ip);
-			ipDoc.put("timestamp", System.currentTimeMillis()/1000);
-			
-			DBObject updateDoc = new BasicDBObject();
-			updateDoc.put("$push", new BasicDBObject("ips", ipDoc));
-			if (ipHasChanged(host, ip)) {
-				if (isAuthorized(Permissions.WRITE_HOSTS)) {
-					WriteResult wr = hostColl.update(hostDoc, updateDoc);
-					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-						LOG.error("Error writing to collection: {}", wr.getError());
-					} else  {
-						dbWrites += wr.getN();
-					}
-				}
+			boolean addedOrUpdatedIP = hostsHandler.addIPForHost(host, ip);
+			if (addedOrUpdatedIP) {
+				dbWrites++;
 			}
 		}
 		LOG.info("Wrote associated IP addresses for {} hosts", dbWrites);
 		return dbWrites;		
-	}
-	
-	/**
-	 * Checks if the most recent IP entry for the host differs from a potentially new entry
-	 * @param host the host to check
-	 * @param ip the new IP address
-	 * @return boolean, true if the new ASN differs from the most recent db entry
-	 */
-	private boolean ipHasChanged(String host, long ip) {
-		long mostRecentTimestamp = 0L;
-		long mostRecentIP = -1;
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_HOSTS)) {
-			cur = hostColl.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
-		}
-		
-		while (cur != null && cur.hasNext()) {
-			BasicDBList ips = (BasicDBList) ((BasicDBObject) cur.next()).get("ips");
-			if (ips != null) {
-				for (String i : ips.keySet()) {
-					long timestamp = 0L;
-					try {
-						timestamp = (long) ((BasicDBObject) ips.get(i)).get("timestamp");
-					} catch (ClassCastException e) {
-						/*Skip if cannot cast time from db*/
-						continue; 
-					}
-					if (timestamp > mostRecentTimestamp) {
-						mostRecentTimestamp = timestamp;
-						try {
-							mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
-						} catch (ClassCastException e) {
-							/*Set to -1 to force write of new entry if unable to cast db entry*/
-							mostRecentIP = -1; 
-						}
-					}
-				}
-			}
-		}
-		
-		return (mostRecentIP != ip);
 	}
 	
 	/**

@@ -18,6 +18,7 @@ public abstract class MDBCollectionHandler {
 	protected boolean canWrite = false;
 	
 	protected static final String DUPE_ERR = "E11000";
+	protected static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	protected static final int ASC = MongoDB.ASC;
 	protected static final int DESC = MongoDB.DESC;
 	
@@ -43,6 +44,11 @@ public abstract class MDBCollectionHandler {
 		return p;
 	}
 	
+	/**
+	 * Hides the MongoDB _id key and additional keys if provided
+	 * @param keysToHide an optional array of field names to hide
+	 * @return DBObject to include as the keys parameter
+	 */
 	protected DBObject hideKeys(String... keysToHide) {
 		DBObject keys = new BasicDBObject("_id", 0);
 		keys.put("_created", 0);
