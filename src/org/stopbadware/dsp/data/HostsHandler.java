@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.sec.Permissions;
 
 import com.mongodb.BasicDBList;
@@ -28,8 +29,35 @@ public class HostsHandler extends MDBCollectionHandler {
 	
 	@Override
 	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
-		//TODO: DATA-96 create search criteria obj
-		return null;
+		DBObject critDoc = new BasicDBObject();
+		for (String key : criteria.keySet()) {
+			String value = criteria.getFirst(key);
+			if (!value.isEmpty()) {
+				switch (key	.toLowerCase()) {
+					case "matches":
+						critDoc.put("host", new BasicDBObject("$regex", value));
+						break;
+					case "resolvesto":
+						try {
+							//TODO
+							critDoc.put("ips.ip", Long.valueOf(value));
+						} catch (NumberFormatException e) {
+							throw new SearchException("'"+value+"' is not a valid IP entry", Error.BAD_FORMAT);
+						}
+						break;
+					case "hasresolvedto":
+						try {
+							critDoc.put("ips.ip", Long.valueOf(value));
+						} catch (NumberFormatException e) {
+							throw new SearchException("'"+value+"' is not a valid IP entry", Error.BAD_FORMAT);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return critDoc;
 	}
 	
 	public boolean addHost(String host, ShareLevel level) {
