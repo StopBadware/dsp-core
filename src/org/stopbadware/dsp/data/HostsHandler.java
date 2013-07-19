@@ -126,22 +126,71 @@ public class HostsHandler extends MDBCollectionHandler {
 	}
 	
 	private long getMostRecentIP(String host) {
+		System.out.println(System.currentTimeMillis());	//DELME
 		long mostRecentIP = 0L;
 		AggregationOutput aggr = null;
 		if (canRead) {
-			DBObject unwind = new BasicDBObject();
-			DBObject project = new BasicDBObject();
-			DBObject sort = new BasicDBObject();
-			DBObject group = new BasicDBObject();
-			DBObject match = new BasicDBObject();
+			DBObject unwind = new BasicDBObject("$unwind", "$ips");
+			DBObject projDoc = new BasicDBObject();
+			projDoc.put("host", "$host");
+			projDoc.put("ip", "$ips.ip");
+			projDoc.put("ts", "$ips.timestamp");
+			DBObject project = new BasicDBObject("$project", projDoc);
+			DBObject sort = new BasicDBObject("$sort", new BasicDBObject("ts", 1));
+			DBObject groupDoc = new BasicDBObject();
+			groupDoc.put("_id", "$host");
+			groupDoc.put("mostRecentIP", new BasicDBObject("$last", "$ip"));
+			groupDoc.put("ts", new BasicDBObject("$last", "$ts"));
+			DBObject group = new BasicDBObject("$group", groupDoc);
+			DBObject match = new BasicDBObject("$match", new BasicDBObject("host", host));
 			aggr = coll.aggregate(match, unwind, project, sort, group);
 			for (DBObject result : aggr.results()) {
 				System.out.println(result);	//DELME
+				mostRecentIP = Long.valueOf(result.get("mostRecentIP").toString());
 			}
 		}
+		System.out.println(mostRecentIP);	//DELME
+		System.out.println(System.currentTimeMillis());	//DELME
 		return mostRecentIP;
 	}
 	
+	private long zgetMostRecentIP(String host) {		//DELME
+		System.out.println(System.currentTimeMillis());	//DELME
+		long mostRecentTimestamp = 0L;
+		long mostRecentIP = -1;
+		DBCursor cur = null;
+		if (canRead) {
+			cur = coll.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
+		}
+		
+		while (cur != null && cur.hasNext()) {
+			BasicDBList ips = (BasicDBList) ((BasicDBObject) cur.next()).get("ips");
+			if (ips != null) {
+				for (String i : ips.keySet()) {
+					long timestamp = 0L;
+					try {
+						timestamp = (long) ((BasicDBObject) ips.get(i)).get("timestamp");
+					} catch (ClassCastException e) {
+						/*Skip if cannot cast time from db*/
+						continue; 
+					}
+					if (timestamp > mostRecentTimestamp) {
+						mostRecentTimestamp = timestamp;
+						try {
+							mostRecentIP = (long) ((BasicDBObject) ips.get(i)).get("ip");
+						} catch (ClassCastException e) {
+							/*Set to -1 to force write of new entry if unable to cast db entry*/
+							mostRecentIP = -1; 
+						}
+					}
+				}
+			}
+		}
+		
+		System.out.println(mostRecentIP);	//DELME
+		System.out.println(System.currentTimeMillis());	//DELME
+		return mostRecentIP;
+	}
 	
 	/**
 	 * Checks if the most recent IP entry for the host differs from a potentially new entry
