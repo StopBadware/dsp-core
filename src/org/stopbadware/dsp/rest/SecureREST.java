@@ -22,6 +22,7 @@ public abstract class SecureREST {
 	@Context HttpHeaders httpHeaders;
 	protected Subject subject;
 	protected static final int OK = HttpURLConnection.HTTP_OK;
+	protected static final int NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
 	protected static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
 	
 	/**
