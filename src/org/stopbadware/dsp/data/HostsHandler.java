@@ -10,6 +10,7 @@ import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.sec.Permissions;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -40,7 +41,12 @@ public class HostsHandler extends MDBCollectionHandler {
 					case "resolvesto":
 						try {
 							//TODO
-							critDoc.put("ips.ip", Long.valueOf(value));
+							//"1128.atraxio.com"
+							//3286932030
+							//3286932031 <- MOST RECENT
+							System.out.println(value);		//DELME: DATA-96
+							getMostRecentIP("1128.atraxio.com");	//DELME: DATA-96
+//							critDoc.put("$match", new BasicDBObject("mostRecentIP", Long.valueOf(value)));
 						} catch (NumberFormatException e) {
 							throw new SearchException("'"+value+"' is not a valid IP entry", Error.BAD_FORMAT);
 						}
@@ -118,6 +124,24 @@ public class HostsHandler extends MDBCollectionHandler {
 		}
 		return wroteToDB;		
 	}
+	
+	private long getMostRecentIP(String host) {
+		long mostRecentIP = 0L;
+		AggregationOutput aggr = null;
+		if (canRead) {
+			DBObject unwind = new BasicDBObject();
+			DBObject project = new BasicDBObject();
+			DBObject sort = new BasicDBObject();
+			DBObject group = new BasicDBObject();
+			DBObject match = new BasicDBObject();
+			aggr = coll.aggregate(match, unwind, project, sort, group);
+			for (DBObject result : aggr.results()) {
+				System.out.println(result);	//DELME
+			}
+		}
+		return mostRecentIP;
+	}
+	
 	
 	/**
 	 * Checks if the most recent IP entry for the host differs from a potentially new entry
