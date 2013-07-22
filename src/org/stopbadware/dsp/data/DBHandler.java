@@ -185,6 +185,15 @@ public class DBHandler {
 	}
 	
 	/**
+	 * Finds a specific Host
+	 * @param hostname to find
+	 * @return SearchResults containing the Host record
+	 */
+	public SearchResults findHost(String host) {
+		return hostsHandler.getHost(host);
+	}
+	
+	/**
 	 * Adds a single host to the hosts collection
 	 * @param host the host to add
 	 * @param level the ShareLevel it was reported at (for existing entries the least restrictive ShareLevel will be used

@@ -36,23 +36,16 @@ public abstract class MDBCollectionHandler {
 		this.coll = coll;
 	}
 	
-	public SearchResults search(MultivaluedMap<String, String> criteria) throws SearchException {
-		SearchResults sr = null;
-		if (canRead) {
-			sr = new SearchResults();
-			DBObject searchFor = createCriteriaObject(criteria);
-			if (searchFor.keySet().size() < 1) {
-				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
-			} else {
-				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
-				sr.setResults(res);
-			}
-		}
-		return sr;
-	}
-	
 	protected abstract DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException;
 	
+	/**
+	 * Convenience method for returning an appropriate error response when the subject
+	 * is not authorized to access the requested resource
+	 * @return
+	 */
+	protected SearchResults notPermitted() {
+		return new Error(Error.NOT_PERMITTED, "Your account is not permitted to access the requested resource");
+	}
 	/**
 	 * Convenience method for creating an exact case insensitive regex Pattern
 	 * @param str String to match
@@ -81,5 +74,27 @@ public abstract class MDBCollectionHandler {
 		}
 		return keys;
 	}
+	
+	/**
+	 * Performs a search on the collection
+	 * @param criteria MultivaluedMap with the criteria to search for
+	 * @return SearchResults containing the documents matching the search criteria 
+	 * @throws SearchException
+	 */
+	public SearchResults search(MultivaluedMap<String, String> criteria) throws SearchException {
+		SearchResults sr = null;
+		if (canRead) {
+			sr = new SearchResults();
+			DBObject searchFor = createCriteriaObject(criteria);
+			if (searchFor.keySet().size() < 1) {
+				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
+			} else {
+				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
+				sr.setResults(res);
+			}
+		}
+		return sr;
+	}
+	
 
 }

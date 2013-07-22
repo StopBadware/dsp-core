@@ -1,10 +1,11 @@
 package org.stopbadware.dsp.json;
 
-public class Error implements Response {
+public class Error extends SearchResults implements Response {
 
 	private int code = 0;
 	private String error = null;
 	
+	public static final int NOT_PERMITTED = 42;
 	public static final int BAD_FORMAT = 47;
 	
 	public Error(int code, String error) {

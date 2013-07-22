@@ -28,11 +28,10 @@ public class FindHosts extends SecureREST {
 	@GET
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getHost(@PathParam("param") String sinceTime) {
+	public Response getHost(@PathParam("param") String host) {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
-			//TODO: DATA-96 return host record
-			return httpResponseCode(OK);
+			return dbh.findHost(host);
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}

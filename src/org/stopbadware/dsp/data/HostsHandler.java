@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.Error;
+import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.sec.Permissions;
 
 import com.mongodb.AggregationOutput;
@@ -72,6 +74,19 @@ public class HostsHandler extends MDBCollectionHandler {
 		return critDoc;
 	}
 	
+	public SearchResults getHost(String host) {
+//		SearchResults sr = null;
+//		if (canRead) {
+//			
+//		} else {
+//			sr = new Error(Error.NOT_PERMITTED, "");
+//		}
+//		return sr;
+		System.out.println(host);	//DELME
+		return notPermitted();
+		
+	}
+	
 	public boolean addHost(String host, ShareLevel level) {
 		if (host == null || host.length() < 1) {
 			return false;
@@ -131,6 +146,11 @@ public class HostsHandler extends MDBCollectionHandler {
 		return wroteToDB;		
 	}
 	
+	/**
+	 * Finds all hosts that have the specified IP address as their most recent entry
+	 * @param ip the IP address to match 
+	 * @return a List of Strings containing the matching hosts
+	 */
 	private List<String> getHostsMostRecentlyMappedToIP(long ip) {
 		List<String> hosts = new ArrayList<>();
 		AggregationOutput aggr = null;
