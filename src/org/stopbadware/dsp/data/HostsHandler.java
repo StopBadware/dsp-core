@@ -75,16 +75,13 @@ public class HostsHandler extends MDBCollectionHandler {
 	}
 	
 	public SearchResults getHost(String host) {
-//		SearchResults sr = null;
-//		if (canRead) {
-//			
-//		} else {
-//			sr = new Error(Error.NOT_PERMITTED, "");
-//		}
-//		return sr;
-		System.out.println(host);	//DELME
-		return notPermitted();
-		
+		SearchResults sr = null;
+		if (canRead) {
+			
+		} else {
+			sr = notPermitted();
+		}
+		return sr;
 	}
 	
 	public boolean addHost(String host, ShareLevel level) {

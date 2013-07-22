@@ -40,12 +40,14 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	
 	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
-		if (canRead && sinceTime > 0) {
+		if (canRead) {
 			sr = new SearchResults();
 			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 			DBObject sort = new BasicDBObject("reported_at", ASC);
 			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
 			sr.setResults(res);
+		} else {
+			sr = notPermitted();
 		}
 		return sr;
 	}
@@ -65,6 +67,8 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			stats.put("added_last_7", getNumEventReportsAdded(weekAgo, now, source));
 			stats.put("added_last_30", getNumEventReportsAdded(monthAgo, now, source));
 			sr.setResults(stats);
+		} else {
+			sr = notPermitted();
 		}
 		return sr;
 	}
@@ -90,6 +94,8 @@ public class EventReportsHandler extends MDBCollectionHandler {
 				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(1).toArray();
 				sr.setResults(res);
 			}
+		} else {
+			sr = notPermitted();
 		}
 		return sr;
 	}

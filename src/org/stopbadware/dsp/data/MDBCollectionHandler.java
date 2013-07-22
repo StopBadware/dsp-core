@@ -92,6 +92,8 @@ public abstract class MDBCollectionHandler {
 				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
 				sr.setResults(res);
 			}
+		} else {
+			sr = notPermitted();
 		}
 		return sr;
 	}
