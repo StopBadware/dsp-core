@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.Error;
-import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.sec.Permissions;
 
@@ -77,7 +76,10 @@ public class HostsHandler extends MDBCollectionHandler {
 	public SearchResults getHost(String host) {
 		SearchResults sr = null;
 		if (canRead) {
-			
+			sr = new SearchResults();
+			DBObject query = new BasicDBObject("host", host.toLowerCase());
+			List<DBObject> res = coll.find(query, hideKeys()).toArray();
+			sr.setResults(res);
 		} else {
 			sr = notPermitted();
 		}
