@@ -39,8 +39,8 @@ public class HostsHandler extends MDBCollectionHandler {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
 				switch (key	.toLowerCase()) {
-					case "matches":
-						critDoc.put("host", new BasicDBObject("$regex", value));
+					case "host":
+						critDoc.put("host", new BasicDBObject("$regex", getRegex(value)));
 						break;
 					case "resolvesto":
 						try {
