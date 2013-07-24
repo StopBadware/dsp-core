@@ -17,27 +17,24 @@ import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.Permissions;
-import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 
 /**
- * Class to handle all MongoDB database operations 
+ * Class to oversee handling of MongoDB database operations
  */
 public class DBHandler {
 	
 	private DB db;
-	private DBCollection ipColl;
 	private DBCollection asColl;
 	private EventReportsHandler eventsHandler;
 	private HostsHandler hostsHandler;
+	private IPsHandler ipsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
 	public static final String DUPE_ERR = "E11000";	//DELME?
@@ -51,12 +48,12 @@ public class DBHandler {
 	
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
-		ipColl = db.getCollection(MongoDB.IPS);
 		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
 			eventsHandler = new EventReportsHandler(db, this.subject);
 			hostsHandler = new HostsHandler(db, this.subject);
+			ipsHandler = new IPsHandler(db, this.subject);
 		}
 	}
 	
@@ -114,6 +111,7 @@ public class DBHandler {
 				sr = hostsHandler.search(criteria);
 				break;
 			case IP:
+				sr = null;	//TODO: DATA-96
 				break;
 			case AS:
 				break;
@@ -213,7 +211,7 @@ public class DBHandler {
 		for (String host : ips.keySet()) {
 			long ip = ips.get(host);
 			if (ip > 0) {
-				addIP(ip);
+				ipsHandler.addIP(ip);
 			}
 			boolean addedOrUpdatedIP = hostsHandler.addIPForHost(host, ip);
 			if (addedOrUpdatedIP) {
@@ -222,25 +220,6 @@ public class DBHandler {
 		}
 		LOG.info("Wrote associated IP addresses for {} hosts", dbWrites);
 		return dbWrites;		
-	}
-	
-	/**
-	 * Adds an IP address to the database
-	 * @param ip the IP address to add
-	 */
-	private boolean addIP(long ip) {
-		boolean wroteToDB = false;
-		DBObject ipDoc = new BasicDBObject();
-		ipDoc.put("ip", ip);
-		if (isAuthorized(Permissions.WRITE_IPS)) {
-			WriteResult wr = ipColl.insert(ipDoc);
-			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-				LOG.error("Error writing {} / {} to database", ip, IP.longToDots(ip));
-			} else {
-				wroteToDB = true;
-			}
-		}
-		return wroteToDB;
 	}
 	
 	/**
@@ -253,81 +232,11 @@ public class DBHandler {
 		Set<AutonomousSystem> as = new HashSet<>(asns.size());
 		for (long ip : asns.keySet()) {
 			as.add(asns.get(ip));
-			
-			DBObject ipDoc = new BasicDBObject();
-			ipDoc.put("ip", ip);
-			
-			DBObject asnDoc = new BasicDBObject();
-			asnDoc.put("asn", asns.get(ip).getAsn());
-			asnDoc.put("timestamp", System.currentTimeMillis()/1000L);
-			
-			DBObject updateDoc = new BasicDBObject();
-			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
-			if (asnHasChanged(ip, asns.get(ip).getAsn())) {
-				if (isAuthorized(Permissions.WRITE_IPS)) {
-					WriteResult wr = ipColl.update(ipDoc, updateDoc);
-					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-						LOG.error("Error writing to collection: {}", wr.getError());
-					} else  {
-						dbWrites += wr.getN();
-					}
-				}
-			}
-			
+			dbWrites += ipsHandler.updateASN(ip, asns.get(ip).getAsn());
 		}
-		addAutonmousSystem(as);
+		addAutonmousSystem(as);	//TODO: DATA-96 nice side effect bro this needs to be moved
 		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
 		return dbWrites;		
-	}
-	
-	/**
-	 * Checks if the most recent AS entry for the IP differs from a potentially new entry
-	 * @param ip the IP to check
-	 * @param asn the new ASN
-	 * @return boolean, true if the new ASN differs from the most recent db entry
-	 */
-	private boolean asnHasChanged(long ip, int asn) { 
-		boolean hasChanged = false;
-		long mostRecentTimestamp = 0L;
-		int mostRecentASN = asn;
-		
-		DBCursor cur = null;
-		if (isAuthorized(Permissions.READ_IPS)) {
-			cur = ipColl.find(new BasicDBObject("ip", ip), new BasicDBObject("asns", 1));
-		}
-		
-		while (cur != null && cur.hasNext()) {
-			BasicDBList asns = (BasicDBList) ((BasicDBObject) cur.next()).get("asns");
-			if (asns == null || asns.size() == 0) {
-				/*set to true if no ASN entries*/
-				hasChanged = true; 
-			} else {
-				for (String as : asns.keySet()) {
-					long timestamp = 0L;
-					try {
-						timestamp =  (long) ((BasicDBObject) asns.get(as)).get("timestamp");
-					} catch (ClassCastException e) {
-						/*Skip if cannot cast time from db*/
-						continue; 
-					}						
-					if (timestamp > mostRecentTimestamp) {
-						mostRecentTimestamp = timestamp;
-						try {
-							mostRecentASN = (int) ((BasicDBObject) asns.get(as)).get("asn");
-						} catch (ClassCastException e) {
-							/*Set to 0 to force write of new entry if unable to cast db entry*/
-							mostRecentASN = 0;
-						}
-					}
-				}
-			}
-		}
-		
-		if (mostRecentASN != asn) {
-			hasChanged = true;
-		}
-		
-		return hasChanged;
 	}
 	
 	/**
