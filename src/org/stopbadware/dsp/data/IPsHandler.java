@@ -6,6 +6,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.IP;
 
@@ -30,6 +31,15 @@ public class IPsHandler extends MDBCollectionHandler {
 	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
 		//TODO: DATA-96 implement
 		return null;
+	}
+	
+	public SearchResults getIP(String ipDots) {
+		return getIP(IP.dotsToLong(ipDots));
+	}
+	
+	public SearchResults getIP(long ip) {
+		
+		return null;	//TODO: DATA-96 implement
 	}
 	
 	/**
