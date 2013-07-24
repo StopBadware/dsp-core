@@ -102,28 +102,29 @@ public class DBHandler {
 			throw new SearchException("Insufficient search criteria", Error.BAD_FORMAT);
 		}
 		
-		SearchResults sr = null;
+		MDBCollectionHandler handler = null;
 		switch (type) {
 			case EVENT_REPORT:
-				sr = eventsHandler.search(criteria);
+				handler = eventsHandler; 
 				break;
 			case HOST:
-				sr = hostsHandler.search(criteria);
+				handler = hostsHandler;
 				break;
 			case IP:
-				sr = null;	//TODO: DATA-96
+				handler = ipsHandler;
 				break;
 			case AS:
+//				handler = asnsHandler;
 				break;
 			default:
 				break;
 		}
 		
-		if (sr == null) {
+		if (handler == null) {
 			throw new SearchException("Invalid search type", Error.BAD_FORMAT);
+		} else {
+			return handler.search(criteria);
 		}
-		
-		return sr;
 	}
 	
 	/**
@@ -189,6 +190,15 @@ public class DBHandler {
 	 */
 	public SearchResults findHost(String host) {
 		return hostsHandler.getHost(host);
+	}
+	
+	/**
+	 * Finds a specific IP address
+	 * @param IP address to find
+	 * @return SearchResults containing the IP record
+	 */
+	public SearchResults findIP(String ip) {
+		return (ip.matches("^\\d+$")) ? ipsHandler.getIP(Long.valueOf(ip)) : ipsHandler.getIP(ip);
 	}
 	
 	/**

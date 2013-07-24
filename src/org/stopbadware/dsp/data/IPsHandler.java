@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.data;
 
+import java.util.List;
+
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.shiro.subject.Subject;
@@ -29,8 +31,21 @@ public class IPsHandler extends MDBCollectionHandler {
 
 	@Override
 	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
-		//TODO: DATA-96 implement
-		return null;
+		DBObject critDoc = new BasicDBObject();
+		for (String key : criteria.keySet()) {
+			String value = criteria.getFirst(key);
+			if (!value.isEmpty()) {
+				switch (key.toLowerCase()) {
+					case "ip":
+						long ip = (value.matches("^\\d+$")) ? Long.valueOf(value) : IP.dotsToLong(value);
+						critDoc.put("ip", ip);
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		return critDoc;
 	}
 	
 	public SearchResults getIP(String ipDots) {
@@ -38,8 +53,16 @@ public class IPsHandler extends MDBCollectionHandler {
 	}
 	
 	public SearchResults getIP(long ip) {
-		
-		return null;	//TODO: DATA-96 implement
+		SearchResults sr = null;
+		if (canRead) {
+			sr = new SearchResults();
+			DBObject query = new BasicDBObject("ip", ip);
+			List<DBObject> res = coll.find(query, hideKeys()).toArray();
+			sr.setResults(res);
+		} else {
+			sr = notPermitted();
+		}
+		return sr;
 	}
 	
 	/**
