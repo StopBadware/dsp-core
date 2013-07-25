@@ -31,13 +31,12 @@ import com.mongodb.WriteResult;
 public class DBHandler {
 	
 	private DB db;
-	private DBCollection asColl;
 	private EventReportsHandler eventsHandler;
 	private HostsHandler hostsHandler;
 	private IPsHandler ipsHandler;
+	private ASNsHandler asnsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
-	public static final String DUPE_ERR = "E11000";	//DELME?
 	
 	public enum SearchType {
 		EVENT_REPORT,
@@ -48,29 +47,14 @@ public class DBHandler {
 	
 	public DBHandler(Subject subject) {
 		db = MongoDB.getDB();
-		asColl = db.getCollection(MongoDB.ASNS);
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
 			eventsHandler = new EventReportsHandler(db, this.subject);
 			hostsHandler = new HostsHandler(db, this.subject);
 			ipsHandler = new IPsHandler(db, this.subject);
+			asnsHandler = new ASNsHandler(db, this.subject);
 		}
 	}
-	
-	/**
-	 * Convenience method to check for authorization and log a
-	 * warning for unauthorized access attempts
-	 * @param permission the permission to check if the principal is
-	 * authorized for
-	 * @return true if the principal has the appropriate permission
-	 */
-	private boolean isAuthorized(String permission) {
-		boolean auth = subject.isPermitted(permission);
-		if (!auth) {
-			LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), permission);
-		}
-		return auth;
-	}	//DELME?
 	
 	/**
 	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
@@ -244,7 +228,7 @@ public class DBHandler {
 			as.add(asns.get(ip));
 			dbWrites += ipsHandler.updateASN(ip, asns.get(ip).getAsn());
 		}
-		addAutonmousSystem(as);	//TODO: DATA-96 nice side effect bro this needs to be moved
+		addAutonmousSystem(as);	//TODO: DATA-103 nice side effect bro this needs to be moved
 		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
 		return dbWrites;		
 	}
@@ -257,30 +241,14 @@ public class DBHandler {
 	private int addAutonmousSystem(Set<AutonomousSystem> autonomousSystems) {
 		int dbWrites = 0;
 		for (AutonomousSystem as : autonomousSystems) {
-			int asn = as.getAsn();
-			if (asn > 0) {
-				DBObject doc = new BasicDBObject();
-				doc.put("asn", asn);
-				doc.put("country", as.getCountry());
-				doc.put("name", as.getName());
-				
-				DBObject asnDoc = new BasicDBObject();
-				asnDoc.put("asn", asn);
-				
-				if (isAuthorized(Permissions.WRITE_ASNS)) {
-					WriteResult wr = asColl.update(asnDoc, doc, true, false);
-					if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-						LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
-					} else {
-						dbWrites += wr.getN();
-					}
-				}
+			boolean addedOrUpdated = asnsHandler.addAutonmousSystem(as);
+			if (addedOrUpdated) {
+				dbWrites++;
 			}
 		}
 		LOG.info("Wrote {} Autonomous Systems to database", dbWrites);
 		return dbWrites;
 	}
-	
 	
 	/**
 	 * Updates event reports for the specified reporter matching hosts in the provided set

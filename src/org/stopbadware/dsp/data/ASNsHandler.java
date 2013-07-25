@@ -6,12 +6,13 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
+import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.sec.Permissions;
-import org.stopbadware.lib.util.IP;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class ASNsHandler extends MDBCollectionHandler {
 	
@@ -45,6 +46,34 @@ public class ASNsHandler extends MDBCollectionHandler {
 			}
 		}
 		return critDoc;
+	}
+	
+	/**
+	 * Adds an Autonomous System to database
+	 * @param autonomousSystem the Autonomous Systems to add
+	 * @return boolean: if a DB write occured 
+	 */
+	public boolean addAutonmousSystem(AutonomousSystem as) {
+		boolean wroteToDB = false;
+		int asn = as.getAsn();
+		if (asn > 0) {
+			DBObject doc = new BasicDBObject();
+			doc.put("asn", asn);
+			doc.put("country", as.getCountry());
+			doc.put("name", as.getName());
+			
+			DBObject asnDoc = new BasicDBObject("asn", asn);
+			
+			if (canWrite) {
+				WriteResult wr = coll.update(asnDoc, doc, true, false);
+				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
+					LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
+				} else {
+					wroteToDB = wr.getN() > 0;
+				}
+			}
+		}
+		return wroteToDB;
 	}
 
 }
