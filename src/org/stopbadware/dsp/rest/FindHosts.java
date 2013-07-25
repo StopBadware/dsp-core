@@ -18,11 +18,7 @@ public class FindHosts extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince() {
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			return new ResolverRequest(dbh.getCurrentlyBlacklistedHosts());
-		} else {
-			return httpResponseCode(FORBIDDEN);
-		}
+		return (dbh != null) ? new ResolverRequest(dbh.getCurrentlyBlacklistedHosts()) : httpResponseCode(FORBIDDEN);
 	}
 	
 	@GET
@@ -30,11 +26,7 @@ public class FindHosts extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHost(@PathParam("param") String host) {
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			return dbh.findHost(host);
-		} else {
-			return httpResponseCode(FORBIDDEN);
-		}
+		return (dbh != null) ? dbh.findHost(host) : httpResponseCode(FORBIDDEN);
 	}
 	
 }

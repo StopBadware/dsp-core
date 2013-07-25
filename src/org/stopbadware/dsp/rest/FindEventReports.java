@@ -24,23 +24,12 @@ public class FindEventReports extends SecureREST {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince(@PathParam("param") String sinceTime) {
-		Response response = null;
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			long time = 0L;
-			try {
-				time = Long.valueOf(sinceTime);
-				response = dbh.findEventReportsSince(time);
-				if (response == null) {
-					response = httpResponseCode(FORBIDDEN);
-				}
-			} catch (NumberFormatException e) {
-				response = new Error(Error.BAD_FORMAT, "Invalid timestamp to retrieve reports since");
-			}
-		} else {
-			response = httpResponseCode(FORBIDDEN);
+		try {
+			return (dbh != null) ? dbh.findEventReportsSince(Long.valueOf(sinceTime)) : httpResponseCode(FORBIDDEN);
+		} catch (NumberFormatException e) {
+			return new Error(Error.BAD_FORMAT, "Invalid timestamp to retrieve reports since");
 		}
-		return response;
 	}
 	
 	@GET
@@ -48,11 +37,7 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getLastReportedTime(@PathParam("source") String source) {
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			return dbh.getTimeOfLast(source);
-		} else {
-			return httpResponseCode(FORBIDDEN);
-		}
+		return (dbh != null) ? dbh.getTimeOfLast(source) : httpResponseCode(FORBIDDEN);
 	}
 	
 	/*
@@ -66,11 +51,7 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStats(@PathParam("source") String source) {
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			return dbh.getEventReportsStats(source);
-		} else {
-			return httpResponseCode(FORBIDDEN);
-		}
+		return (dbh != null) ? dbh.getEventReportsStats(source) : httpResponseCode(FORBIDDEN);
 	}
 	
 	@GET
@@ -78,14 +59,10 @@ public class FindEventReports extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response find(@PathParam("uid") String uid) {
 		DBHandler dbh = getDBH();
-		if (dbh != null) {
-			try {
-				return dbh.findEventReport(uid);
-			} catch (SearchException e) {
-				return new Error(e.getCode(), e.getMessage());
-			}
-		} else {
-			return httpResponseCode(FORBIDDEN);
+		try {
+			return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
+		} catch (SearchException e) {
+			return new Error(e.getCode(), e.getMessage());
 		}
 	}	
 }

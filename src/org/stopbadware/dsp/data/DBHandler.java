@@ -76,7 +76,7 @@ public class DBHandler {
 	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
 	 * sorted by reported at time ascending
 	 * @param sinceTime UNIX timestamp to retrieve reports since
-	 * @return SearchResults with the results or null if not authorized
+	 * @return SearchResults with the results
 	 */
 	public SearchResults findEventReportsSince(long sinceTime) {
 		return eventsHandler.findEventReportsSince(sinceTime);
