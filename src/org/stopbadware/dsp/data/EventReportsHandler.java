@@ -14,6 +14,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
+import org.stopbadware.dsp.data.DBHandler.WriteResult;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -248,7 +249,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 			cnt = coll.getCount(search);
 		}
 		return cnt;
-	}	
+	}
 	
 	/**
 	 * Inserts a single Event Report into database, ignoring duplicates.
@@ -257,27 +258,34 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	 * or null if the attempt was unsuccessful
 	 */
 	public WriteResult addEventReport(Map<String, Object> event) {
+		WriteResult status = WriteResult.FAILURE;
+		
 		DBObject doc = new BasicDBObject();
 		doc.putAll(event);
 		doc.put("_created", System.currentTimeMillis() / 1000);
 		
-		WriteResult wr = null;
-		try {
-			if (canWrite) {
-				wr = coll.insert(doc);
-				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-					if (doc.get("url") != null) {
-						LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-					} else {
-						LOG.error("Error writing report with null URL to collection: {}", wr.getError());
+		if (canWrite) {
+			try {
+				WriteResult wr = coll.insert(doc);
+				if (wr.getError() != null) {
+					if (wr.getError().contains(DUPE_ERR)) {
+						status = WriteResult.DUPLICATE;
+					} else	{
+						if (doc.get("url") != null) {
+							LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
+						} else {
+							LOG.error("Error writing report with null URL to collection: {}", wr.getError());
+						}
 					}
+				} else {
+					status = WriteResult.SUCCESS;
 				}
+			} catch (MongoException e) {
+				LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
 			}
-		} catch (MongoException e) {
-			LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
 		}
 		
-		return wr;	
+		return status;
 	}
 	
 	/**

@@ -16,14 +16,9 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
-import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.SHA2;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 
 /**
  * Class to oversee handling of MongoDB database operations
@@ -43,6 +38,13 @@ public class DBHandler {
 		HOST,
 		IP,
 		AS
+	}
+	
+	public enum WriteResult {
+		SUCCESS,
+		FAILURE,
+		UPDATED,
+		DUPLICATE
 	}
 	
 	public DBHandler(Subject subject) {
@@ -148,15 +150,12 @@ public class DBHandler {
 		int dbWrites = 0;
 		int dbDupes = 0;
 		for (ERWrapper er : reports) {
-			WriteResult wr = null;
 			if (er.getErMap() != null && er.getErMap().size() > 0) {
-				wr = eventsHandler.addEventReport(er.getErMap());
-			}
-			if (wr != null) {
-				if (wr.getError() != null && wr.getError().contains(DUPE_ERR)) {
+				WriteResult status = eventsHandler.addEventReport(er.getErMap());
+				if (status == WriteResult.DUPLICATE) {
 					dbDupes++;
-				} else if (wr.getError() == null) {
-					dbWrites++; 
+				} else if (status == WriteResult.SUCCESS) {
+					dbWrites++;
 				}
 			}
 			addHost(er.getHost(), ShareLevel.castFromString(er.getShareLevel()));
