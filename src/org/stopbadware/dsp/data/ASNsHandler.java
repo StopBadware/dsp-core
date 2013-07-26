@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.data;
 
+import java.util.List;
+
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.shiro.subject.Subject;
@@ -7,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.json.AutonomousSystem;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.sec.Permissions;
 
 import com.mongodb.BasicDBObject;
@@ -46,6 +49,19 @@ public class ASNsHandler extends MDBCollectionHandler {
 			}
 		}
 		return critDoc;
+	}
+	
+	public SearchResults getAS(int asn) {
+		SearchResults sr = null;
+		if (canRead) {
+			sr = new SearchResults();
+			DBObject query = new BasicDBObject("asn", asn);
+			List<DBObject> res = coll.find(query, hideKeys()).toArray();
+			sr.setResults(res);
+		} else {
+			sr = notPermitted();
+		}
+		return sr;
 	}
 	
 	/**

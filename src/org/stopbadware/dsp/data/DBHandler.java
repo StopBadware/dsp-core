@@ -125,6 +125,33 @@ public class DBHandler {
 	}
 	
 	/**
+	 * Finds a specific Host
+	 * @param hostname to find
+	 * @return SearchResults containing the Host record
+	 */
+	public SearchResults findHost(String host) {
+		return hostsHandler.getHost(host);
+	}
+	
+	/**
+	 * Finds a specific IP address
+	 * @param IP address to find
+	 * @return SearchResults containing the IP record
+	 */
+	public SearchResults findIP(String ip) {
+		return (ip.matches("^\\d+$")) ? ipsHandler.getIP(Long.valueOf(ip)) : ipsHandler.getIP(ip);
+	}
+	
+	/**
+	 * Finds a specific Autonomous System
+	 * @param AS number of the AS to find
+	 * @return SearchResults containing the AS record
+	 */
+	public SearchResults findAS(int asn) {
+		return asnsHandler.getAS(asn);
+	}
+	
+	/**
 	 * Retrieves and returns timestamp of last event report for the requested source
 	 * @param source either full name or prefix of reporting source (case insensitive)
 	 * @return TimeOfLast with UNIX timestamp (0 if unable to determine)
@@ -165,24 +192,6 @@ public class DBHandler {
 		LOG.info("{} new event reports added", dbWrites);
 		LOG.info("{} duplicate entries ignored", dbDupes);
 		return dbWrites+dbDupes;
-	}
-	
-	/**
-	 * Finds a specific Host
-	 * @param hostname to find
-	 * @return SearchResults containing the Host record
-	 */
-	public SearchResults findHost(String host) {
-		return hostsHandler.getHost(host);
-	}
-	
-	/**
-	 * Finds a specific IP address
-	 * @param IP address to find
-	 * @return SearchResults containing the IP record
-	 */
-	public SearchResults findIP(String ip) {
-		return (ip.matches("^\\d+$")) ? ipsHandler.getIP(Long.valueOf(ip)) : ipsHandler.getIP(ip);
 	}
 	
 	/**

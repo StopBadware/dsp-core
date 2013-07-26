@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.json.Error;
 
 @Path("/asns")
 public class FindAutonomousSystems extends SecureREST {
@@ -15,11 +16,13 @@ public class FindAutonomousSystems extends SecureREST {
 	@GET
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getHost(@PathParam("param") String asn) {
+	public Response getAS(@PathParam("param") String asn) {
 		DBHandler dbh = getDBH();
-//		return (dbh != null) ? dbh.findIP(ip) : httpResponseCode(FORBIDDEN);
-		//TODO: DATA-103 find by ASN
-		return httpResponseCode(OK);
+		try {
+			return (dbh != null) ? dbh.findAS(Integer.valueOf(asn)) : httpResponseCode(FORBIDDEN);
+		} catch (NumberFormatException e) {
+			return new Error(Error.BAD_FORMAT, "valid Autonomous System number not provided");
+		}
 	}
 
 }
