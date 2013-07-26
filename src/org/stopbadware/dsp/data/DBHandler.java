@@ -101,7 +101,7 @@ public class DBHandler {
 				handler = ipsHandler;
 				break;
 			case AS:
-//				handler = asnsHandler;
+				handler = asnsHandler;
 				break;
 			default:
 				break;
