@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.json.AutonomousSystem;
+import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.sec.Permissions;
 
@@ -33,10 +34,14 @@ public class ASNsHandler extends MDBCollectionHandler {
 			if (!value.isEmpty()) {
 				switch (key.toLowerCase()) {
 					case "name":
-						critDoc.put("name", new BasicDBObject("$regex", getRegex(value)));
+						critDoc.put("name", new BasicDBObject("$regex", getRegex(".*"+value+".*")));
 						break;
 					case "number":
-						critDoc.put("asn", value);
+						try {
+							critDoc.put("asn", Integer.valueOf(value));
+						} catch (NumberFormatException e) {
+							throw new SearchException("'"+value+"' is not a valid Autonomous System number", Error.BAD_FORMAT);
+						}
 						break;
 					case "country":
 						critDoc.put("country", value);
