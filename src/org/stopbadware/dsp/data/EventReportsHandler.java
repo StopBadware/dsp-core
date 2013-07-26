@@ -14,7 +14,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
-import org.stopbadware.dsp.data.DBHandler.WriteResult;
+import org.stopbadware.dsp.data.DBHandler.WriteStatus;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -257,8 +257,8 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	 * @return WriteResult: the WriteResult associated with the write attempt
 	 * or null if the attempt was unsuccessful
 	 */
-	public WriteResult addEventReport(Map<String, Object> event) {
-		WriteResult status = WriteResult.FAILURE;
+	public WriteStatus addEventReport(Map<String, Object> event) {
+		WriteStatus status = WriteStatus.FAILURE;
 		
 		DBObject doc = new BasicDBObject();
 		doc.putAll(event);
@@ -269,7 +269,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 				WriteResult wr = coll.insert(doc);
 				if (wr.getError() != null) {
 					if (wr.getError().contains(DUPE_ERR)) {
-						status = WriteResult.DUPLICATE;
+						status = WriteStatus.DUPLICATE;
 					} else	{
 						if (doc.get("url") != null) {
 							LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
@@ -278,7 +278,7 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						}
 					}
 				} else {
-					status = WriteResult.SUCCESS;
+					status = WriteStatus.SUCCESS;
 				}
 			} catch (MongoException e) {
 				LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());

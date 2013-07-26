@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.data;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class DBHandler {
 		AS
 	}
 	
-	public enum WriteResult {
+	public enum WriteStatus {
 		SUCCESS,
 		FAILURE,
 		UPDATED,
@@ -151,10 +152,10 @@ public class DBHandler {
 		int dbDupes = 0;
 		for (ERWrapper er : reports) {
 			if (er.getErMap() != null && er.getErMap().size() > 0) {
-				WriteResult status = eventsHandler.addEventReport(er.getErMap());
-				if (status == WriteResult.DUPLICATE) {
+				WriteStatus status = eventsHandler.addEventReport(er.getErMap());
+				if (status == WriteStatus.DUPLICATE) {
 					dbDupes++;
-				} else if (status == WriteResult.SUCCESS) {
+				} else if (status == WriteStatus.SUCCESS) {
 					dbWrites++;
 				}
 			}
@@ -222,12 +223,9 @@ public class DBHandler {
 	 */
 	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
 		int dbWrites = 0;
-		Set<AutonomousSystem> as = new HashSet<>(asns.size());
 		for (long ip : asns.keySet()) {
-			as.add(asns.get(ip));
 			dbWrites += ipsHandler.updateASN(ip, asns.get(ip).getAsn());
 		}
-		addAutonmousSystem(as);	//TODO: DATA-103 nice side effect bro this needs to be moved
 		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
 		return dbWrites;		
 	}
@@ -237,7 +235,7 @@ public class DBHandler {
 	 * @param autonomousSystems the set containing the Autonomous Systems to add
 	 * @return int: the number of inserted or updated documents
 	 */
-	private int addAutonmousSystem(Set<AutonomousSystem> autonomousSystems) {
+	public int addAutonmousSystems(Collection<AutonomousSystem> autonomousSystems) {
 		int dbWrites = 0;
 		for (AutonomousSystem as : autonomousSystems) {
 			boolean addedOrUpdated = asnsHandler.addAutonmousSystem(as);

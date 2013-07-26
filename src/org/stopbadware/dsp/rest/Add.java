@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -12,6 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
@@ -132,8 +134,6 @@ public class Add extends SecureREST {
 		}
 	}
 	
-
-	
 	private void processResolved(String data, DBHandler dbh) {
 		ObjectMapper mapper = new ObjectMapper();
 		ResolverResults rr = null;
@@ -145,7 +145,9 @@ public class Add extends SecureREST {
 		
 		if (rr != null) {
 			dbh.addIPsForHosts(rr.getHostToIPMappings());
-			dbh.addASNsForIPs(rr.getIpToASMappings());
+			Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
+			dbh.addASNsForIPs(ipAS);
+			dbh.addAutonmousSystems(ipAS.values());
 		}
 	}
 	
