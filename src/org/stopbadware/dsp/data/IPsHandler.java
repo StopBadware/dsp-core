@@ -1,7 +1,5 @@
 package org.stopbadware.dsp.data;
 
-import java.util.List;
-
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.shiro.subject.Subject;
@@ -53,16 +51,7 @@ public class IPsHandler extends MDBCollectionHandler {
 	}
 	
 	public SearchResults getIP(long ip) {
-		SearchResults sr = null;
-		if (canRead) {
-			sr = new SearchResults();
-			DBObject query = new BasicDBObject("ip", ip);
-			List<DBObject> res = coll.find(query, hideKeys()).toArray();
-			sr.setResults(res);
-		} else {
-			sr = notPermitted();
-		}
-		return sr;
+		return getSearchResult(new BasicDBObject("ip", ip));
 	}
 	
 	/**

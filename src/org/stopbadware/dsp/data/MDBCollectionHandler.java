@@ -15,6 +15,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 
 public abstract class MDBCollectionHandler {
 	
@@ -73,6 +74,28 @@ public abstract class MDBCollectionHandler {
 			keys.put(key, 0);
 		}
 		return keys;
+	}
+	
+	/**
+	 * Performs a search for the provided query
+	 * @param query DBObject with the search criteria
+	 * @return SearchResults containing all matching documents 
+	 */
+	protected SearchResults getSearchResult(DBObject query) {
+		SearchResults sr = null;
+		if (canRead) {
+			try {
+				sr = new SearchResults();
+				List<DBObject> res = coll.find(query, hideKeys()).toArray();
+				sr.setResults(res);
+			} catch (MongoException e) {
+				LOG.error("Unable to execute query: {}", e.getMessage());
+				sr = new Error(Error.DATABASE);
+			}
+		} else {
+			sr = notPermitted();
+		}
+		return sr;
 	}
 	
 	/**

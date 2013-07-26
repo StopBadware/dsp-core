@@ -74,16 +74,7 @@ public class HostsHandler extends MDBCollectionHandler {
 	}
 	
 	public SearchResults getHost(String host) {
-		SearchResults sr = null;
-		if (canRead) {
-			sr = new SearchResults();
-			DBObject query = new BasicDBObject("host", host.toLowerCase());
-			List<DBObject> res = coll.find(query, hideKeys()).toArray();
-			sr.setResults(res);
-		} else {
-			sr = notPermitted();
-		}
-		return sr;
+		return getSearchResult(new BasicDBObject("host", host.toLowerCase()));
 	}
 	
 	public boolean addHost(String host, ShareLevel level) {

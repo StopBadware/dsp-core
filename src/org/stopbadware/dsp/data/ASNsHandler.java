@@ -1,7 +1,5 @@
 package org.stopbadware.dsp.data;
 
-import java.util.List;
-
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.shiro.subject.Subject;
@@ -52,16 +50,7 @@ public class ASNsHandler extends MDBCollectionHandler {
 	}
 	
 	public SearchResults getAS(int asn) {
-		SearchResults sr = null;
-		if (canRead) {
-			sr = new SearchResults();
-			DBObject query = new BasicDBObject("asn", asn);
-			List<DBObject> res = coll.find(query, hideKeys()).toArray();
-			sr.setResults(res);
-		} else {
-			sr = notPermitted();
-		}
-		return sr;
+		return getSearchResult(new BasicDBObject("asn", asn));
 	}
 	
 	/**
