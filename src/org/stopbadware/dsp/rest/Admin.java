@@ -13,6 +13,7 @@ import org.stopbadware.dsp.data.DBHandler;
 import org.stopbadware.dsp.data.SecurityDBHandler;
 import org.stopbadware.dsp.json.AccountInfo;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.json.Simple;
 import org.stopbadware.dsp.sec.Role;
 import org.stopbadware.dsp.json.Error;
 
@@ -52,7 +53,11 @@ public class Admin extends SecureREST {
 		if (dbh != null) {
 			SecurityDBHandler secdb = new SecurityDBHandler();
 			boolean disabled = secdb.disableUser(pubKey, this.subject);
-			response = (disabled) ? httpResponseCode(OK) : new Error(Error.REQUEST_FAILED, "Unable to disable account");
+			if (disabled) {
+				response = new Simple("Account "+pubKey+" has been disabled");
+			} else {
+				response = new Error(Error.REQUEST_FAILED, "Unable to disable account");
+			}
 		} else {
 			response = httpResponseCode(FORBIDDEN);
 		}
