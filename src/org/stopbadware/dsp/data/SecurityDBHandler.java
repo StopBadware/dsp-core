@@ -97,6 +97,35 @@ public class SecurityDBHandler {
 	}
 	
 	/**
+	 * Disables an API account
+	 * @param publicKey the public API key of the account to disable
+	 * @param subject a Shiro subject with sufficient authorization to disable users
+	 * @return true if the account was successfully disabled
+	 */
+	public boolean disableUser(String publicKey, Subject subject) {
+		boolean disabled = false; 
+		DBObject doc = new BasicDBObject("api_key", publicKey);
+		DBObject upd = new BasicDBObject("$set", new BasicDBObject("enabled", false));
+		WriteResult wr = null;
+		try {
+			if (subject.isPermitted(Permissions.WRITE_ACCOUNTS)) {
+				wr = accountsColl.update(doc, upd);
+				if (wr.getError() != null) {
+					LOG.error("Unable to disable account '{}':\t{}", publicKey, wr.getError());
+				} else {
+					disabled = true;
+					LOG.info("Account '{}' has been disabled", publicKey);
+				}
+			} else {
+				LOG.warn("{} NOT authorized for {}", subject.getPrincipal(), Permissions.WRITE_ACCOUNTS);
+			}
+		} catch (MongoException e) {
+			LOG.error("Unable to disable account '{}':\t{}", publicKey, e.getMessage());
+		}
+		return disabled;
+	}
+	
+	/**
 	 * Adds a new user to the security database with the provided roles
 	 * @param roles set of Roles to assign the new account
 	 * @param subject a Shiro subject with sufficient authorization to add

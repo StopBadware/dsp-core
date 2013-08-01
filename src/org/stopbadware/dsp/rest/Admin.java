@@ -35,8 +35,24 @@ public class Admin extends SecureREST {
 			if (apiKey != null && secret != null) {
 				response = new AccountInfo(apiKey, secret);
 			} else {
-				response = new Error(424, "Unable to create account");
+				response = new Error(Error.REQUEST_FAILED, "Unable to create account");
 			}
+		} else {
+			response = httpResponseCode(FORBIDDEN);
+		}
+		return response;
+	}
+	
+	@POST
+	@Path("/account/disable/{param}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response disableAccount(@PathParam("param") String pubKey) {
+		Response response = null;
+		DBHandler dbh = getDBH();
+		if (dbh != null) {
+			SecurityDBHandler secdb = new SecurityDBHandler();
+			boolean disabled = secdb.disableUser(pubKey, this.subject);
+			response = (disabled) ? httpResponseCode(OK) : new Error(Error.REQUEST_FAILED, "Unable to disable account");
 		} else {
 			response = httpResponseCode(FORBIDDEN);
 		}

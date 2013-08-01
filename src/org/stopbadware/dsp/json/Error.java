@@ -7,6 +7,7 @@ public class Error extends SearchResults implements Response {
 	
 	public static final int NOT_PERMITTED = 42;
 	public static final int BAD_FORMAT = 47;
+	public static final int REQUEST_FAILED = 50;
 	public static final int DATABASE = 54;
 	
 	public Error(int code) {
