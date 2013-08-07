@@ -1,6 +1,8 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -36,6 +39,18 @@ public class Add extends SecureREST {
 		} else {
 			return httpResponseCode(FORBIDDEN);
 		}
+	}
+	
+	@POST
+	@Path("/diff")
+	public javax.ws.rs.core.Response addDiff() {	//DEV
+		try {
+			ResponseBuilder rb = javax.ws.rs.core.Response.seeOther(new URI("http://127.0.0.1:5000/import/foo"));
+			return rb.build();
+		} catch (URISyntaxException e) {
+			return (javax.ws.rs.core.Response) httpResponseCode(FORBIDDEN);
+		}
+		
 	}
 	
 	@POST
