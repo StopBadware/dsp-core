@@ -162,10 +162,12 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						critDoc.put("host", value);
 						break;
 					case "path":
-						critDoc.put("path", value);
+						String path = (value.startsWith("/")) ? value : "/"+value;
+						critDoc.put("path", path);
 						break;
 					case "query":
-						critDoc.put("query", value);
+						String query = (value.startsWith("?")) ? value.substring(1) : value;
+						critDoc.put("query", query);
 						break;
 					case "reportedby":
 						critDoc.put("prefix", value);
