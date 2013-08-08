@@ -1,14 +1,20 @@
 package org.stopbadware.dsp.rest;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -22,6 +28,7 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverResults;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.lib.util.SHA2;
 
 @Path("/add")
 public class Add extends SecureREST {
@@ -42,15 +49,50 @@ public class Add extends SecureREST {
 	}
 	
 	@POST
-	@Path("/diff")
-	public javax.ws.rs.core.Response addDiff() {	//DEV
+	@Path("/{source}")
+//	@Consumes(MediaType.APPLICATION_JSON)	//REVERT
+	public Response addDiff(@PathParam("source") String dataSource, String data) {
+		System.out.println(dataSource);	//DELME
+		System.out.println(data);		//DELME
+		int status = OK;
 		try {
-			ResponseBuilder rb = javax.ws.rs.core.Response.seeOther(new URI("http://127.0.0.1:5000/import/foo"));
-			return rb.build();
-		} catch (URISyntaxException e) {
-			return (javax.ws.rs.core.Response) httpResponseCode(FORBIDDEN);
+			boolean sendSuccess = sendToImporter(dataSource, data);
+			status = (sendSuccess) ? OK : BAD_REQUEST;
+		} catch (IOException e) {
+			LOG.error("Exception thrown sending data to Importer: {}", e.getMessage());
+			status = INT_ERROR;
 		}
-		
+		System.out.println(status);		//DELME
+		return httpResponseCode(status);
+	}
+	
+	private boolean sendToImporter(String source, String data) throws IOException {
+		URL url = new URL(System.getenv("SBW_IMP_HOST")+"/import/"+source);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Type", "application/json");
+		Map<String, String> authHeaders = createImporterAuthHeaders(url.getPath().toString());
+		for (String key : authHeaders.keySet()) {
+			conn.setRequestProperty(key, authHeaders.get(key));
+		}
+		conn.setDoOutput(true);
+		OutputStream out = conn.getOutputStream();
+		out.write(data.getBytes("UTF-8"));
+		out.flush();
+		out.close();
+		int resCode = conn.getResponseCode();
+		conn.disconnect();
+		return resCode == 200;
+	}
+	
+	private Map<String, String> createImporterAuthHeaders(String path) {
+		Map<String, String> headers = new HashMap<>();
+		String secret = (System.getenv("SBW_IMP_SECRET")!=null) ? System.getenv("SBW_IMP_SECRET") : "";
+		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+		String signature = SHA2.get256(timestamp+secret);
+		headers.put("SBW-IMP-Timestamp", timestamp);
+		headers.put("SBW-IMP-Signature", signature);
+		return headers;
 	}
 	
 	@POST

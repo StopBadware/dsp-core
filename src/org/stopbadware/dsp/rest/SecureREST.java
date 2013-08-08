@@ -22,8 +22,10 @@ public abstract class SecureREST {
 	@Context HttpHeaders httpHeaders;
 	protected Subject subject;
 	protected static final int OK = HttpURLConnection.HTTP_OK;
-	protected static final int NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
+	protected static final int BAD_REQUEST = HttpURLConnection.HTTP_BAD_REQUEST;
 	protected static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
+	protected static final int NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
+	protected static final int INT_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
 	
 	/**
 	 * Instantiates a DBHandler instance with a Shiro Subject created from
