@@ -3,9 +3,6 @@ package org.stopbadware.dsp.rest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +13,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -50,11 +46,13 @@ public class Add extends SecureREST {
 	
 	@POST
 	@Path("/{source}")
-//	@Consumes(MediaType.APPLICATION_JSON)	//REVERT
+//	@Consumes(MediaType.APPLICATION_JSON)	//REVERT DATA-106
 	public Response addDiff(@PathParam("source") String dataSource, String data) {
 		System.out.println(dataSource);	//DELME
 		System.out.println(data);		//DELME
 		int status = OK;
+		//TODO: DATA-106 authenticate
+		//TODO: DATA-106 make sure requester is authorized for source
 		try {
 			boolean sendSuccess = sendToImporter(dataSource, data);
 			status = (sendSuccess) ? OK : BAD_REQUEST;
