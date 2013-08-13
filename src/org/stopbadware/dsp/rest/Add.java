@@ -47,12 +47,12 @@ public class Add extends SecureREST {
 	@POST
 	@Path("/{source}")
 //	@Consumes(MediaType.APPLICATION_JSON)	//REVERT DATA-106
-	public Response addDiff(@PathParam("source") String dataSource, String data) {
+	public Response pushToApi(@PathParam("source") String dataSource, String data) {
 		System.out.println(dataSource);	//DELME
 		System.out.println(data);		//DELME
 		int status = OK;
 		//TODO: DATA-106 authenticate
-		//TODO: DATA-106 make sure requester is authorized for source
+		//TODO: DATA-106 return 404 if requester is not authorized for source
 		try {
 			boolean sendSuccess = sendToImporter(dataSource, data);
 			status = (sendSuccess) ? OK : BAD_REQUEST;
