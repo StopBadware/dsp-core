@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.shiro.subject.Subject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +47,15 @@ public class Add extends SecureREST {
 	
 	@POST
 	@Path("/{source}")
-//	@Consumes(MediaType.APPLICATION_JSON)	//REVERT DATA-106
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response pushToApi(@PathParam("source") String dataSource, String data) {
 		System.out.println(dataSource);	//DELME
 		System.out.println(data);		//DELME
 		int status = OK;
+		Subject subject = getSubject();
+		System.out.println(subject == null);			//DELME
+//		System.out.println(subject.isAuthenticated());	//DELME
+//		System.out.println(subject.toString());			//DELME
 		//TODO: DATA-106 authenticate
 		//TODO: DATA-106 return 404 if requester is not authorized for source
 		try {
@@ -60,8 +65,8 @@ public class Add extends SecureREST {
 			LOG.error("Exception thrown sending data to Importer: {}", e.getMessage());
 			status = INT_ERROR;
 		}
-		System.out.println(status);		//DELME
-		return httpResponseCode(status);
+		return httpResponseCode(OK);
+//		return httpResponseCode(status); //REVERT DATA-106
 	}
 	
 	private boolean sendToImporter(String source, String data) throws IOException {

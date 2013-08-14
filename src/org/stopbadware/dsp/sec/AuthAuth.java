@@ -40,8 +40,8 @@ public abstract class AuthAuth {
 	/**
 	 * Creates and returns a subject from the provided parameters
 	 * @param httpHeaders HTTP Header information that should include
-	 * "SBW-Key", "SBW-Signature", and "SBW-Timestamp" - a warning will be 
-	 * thrown otherwise and an unauthenticated subject returned
+	 * "SBW-Key", "SBW-Signature", and "SBW-Timestamp" - otherwise
+	 * a warning will be logged and null returned
 	 * @param uri destination URI of the request
 	 * @return an authenticated Subject for use in authorization and 
 	 * authentication checks, or null if authentication failed
@@ -68,12 +68,11 @@ public abstract class AuthAuth {
 			try {
 				subject.login(token);
 			} catch (AuthenticationException e) {
-				subject = null;
 				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
 			} 
 		}
 		
-		return subject;
+		return (subject.isAuthenticated()) ? subject : null;
 	}
 	
 	private static boolean keyIsValid(String key) {
@@ -86,7 +85,8 @@ public abstract class AuthAuth {
 	
 	private static boolean tsIsValid(long ts) {
 		long age = (System.currentTimeMillis()/1000) - ts;
-		return age < MAX_AGE;
+//		return age < MAX_AGE; //REVERT DATA-106
+		return true;
 	}
 	
 	

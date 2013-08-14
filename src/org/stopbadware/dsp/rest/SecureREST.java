@@ -20,7 +20,6 @@ public abstract class SecureREST {
 	
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
-	protected Subject subject;
 	protected static final int OK = HttpURLConnection.HTTP_OK;
 	protected static final int BAD_REQUEST = HttpURLConnection.HTTP_BAD_REQUEST;
 	protected static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
@@ -28,18 +27,26 @@ public abstract class SecureREST {
 	protected static final int INT_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
 	
 	/**
-	 * Instantiates a DBHandler instance with a Shiro Subject created from
-	 * the required data found in the HTTP headers and the URI
-	 * @return a DBHandler instance with an authenticated subject, or null
-	 * if the authentication failed
+	 * Instantiates and returns a DBHandler instance
+	 * @return a DBHandler instance associated with an authenticated subject,
+	 * or null if the subject is not authenticated
 	 */
 	protected DBHandler getDBH() {
-		subject = AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
+		Subject subject = getSubject();
 		if (subject != null && subject.isAuthenticated()) {
 			return new DBHandler(subject);
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Creates and returns a Shiro Subject from the
+	 * required data in the URI and headers
+	 * @return returns an authenticated subject, or null if authentication fails 
+	 */
+	protected Subject getSubject() {
+		return AuthAuth.getSubject(httpHeaders, uri.getRequestUri());
 	}
 	
 	/**

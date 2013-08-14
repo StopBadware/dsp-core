@@ -30,7 +30,7 @@ public class Admin extends SecureREST {
 			SecurityDBHandler secdb = new SecurityDBHandler();
 			Set<Role> roles = new HashSet<>();
 			roles.add(Role.DATA_SHARING_PARTICIPANT);
-			String apiKey = secdb.addUser(roles, this.subject, prefix);
+			String apiKey = secdb.addUser(roles, getSubject(), prefix);
 			String secret = (apiKey != null) ? secdb.getSecret(apiKey) : null;
 			
 			if (apiKey != null && secret != null) {
@@ -52,7 +52,7 @@ public class Admin extends SecureREST {
 		DBHandler dbh = getDBH();
 		if (dbh != null) {
 			SecurityDBHandler secdb = new SecurityDBHandler();
-			boolean disabled = secdb.disableUser(pubKey, this.subject);
+			boolean disabled = secdb.disableUser(pubKey, getSubject());
 			if (disabled) {
 				response = new Simple("Account "+pubKey+" has been disabled");
 			} else {
