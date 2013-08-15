@@ -19,6 +19,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.ShareLevel;
+import org.stopbadware.dsp.data.SecurityDBHandler;
 
 /**
  * Authentication and authorization handler 
@@ -85,10 +86,19 @@ public abstract class AuthAuth {
 	
 	private static boolean tsIsValid(long ts) {
 		long age = (System.currentTimeMillis()/1000) - ts;
-//		return age < MAX_AGE; //REVERT DATA-106
-		return true;
+		return age < MAX_AGE;
 	}
 	
+	/**
+	 * Checks if the provided subject is associated with a specific participant
+	 * @param subject the Shiro Subject to check
+	 * @param participant case insensitive prefix of the participant
+	 * @return true if, and only if, the account is associated with the participant
+	 */
+	public static boolean subjectIsMemberOf(Subject subject, String participant) {
+		SecurityDBHandler db = new SecurityDBHandler();
+		return db.getParticipant(subject.getPrincipal().toString()).equalsIgnoreCase(participant);
+	}
 	
 	/**
 	 * Gets all ShareLevels the provided subject is authorized for

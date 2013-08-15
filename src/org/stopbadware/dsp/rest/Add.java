@@ -25,6 +25,7 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
 import org.stopbadware.dsp.json.ResolverResults;
 import org.stopbadware.dsp.json.Response;
+import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.lib.util.SHA2;
 
 @Path("/add")
@@ -49,24 +50,24 @@ public class Add extends SecureREST {
 	@Path("/{source}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response pushToApi(@PathParam("source") String dataSource, String data) {
-		System.out.println(dataSource);	//DELME
-		System.out.println(data);		//DELME
 		int status = OK;
 		Subject subject = getSubject();
-		System.out.println(subject == null);			//DELME
-//		System.out.println(subject.isAuthenticated());	//DELME
-//		System.out.println(subject.toString());			//DELME
-		//TODO: DATA-106 authenticate
-		//TODO: DATA-106 return 404 if requester is not authorized for source
-		try {
-			boolean sendSuccess = sendToImporter(dataSource, data);
-			status = (sendSuccess) ? OK : BAD_REQUEST;
-		} catch (IOException e) {
-			LOG.error("Exception thrown sending data to Importer: {}", e.getMessage());
-			status = INT_ERROR;
+		if (subject != null && subject.isAuthenticated()) {
+			if (AuthAuth.subjectIsMemberOf(subject, dataSource)) {
+				try {
+					boolean sendSuccess = sendToImporter(dataSource, data);
+					status = (sendSuccess) ? OK : BAD_REQUEST;
+				} catch (IOException e) {
+					LOG.error("Exception thrown sending data to Importer: {}", e.getMessage());
+					status = INT_ERROR;
+				}
+			} else {
+				status = NOT_FOUND;
+			}
+		} else {
+			status = FORBIDDEN;
 		}
-		return httpResponseCode(OK);
-//		return httpResponseCode(status); //REVERT DATA-106
+		return httpResponseCode(status);
 	}
 	
 	private boolean sendToImporter(String source, String data) throws IOException {

@@ -230,6 +230,25 @@ public class SecurityDBHandler {
 	}
 	
 	/**
+	 * Retrieves the participant's prefix associated with the API key provided
+	 * @param apiKey the public API key to check
+	 * @return String containing the particpant's prefix, or an empty String if
+	 * no participant is associated with the API key
+	 */
+	public String getParticipant(String apiKey) {
+		String participant = "";
+		DBObject query = new BasicDBObject("api_key", apiKey);
+		DBCursor cur = accountsColl.find(query);
+		while (cur.hasNext()) {
+			DBObject account = cur.next();
+			if (account.containsField("participant")) {
+				participant = account.get("participant").toString();
+			}
+		}
+		return participant;
+	}
+	
+	/**
 	 * Retrieves roles assigned to the API Key provided
 	 * @param apiKey String of the API Key for the account
 	 * @return a set of Strings representing the roles associated with the account
