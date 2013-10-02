@@ -29,7 +29,7 @@ public abstract class MongoDB {
 	public static final int DESC = -1;
 	
 	static {
-		String mongoURI = System.getenv("MONGOLAB_URI");
+		String mongoURI = System.getenv("MONGO_URL");
 		try {
 			if (mongoURI != null) {
 				MongoURI m = new MongoURI(mongoURI);
