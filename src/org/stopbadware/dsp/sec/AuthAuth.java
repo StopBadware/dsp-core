@@ -65,7 +65,7 @@ public abstract class AuthAuth {
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
 		if (keyIsValid(key) && sigIsValid(sig) && tsIsValid(ts)) {
-			RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
+			RESTfulToken token = new RESTfulToken(key, sig, path, ts);
 			try {
 				subject.login(token);
 			} catch (AuthenticationException e) {

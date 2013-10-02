@@ -32,7 +32,9 @@ public abstract class MongoDB {
 				MongoURI m = new MongoURI(mongoURI);
 				if (m != null) {
 					db = m.connectDB();
-					db.authenticate(m.getUsername(), m.getPassword());
+					if (m.getUsername() != null && m.getPassword() != null) {
+						db.authenticate(m.getUsername(), m.getPassword());
+					}
 				}
 			} else {
 				LOG.error("No database specified, 'MONGO_URL' must be set as an environment variable!");
