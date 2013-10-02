@@ -88,7 +88,6 @@ public class DBHandler {
 		if (criteria == null || criteria.size() < 1) {
 			throw new SearchException("Insufficient search criteria", Error.BAD_FORMAT);
 		}
-		
 		MDBCollectionHandler handler = null;
 		switch (type) {
 			case EVENT_REPORT:

@@ -148,6 +148,8 @@ public class EventReportsHandler extends MDBCollectionHandler {
 	@Override
 	protected DBObject createCriteriaObject(MultivaluedMap<String, String> criteria) throws SearchException {
 		DBObject critDoc = new BasicDBObject();
+		DBObject reportedAt = new BasicDBObject();
+		
 		for (String key : criteria.keySet()) {
 			String value = criteria.getFirst(key);
 			if (!value.isEmpty()) {
@@ -190,15 +192,14 @@ public class EventReportsHandler extends MDBCollectionHandler {
 						break;
 					case "after":
 						try {
-							critDoc.put("reported_at", new BasicDBObject("$gte", Long.valueOf(value)));
+							reportedAt.put("$gte", Long.valueOf(value));
 						} catch (NumberFormatException e) {
 							throw new SearchException("'"+value+"' is not a valid 'after' value", Error.BAD_FORMAT);
 						}
-						
 						break;
 					case "before":
 						try {
-							critDoc.put("reported_at", new BasicDBObject("$lte", Long.valueOf(value)));
+							reportedAt.put("$lte", Long.valueOf(value));
 						} catch (NumberFormatException e) {
 							throw new SearchException("'"+value+"' is not a valid 'before' value", Error.BAD_FORMAT);
 						}
@@ -208,6 +209,11 @@ public class EventReportsHandler extends MDBCollectionHandler {
 				}
 			}
 		}
+		
+		if (!reportedAt.toMap().isEmpty()) {
+			critDoc.put("reported_at", reportedAt);
+		}
+		
 		return critDoc;
 	}
 	
