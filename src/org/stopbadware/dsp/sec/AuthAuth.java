@@ -28,7 +28,7 @@ public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
-	private static final long MAX_AGE = 120L;
+	private static final long MAX_AGE = Long.valueOf(System.getenv("MAX_AUTH_AGE"));
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	
 	static {
