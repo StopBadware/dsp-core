@@ -2,7 +2,6 @@ package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
 
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,11 +37,6 @@ public class SecurityDBHandlerTest {
 			subject.login(token);
 		} catch (AuthenticationException e) {
 			fail("AuthenticationException thrown");
-		}
-		try {
-			MongoDB.switchToTestDB();
-		} catch (UnknownHostException e) {
-			fail("UnknownHostException thrown when switching to test db");
 		}
 		dbh = new SecurityDBHandler();
 	}
