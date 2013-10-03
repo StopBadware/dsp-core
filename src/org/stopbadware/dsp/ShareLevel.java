@@ -32,12 +32,12 @@ public enum ShareLevel {
 
 	/**
 	 * Converts string used as share levels to enums for
-	 * comparision purposes
+	 * Comparison purposes (cannot override an enum's valueOf)
 	 * @param level string representation of the share level, returned from
 	 * each ShareLevel's toString() method
 	 * @return a comparable ShareLevel enum
 	 */
-	public static ShareLevel castFromString(String level) {
+	public static ShareLevel value(String level) {
 		ShareLevel shareLevel;
 		if (level.equalsIgnoreCase(PUBLIC.toString())) {
 			shareLevel = PUBLIC;

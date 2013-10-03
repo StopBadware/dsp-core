@@ -89,7 +89,7 @@ public class HostsHandler extends MDBCollectionHandler {
 			while (cur.hasNext()) {
 				String levelString = (String) cur.next().get("share_level");
 				if (levelString != null) {
-					ShareLevel curLevel = ShareLevel.castFromString(levelString);
+					ShareLevel curLevel = ShareLevel.value(levelString);
 					level = ShareLevel.getLeastRestrictive(curLevel, level);
 				}
 			}

@@ -185,7 +185,7 @@ public class DBHandler {
 					dbWrites++;
 				}
 			}
-			addHost(er.getHost(), ShareLevel.castFromString(er.getShareLevel()));
+			addHost(er.getHost(), ShareLevel.value(er.getShareLevel()));
 		}
 		
 		LOG.info("{} new event reports added", dbWrites);
