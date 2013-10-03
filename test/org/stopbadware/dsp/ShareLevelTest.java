@@ -2,6 +2,8 @@ package org.stopbadware.dsp;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.Test;
 
 public class ShareLevelTest {
@@ -16,6 +18,13 @@ public class ShareLevelTest {
 	public void testGetLeastRestrictive() {
 		assertTrue(ShareLevel.PUBLIC.compareTo(ShareLevel.SBW_ONLY) > 0);
 		assertTrue(ShareLevel.getLeastRestrictive(ShareLevel.PUBLIC, ShareLevel.SBW_ONLY)==ShareLevel.PUBLIC);
+	}
+	
+	@Test
+	public void testGetAllAbove() {
+		List<ShareLevel> aboveSBW = ShareLevel.SBW_ONLY.getAllAbove();
+		assertTrue(aboveSBW.size() > 0);
+		assertTrue(aboveSBW.contains(ShareLevel.PUBLIC));
 	}
 
 }

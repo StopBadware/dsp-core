@@ -72,13 +72,13 @@ public enum ShareLevel {
 	 * @return array of Strings containing the provided ShareLevel and all 
 	 * less restrictive levels
 	 */
-	public static String[] getAllAbove(ShareLevel lowest) {
-		List<String> levels = new ArrayList<>(); 
+	public List<ShareLevel> getAllAbove() {
+		List<ShareLevel> levels = new ArrayList<>(); 
 		for (ShareLevel level : ShareLevel.values()) {
-			if (level.compareTo(lowest) >= 0) {
-				levels.add(level.toString());
+			if (level.compareTo(this) >= 0) {
+				levels.add(level);
 			}
 		}
-		return levels.toArray(new String[levels.size()]);
+		return levels;
 	}
 }
