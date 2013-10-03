@@ -19,7 +19,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.ShareLevel;
-import org.stopbadware.dsp.data.SecurityDBHandler;
+import org.stopbadware.dsp.data.SecurityDbHandler;
 
 /**
  * Authentication and authorization handler 
@@ -65,7 +65,7 @@ public abstract class AuthAuth {
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
 		if (keyIsValid(key) && sigIsValid(sig) && tsIsValid(ts)) {
-			RESTfulToken token = new RESTfulToken(key, sig, path, ts);
+			RestToken token = new RestToken(key, sig, path, ts);
 			try {
 				subject.login(token);
 			} catch (AuthenticationException e) {
@@ -96,7 +96,7 @@ public abstract class AuthAuth {
 	 * @return true if, and only if, the account is associated with the participant
 	 */
 	public static boolean subjectIsMemberOf(Subject subject, String participant) {
-		SecurityDBHandler db = new SecurityDBHandler();
+		SecurityDbHandler db = new SecurityDbHandler();
 		return db.getParticipant(subject.getPrincipal().toString()).equalsIgnoreCase(participant);
 	}
 	

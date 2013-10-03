@@ -6,14 +6,14 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.stopbadware.dsp.sec.RESTfulToken.Credentials;
+import org.stopbadware.dsp.sec.RestToken.Credentials;
 
 public class Realm extends AuthorizingRealm {
 
 	public static String REALMNAME = "SBW-DSP";
 	
 	public Realm() {
-		this.setAuthenticationTokenClass(RESTfulToken.class);
+		this.setAuthenticationTokenClass(RestToken.class);
 		this.setName(REALMNAME);
 	}
 	
@@ -27,8 +27,8 @@ public class Realm extends AuthorizingRealm {
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken arg0) throws AuthenticationException {
 		String principal = null;
 		Credentials credentials = null;
-		if (arg0 instanceof RESTfulToken) {
-			RESTfulToken token = (RESTfulToken) arg0;
+		if (arg0 instanceof RestToken) {
+			RestToken token = (RestToken) arg0;
 			principal = token.getPrincipal();
 			credentials = token.getCredentials();
 		} else {

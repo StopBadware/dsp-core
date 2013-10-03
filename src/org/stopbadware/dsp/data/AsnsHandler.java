@@ -16,12 +16,12 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 
-public class ASNsHandler extends MDBCollectionHandler {
+public class AsnsHandler extends MdbCollectionHandler {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ASNsHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AsnsHandler.class);
 	
-	public ASNsHandler(DB db, Subject subject) {
-		super(db, db.getCollection(MongoDB.ASNS));
+	public AsnsHandler(DB db, Subject subject) {
+		super(db, db.getCollection(MongoDb.ASNS));
 		canRead = subject.isPermitted(Permissions.READ_ASNS);
 		canWrite = subject.isPermitted(Permissions.WRITE_ASNS);
 	}

@@ -17,12 +17,12 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 
-public class IPsHandler extends MDBCollectionHandler {
+public class IpsHandler extends MdbCollectionHandler {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(IPsHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IpsHandler.class);
 
-	public IPsHandler(DB db, Subject subject) {
-		super(db, db.getCollection(MongoDB.IPS));
+	public IpsHandler(DB db, Subject subject) {
+		super(db, db.getCollection(MongoDb.IPS));
 		canRead = subject.isPermitted(Permissions.READ_IPS);
 		canWrite = subject.isPermitted(Permissions.WRITE_IPS);
 	}

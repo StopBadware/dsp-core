@@ -27,7 +27,7 @@ import com.mongodb.WriteResult;
 /**
  * Class to handle all security related database operations 
  */
-public class SecurityDBHandler {
+public class SecurityDbHandler {
 	
 	private DB db;
 	private DBCollection accountsColl;
@@ -35,19 +35,19 @@ public class SecurityDBHandler {
 	private static final String KEY = "La Forge Theta-2-9-9-7"; /* Geordi's command code from "The Mind's Eye" */
 	private static final String ALGORITHM = "PBEWITHSHA1ANDDESEDE";
 	private static StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
-	private static final Logger LOG = LoggerFactory.getLogger(SecurityDBHandler.class);
-	public static final int ASC = MongoDB.ASC;
-	public static final int DESC = MongoDB.DESC;
+	private static final Logger LOG = LoggerFactory.getLogger(SecurityDbHandler.class);
+	public static final int ASC = MongoDb.ASC;
+	public static final int DESC = MongoDb.DESC;
 	
 	static {
 		textEncryptor.setAlgorithm(ALGORITHM);
 		textEncryptor.setPassword(KEY);
 	}
 	
-	public SecurityDBHandler() {
-		db = MongoDB.getDB();
-		accountsColl = db.getCollection(MongoDB.ACCOUNTS);
-		rolesColl = db.getCollection(MongoDB.ROLES);
+	public SecurityDbHandler() {
+		db = MongoDb.getDB();
+		accountsColl = db.getCollection(MongoDb.ACCOUNTS);
+		rolesColl = db.getCollection(MongoDb.ROLES);
 	}
 	
 	/**

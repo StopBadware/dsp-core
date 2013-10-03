@@ -9,10 +9,10 @@ import com.mongodb.DB;
 import com.mongodb.MongoException;
 import com.mongodb.MongoURI;
 
-public abstract class MongoDB {
+public abstract class MongoDb {
 	
 	private static DB db = null;
-	private static final Logger LOG = LoggerFactory.getLogger(MongoDB.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MongoDb.class);
 
 	public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";

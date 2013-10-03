@@ -8,8 +8,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.stopbadware.dsp.SearchException;
-import org.stopbadware.dsp.data.DBHandler;
-import org.stopbadware.dsp.data.DBHandler.SearchType;
+import org.stopbadware.dsp.data.DbHandler;
+import org.stopbadware.dsp.data.DbHandler.SearchType;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.Response;
 
@@ -20,7 +20,7 @@ public class Search extends SecureREST {
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response search(@PathParam("param") String searchFor) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
 			try {

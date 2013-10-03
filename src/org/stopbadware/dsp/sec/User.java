@@ -6,15 +6,15 @@ import org.apache.shiro.authc.Account;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.stopbadware.dsp.data.SecurityDBHandler;
-import org.stopbadware.dsp.sec.RESTfulToken.Credentials;
+import org.stopbadware.dsp.data.SecurityDbHandler;
+import org.stopbadware.dsp.sec.RestToken.Credentials;
 import org.stopbadware.lib.util.SHA2;
 
 public class User implements Account {
 
 	private Credentials credentials = null;
 	private SimplePrincipalCollection pc = new SimplePrincipalCollection();
-	private SecurityDBHandler secdb = new SecurityDBHandler();
+	private SecurityDbHandler secdb = new SecurityDbHandler();
 	
 	private static final long serialVersionUID = -8172191017152833255L;
 

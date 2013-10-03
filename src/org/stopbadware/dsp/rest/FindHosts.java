@@ -6,7 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.Response;
 
@@ -17,7 +17,7 @@ public class FindHosts extends SecureREST {
 	@Path("/blacklisted/now")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince() {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		return (dbh != null) ? new ResolverRequest(dbh.getCurrentlyBlacklistedHosts()) : httpResponseCode(FORBIDDEN);
 	}
 	
@@ -25,7 +25,7 @@ public class FindHosts extends SecureREST {
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHost(@PathParam("param") String host) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		return (dbh != null) ? dbh.findHost(host) : httpResponseCode(FORBIDDEN);
 	}
 	

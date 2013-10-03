@@ -6,7 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.Response;
 
 @Path("/ips")
@@ -16,7 +16,7 @@ public class FindIPs extends SecureREST {
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHost(@PathParam("param") String ip) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		return (dbh != null) ? dbh.findIP(ip) : httpResponseCode(FORBIDDEN); 
 	}
 

@@ -12,14 +12,14 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.junit.Test;
-import org.stopbadware.dsp.sec.RESTfulToken;
+import org.stopbadware.dsp.sec.RestToken;
 import org.stopbadware.dsp.sec.Realm;
 import org.stopbadware.dsp.sec.Role;
 
-public class SecurityDBHandlerTest {
+public class SecurityDbHandlerTest {
 	
 	private static Subject subject = null;
-	private static SecurityDBHandler dbh = null; 
+	private static SecurityDbHandler dbh = null; 
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final String TEST_APIKEY = "DATA123456";
@@ -32,13 +32,13 @@ public class SecurityDBHandlerTest {
 		String path = "/v0.2/events/since/0";
 		long ts = 1294513200L;
 		
-		RESTfulToken token = new RESTfulToken(TEST_APIKEY, sig, path, ts); 
+		RestToken token = new RestToken(TEST_APIKEY, sig, path, ts); 
 		try {
 			subject.login(token);
 		} catch (AuthenticationException e) {
 			fail("AuthenticationException thrown");
 		}
-		dbh = new SecurityDBHandler();
+		dbh = new SecurityDbHandler();
 	}
 
 	@Test

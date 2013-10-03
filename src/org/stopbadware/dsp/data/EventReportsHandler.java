@@ -14,7 +14,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.SearchException;
-import org.stopbadware.dsp.data.DBHandler.WriteStatus;
+import org.stopbadware.dsp.data.DbHandler.WriteStatus;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -29,12 +29,12 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
-public class EventReportsHandler extends MDBCollectionHandler {
+public class EventReportsHandler extends MdbCollectionHandler {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
 	public EventReportsHandler(DB db, Subject subject) {
-		super(db, db.getCollection(MongoDB.EVENT_REPORTS));
+		super(db, db.getCollection(MongoDb.EVENT_REPORTS));
 		canRead = subject.isPermitted(Permissions.READ_EVENTS);
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}

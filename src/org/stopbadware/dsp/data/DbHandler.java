@@ -24,15 +24,15 @@ import com.mongodb.DB;
 /**
  * Class to oversee handling of MongoDB database operations
  */
-public class DBHandler {
+public class DbHandler {
 	
 	private DB db;
 	private EventReportsHandler eventsHandler;
 	private HostsHandler hostsHandler;
-	private IPsHandler ipsHandler;
-	private ASNsHandler asnsHandler;
+	private IpsHandler ipsHandler;
+	private AsnsHandler asnsHandler;
 	private Subject subject; 
-	private static final Logger LOG = LoggerFactory.getLogger(DBHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
 	
 	public enum SearchType {
 		EVENT_REPORT,
@@ -48,14 +48,14 @@ public class DBHandler {
 		DUPLICATE
 	}
 	
-	public DBHandler(Subject subject) {
-		db = MongoDB.getDB();
+	public DbHandler(Subject subject) {
+		db = MongoDb.getDB();
 		if (subject.isAuthenticated()) {
 			this.subject = subject;
 			eventsHandler = new EventReportsHandler(db, this.subject);
 			hostsHandler = new HostsHandler(db, this.subject);
-			ipsHandler = new IPsHandler(db, this.subject);
-			asnsHandler = new ASNsHandler(db, this.subject);
+			ipsHandler = new IpsHandler(db, this.subject);
+			asnsHandler = new AsnsHandler(db, this.subject);
 		}
 	}
 	
@@ -88,7 +88,7 @@ public class DBHandler {
 		if (criteria == null || criteria.size() < 1) {
 			throw new SearchException("Insufficient search criteria", Error.BAD_FORMAT);
 		}
-		MDBCollectionHandler handler = null;
+		MdbCollectionHandler handler = null;
 		switch (type) {
 			case EVENT_REPORT:
 				handler = eventsHandler; 

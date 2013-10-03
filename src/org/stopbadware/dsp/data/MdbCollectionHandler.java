@@ -17,7 +17,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
-public abstract class MDBCollectionHandler {
+public abstract class MdbCollectionHandler {
 	
 	protected DB db;
 	protected DBCollection coll;
@@ -26,13 +26,13 @@ public abstract class MDBCollectionHandler {
 	
 	protected static final String DUPE_ERR = "E11000";
 	protected static final int SECONDS_IN_DAY = 60 * 60 * 24;
-	protected static final int ASC = MongoDB.ASC;
-	protected static final int DESC = MongoDB.DESC;
+	protected static final int ASC = MongoDb.ASC;
+	protected static final int DESC = MongoDb.DESC;
 	protected static final int MAX = 25000;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(MDBCollectionHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MdbCollectionHandler.class);
 	
-	protected MDBCollectionHandler(DB db, DBCollection coll) {
+	protected MdbCollectionHandler(DB db, DBCollection coll) {
 		this.db = db;
 		this.coll = coll;
 	}

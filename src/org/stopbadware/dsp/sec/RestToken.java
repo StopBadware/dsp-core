@@ -2,13 +2,13 @@ package org.stopbadware.dsp.sec;
 
 import org.apache.shiro.authc.AuthenticationToken;
 
-public class RESTfulToken implements AuthenticationToken {
+public class RestToken implements AuthenticationToken {
 
 	private String apiKey = "";
 	private Credentials credentials = new Credentials("", "", 0L);
 	private static final long serialVersionUID = -5394243945291266097L;
 
-	public RESTfulToken(String apiKey, String signature, String path, long timestamp) {
+	public RestToken(String apiKey, String signature, String path, long timestamp) {
 		credentials = new Credentials(signature, path, timestamp);
 		this.apiKey = (apiKey != null) ? apiKey : "";
 	}
@@ -25,8 +25,8 @@ public class RESTfulToken implements AuthenticationToken {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof RESTfulToken) {
-			return this.apiKey.equals(((RESTfulToken) obj).getPrincipal());
+		if (obj instanceof RestToken) {
+			return this.apiKey.equals(((RestToken) obj).getPrincipal());
 		} else {
 			return false;
 		}

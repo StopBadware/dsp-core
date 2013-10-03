@@ -17,13 +17,13 @@ import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.TimeOfLast;
-import org.stopbadware.dsp.sec.RESTfulToken;
+import org.stopbadware.dsp.sec.RestToken;
 import org.stopbadware.dsp.sec.Realm;
 import org.stopbadware.lib.util.SHA2;
 
-public class DBHandlerTest {
+public class DbHandlerTest {
 	
-	private static DBHandler dbh = null; 
+	private static DbHandler dbh = null; 
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final String TEST_SOURCE = "TESTING";
@@ -40,13 +40,13 @@ public class DBHandlerTest {
 		String path = "/v0.2/events/since/0";
 		long ts = 1294513200L;
 		
-		RESTfulToken token = new RESTfulToken(key, sig, path, ts); 
+		RestToken token = new RestToken(key, sig, path, ts); 
 		try {
 			subject.login(token);
 		} catch (AuthenticationException e) {
 			fail("AuthenticationException thrown");
 		}
-		dbh = new DBHandler(subject);
+		dbh = new DbHandler(subject);
 	}
 
 	@Test

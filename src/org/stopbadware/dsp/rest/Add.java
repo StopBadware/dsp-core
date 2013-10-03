@@ -18,7 +18,7 @@ import org.apache.shiro.subject.Subject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.ERWrapper;
@@ -37,7 +37,7 @@ public class Add extends SecureREST {
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addEvents(String data) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
 			processImports(data, dbh);
 			return httpResponseCode(OK);
@@ -103,7 +103,7 @@ public class Add extends SecureREST {
 	@Path("/clean")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markClean(String data) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
 			processMarkClean(data, dbh);
 			return httpResponseCode(OK);
@@ -116,7 +116,7 @@ public class Add extends SecureREST {
 	@Path("/resolved")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addResolved(String data) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
 			processResolved(data, dbh);
 			return httpResponseCode(OK);
@@ -125,7 +125,7 @@ public class Add extends SecureREST {
 		}
 	}
 	
-	private void processImports(String data, DBHandler dbh) {
+	private void processImports(String data, DbHandler dbh) {
 		int numWroteToDB = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		EventReports imports = null;
@@ -161,13 +161,13 @@ public class Add extends SecureREST {
 		}
 	}
 	
-	private void processClean(EventReports er, DBHandler dbh) {
+	private void processClean(EventReports er, DbHandler dbh) {
 		LOG.info("Updating blacklist flags");
 		int numCleaned = dbh.updateBlacklistFlagsFromDirtyReports(er.getSource(), er.getTime(), er.getReports());
 		LOG.info("{} events removed from blacklist", numCleaned);
 	}
 	
-	private void processMarkClean(String data, DBHandler dbh) {
+	private void processMarkClean(String data, DbHandler dbh) {
 		int numCleaned = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		CleanReports clean = null;
@@ -195,7 +195,7 @@ public class Add extends SecureREST {
 		}
 	}
 	
-	private void processResolved(String data, DBHandler dbh) {
+	private void processResolved(String data, DbHandler dbh) {
 		ObjectMapper mapper = new ObjectMapper();
 		ResolverResults rr = null;
 		try {

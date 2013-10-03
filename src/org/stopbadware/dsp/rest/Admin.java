@@ -9,8 +9,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.stopbadware.dsp.data.DBHandler;
-import org.stopbadware.dsp.data.SecurityDBHandler;
+import org.stopbadware.dsp.data.DbHandler;
+import org.stopbadware.dsp.data.SecurityDbHandler;
 import org.stopbadware.dsp.json.AccountInfo;
 import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.Simple;
@@ -25,9 +25,9 @@ public class Admin extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewAccount(@PathParam("param") String prefix) {
 		Response response = null;
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
-			SecurityDBHandler secdb = new SecurityDBHandler();
+			SecurityDbHandler secdb = new SecurityDbHandler();
 			Set<Role> roles = new HashSet<>();
 			roles.add(Role.DATA_SHARING_PARTICIPANT);
 			String apiKey = secdb.addUser(roles, getSubject(), prefix);
@@ -49,9 +49,9 @@ public class Admin extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response disableAccount(@PathParam("param") String pubKey) {
 		Response response = null;
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		if (dbh != null) {
-			SecurityDBHandler secdb = new SecurityDBHandler();
+			SecurityDbHandler secdb = new SecurityDbHandler();
 			boolean disabled = secdb.disableUser(pubKey, getSubject());
 			if (disabled) {
 				response = new Simple("Account "+pubKey+" has been disabled");

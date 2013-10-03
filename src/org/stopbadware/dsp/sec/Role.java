@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.WildcardPermission;
-import org.stopbadware.dsp.data.SecurityDBHandler;
+import org.stopbadware.dsp.data.SecurityDbHandler;
 
 public enum Role {
 	
@@ -57,7 +57,7 @@ public enum Role {
 	 * Updates each role with the permissions reflected in the datastore 
 	 */
 	public static void updateRolePermissions() {
-		SecurityDBHandler db = new SecurityDBHandler();
+		SecurityDbHandler db = new SecurityDbHandler();
 		for (Role role : Role.values()) {
 			Set<String> perms = db.getRolePermissions(role.toString());
 			for (String perm : perms) {

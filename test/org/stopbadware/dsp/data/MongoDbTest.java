@@ -7,19 +7,19 @@ import org.junit.Test;
 
 import com.mongodb.DB;
 
-public class MongoDBTest {
+public class MongoDbTest {
 
 	@Test
 	public void testSwitchToTestDB() {
-		String origName = MongoDB.getDB().getName();
+		String origName = MongoDb.getDB().getName();
 		assertTrue(!origName.equalsIgnoreCase("testdb"));
-		String newName = MongoDB.getDB().getName();
+		String newName = MongoDb.getDB().getName();
 		assertTrue(newName.equalsIgnoreCase("testdb"));
 	}
 
 	@Test
 	public void testGetDB() {
-		DB db = MongoDB.getDB();
+		DB db = MongoDb.getDB();
 		assertTrue(db instanceof DB);
 	}
 

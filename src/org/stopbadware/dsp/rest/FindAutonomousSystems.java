@@ -6,7 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.Error;
 
@@ -17,7 +17,7 @@ public class FindAutonomousSystems extends SecureREST {
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAS(@PathParam("param") String asn) {
-		DBHandler dbh = getDBH();
+		DbHandler dbh = getDBH();
 		try {
 			return (dbh != null) ? dbh.findAS(Integer.valueOf(asn)) : httpResponseCode(FORBIDDEN);
 		} catch (NumberFormatException e) {

@@ -8,7 +8,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.subject.Subject;
-import org.stopbadware.dsp.data.DBHandler;
+import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.sec.AuthAuth;
 
@@ -31,10 +31,10 @@ public abstract class SecureREST {
 	 * @return a DBHandler instance associated with an authenticated subject,
 	 * or null if the subject is not authenticated
 	 */
-	protected DBHandler getDBH() {
+	protected DbHandler getDBH() {
 		Subject subject = getSubject();
 		if (subject != null && subject.isAuthenticated()) {
-			return new DBHandler(subject);
+			return new DbHandler(subject);
 		} else {
 			return null;
 		}

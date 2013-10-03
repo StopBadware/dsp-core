@@ -22,12 +22,12 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 
-public class HostsHandler extends MDBCollectionHandler {
+public class HostsHandler extends MdbCollectionHandler {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(HostsHandler.class);
 	
 	public HostsHandler(DB db, Subject subject) {
-		super(db, db.getCollection(MongoDB.HOSTS));
+		super(db, db.getCollection(MongoDb.HOSTS));
 		canRead = subject.isPermitted(Permissions.READ_HOSTS);
 		canWrite = subject.isPermitted(Permissions.WRITE_HOSTS);
 	}
