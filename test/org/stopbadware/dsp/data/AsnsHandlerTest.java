@@ -9,6 +9,8 @@ import org.apache.shiro.subject.Subject;
 
 public class AsnsHandlerTest {
 	
+	public static int PRIVATE_AS_RANGE_START = 64512;
+	public static int PRIVATE_AS_RANGE_END = 65534;
 	private static Subject subject = AuthAuthTestHelper.getSubject();
 	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), subject);
 	
@@ -23,7 +25,7 @@ public class AsnsHandlerTest {
 	@Test
 	public void addAutonmousSystemTest() {
 		AutonomousSystem as = new AutonomousSystem();
-		int testNum = 65535;
+		int testNum = PRIVATE_AS_RANGE_START;
 		SearchResults sr = asns.getAS(testNum);
 		while (sr.getCount() != 0) {
 			sr = asns.getAS(testNum++);
