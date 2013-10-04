@@ -106,6 +106,8 @@ public class EventReportsHandlerTest {
 		erMap.put("host", TEST_HOST);
 		WriteStatus ws = er.addEventReport(erMap);
 		assertTrue(ws.equals(WriteStatus.SUCCESS));
+		int removed = er.removeFromBlacklist(TEST_PREFIX, "sha2_256", hash, System.currentTimeMillis()/1000);
+		assertTrue(removed > 0);
 	}
 
 }
