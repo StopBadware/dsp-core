@@ -13,7 +13,7 @@ public class AsnsHandlerTest {
 	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), subject);
 	
 	@Test
-	public void testGetAS() {
+	public void getASTest() {
 		SearchResults sr = asns.getAS(15169);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
@@ -21,7 +21,7 @@ public class AsnsHandlerTest {
 	}
 	
 	@Test
-	public void testAddAutonmousSystem() {
+	public void addAutonmousSystemTest() {
 		AutonomousSystem as = new AutonomousSystem();
 		int testNum = 65535;
 		SearchResults sr = asns.getAS(testNum);
