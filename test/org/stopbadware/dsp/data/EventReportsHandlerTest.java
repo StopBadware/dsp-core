@@ -70,7 +70,15 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void addEventReportTest() {
-		assertTrue(false);
+		Map<String, Object> erMap = new HashMap<>();
+		String hash = SHA2.get256("Leeeeeeeeeeeeeroy Jenkins!");
+		erMap.put("sha2_256", hash);
+		erMap.put("is_on_blacklist", true);
+		erMap.put("prefix", TEST_PREFIX);
+		erMap.put("reported_at", System.currentTimeMillis()/1000);
+		erMap.put("host", TEST_HOST);
+		WriteStatus ws = er.addEventReport(erMap);
+		assertTrue(ws.equals(WriteStatus.SUCCESS));
 	}
 	
 	@Test
