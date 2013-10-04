@@ -5,14 +5,12 @@ import org.junit.Test;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
-import org.apache.shiro.subject.Subject;
 
 public class AsnsHandlerTest {
 	
 	public static int PRIVATE_AS_RANGE_START = 64512;
 	public static int PRIVATE_AS_RANGE_END = 65534;
-	private static Subject subject = AuthAuthTestHelper.getSubject();
-	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), subject);
+	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	
 	@Test
 	public void getASTest() {
