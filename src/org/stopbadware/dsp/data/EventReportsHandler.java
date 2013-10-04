@@ -298,7 +298,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	
 	/**
 	 * Find the event reports currently marked as blacklisted for the reporter provided
-	 * @param reporter blacklisting source
+	 * @param reporter prefix for the blacklisting source
 	 * @param field the key to retrieve from each report
 	 * @return a Set of Strings containing the value for the corresponding key
 	 */
@@ -327,7 +327,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	/**
 	 * Updates event reports for the specified reporter matching the provided key/value 
 	 * to have an is_on_blacklist flag of false and sets the removed_from_blacklist time
-	 * @param reporter either the full name or prefix of the reporting entity
+	 * @param reporter prefix of the reporting entity
 	 * @param key db document field to match
 	 * @param value matching value
 	 * @param removedTime UNIXTimestamp as a long to set as the removed time
