@@ -13,7 +13,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResults implements Response {
 	
-	private int code = 20;
+	public static final int OK = 20;
+	private int code = OK;
 	private int count = 0;
 	private int duration = 0;
 	private long startedAt = 0L;
