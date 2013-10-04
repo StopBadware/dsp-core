@@ -46,7 +46,7 @@ public abstract class MongoDb {
 	
 	/**
 	 * Gets the mongodb database object specified in the MONGO_URL environment variable
-	 * @return MongoDB database object
+	 * @return a MongoDB database object, or null if no database provided
 	 */
 	public static DB getDB() {
 		if (db == null) {
