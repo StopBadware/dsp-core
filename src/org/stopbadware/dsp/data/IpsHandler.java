@@ -80,11 +80,11 @@ public class IpsHandler extends MdbCollectionHandler {
 	 */
 	public int updateASN(long ip, int asn) {
 		int updated = 0;
-		if (coll.find(new BasicDBObject("ip", ip)).count() == 0) {
+		DBObject ipDoc = new BasicDBObject("ip", ip);
+		if (coll.find(ipDoc).count() == 0) {
 			addIP(ip);
 		}
 		if (canWrite && asnHasChanged(ip, asn)) {
-			DBObject ipDoc = new BasicDBObject();
 			DBObject asnDoc = new BasicDBObject();
 			asnDoc.put("asn", asn);
 			asnDoc.put("timestamp", System.currentTimeMillis()/1000L);
@@ -141,6 +141,6 @@ public class IpsHandler extends MdbCollectionHandler {
 			}
 		}
 		
-		return mostRecentASN == asn;
+		return mostRecentASN != asn;
 	}
 }
