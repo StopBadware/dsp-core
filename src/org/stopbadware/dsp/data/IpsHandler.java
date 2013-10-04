@@ -80,6 +80,9 @@ public class IpsHandler extends MdbCollectionHandler {
 	 */
 	public int updateASN(long ip, int asn) {
 		int updated = 0;
+		if (coll.find(new BasicDBObject("ip", ip)).count() == 0) {
+			addIP(ip);
+		}
 		if (canWrite && asnHasChanged(ip, asn)) {
 			DBObject ipDoc = new BasicDBObject();
 			DBObject asnDoc = new BasicDBObject();
