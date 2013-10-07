@@ -3,12 +3,15 @@ package org.stopbadware.dsp.rest;
 import static org.junit.Assert.*;
 import static org.stopbadware.dsp.test.helpers.HttpRequestTestHelper.*;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.junit.Test;
+import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.CleanReports;
 import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
+import org.stopbadware.dsp.json.ResolverResults;
 import org.stopbadware.dsp.test.helpers.HttpRequestTestHelper;
 
 public class AddTest {
@@ -43,7 +46,13 @@ public class AddTest {
 	@Test
 	public void markCleanTest() {
 		String path = "/v2/add/clean";
-		CleanReports data = new CleanReports();
+		assertTrue(HTTP.sendTest(path, new CleanReports(), OK));
+	}
+	
+	@Test
+	public void addResolvedTest() {
+		String path = "/v2/add/resolved";
+		ResolverResults data = new ResolverResults(new HashMap<String, Long>(), new HashMap<Long, AutonomousSystem>());
 		assertTrue(HTTP.sendTest(path, data, OK));
 	}
 	
