@@ -1,6 +1,8 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.SearchResults;
@@ -12,9 +14,17 @@ public class AsnsHandlerTest {
 	public static int PRIVATE_AS_RANGE_END = 65534;
 	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	
+	@BeforeClass
+	public static void addTestAS() {
+		AutonomousSystem as = new AutonomousSystem();
+		as.setAsn(PRIVATE_AS_RANGE_START);
+		boolean added = asns.addAutonmousSystem(as);
+		assertTrue(added);
+	}
+	
 	@Test
 	public void getASTest() {
-		SearchResults sr = asns.getAS(15169);
+		SearchResults sr = asns.getAS(PRIVATE_AS_RANGE_START);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 		assertTrue(sr.getResults() != null);
