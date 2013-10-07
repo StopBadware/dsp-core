@@ -18,10 +18,25 @@ import org.stopbadware.lib.util.SHA2;
  */
 public class HttpRequestTestHelper {
 	
+	public static final int OK = HttpURLConnection.HTTP_OK;
+	public static final int BAD_REQUEST = HttpURLConnection.HTTP_BAD_REQUEST;
+	public static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
+	public static final int NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
+	public static final int INT_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
 	private static final String BASE = (System.getenv("SBW_CORE_HOST") != null) ? System.getenv("SBW_CORE_HOST") : "http://127.0.0.1:5000";
 	
 	public HttpRequestTestHelper() {
 		
+	}
+	
+	public boolean sendTest(String pathAndQuery, Object data, int expectedResponse)  {
+		try {
+			int response = sendTestHttpRequest(pathAndQuery, data);
+			return response == expectedResponse;
+		} catch (IOException e) {
+			System.out.println("IOException thrown: "+e.getMessage());
+			return false;
+		}
 	}
 	
 	public int sendTestHttpRequest(String pathAndQuery, Object data) throws IOException {
