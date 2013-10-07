@@ -16,20 +16,25 @@ public class SecurityDbHandlerTest {
 	
 	private static Subject subject = AuthAuthTestHelper.getSubject();
 	private static SecurityDbHandler dbh = new SecurityDbHandler(); 
-	private static final String TEST_APIKEY = "TEST_APIKEY";
-//	private static final String TEST_SECRET = "TEST_SECRET";
+	private static String testApiKey = null;
+	private static String testSecret = null;
+	private static String testParticipant = "test";
+	private static Set<Role> testRoles =  new HashSet<>();
 	
 	@BeforeClass
 	public static void addTestAccount() {
-		//TODO DATA-120
+		testRoles.add(Role.PUBLIC);
+		testApiKey = dbh.addUser(testRoles, testParticipant, subject);
+		testSecret = dbh.getSecret(testApiKey);
+		assertTrue(testApiKey != null);
 	}
 	
 	@Test
 	public void getSecretTest() {
-		String secret = dbh.getSecret(subject.getPrincipal().toString());
+		String secret = dbh.getSecret(testApiKey);
 		assertTrue(secret != null);
 		assertTrue(secret.length() > 0);
-		assertTrue(false);
+		assertTrue(secret.equals(testSecret));
 	}
 	
 	@Test
@@ -45,7 +50,6 @@ public class SecurityDbHandlerTest {
 	@Test
 	public void addUserTest() {
 //		Set<Role> roles = new HashSet<>();
-//		String newAPIKey = dbh.addUser(roles, subject, "test");
 //		assertTrue(newAPIKey != null); 
 //		assertTrue(newAPIKey.length() > 0);
 		assertTrue(false);
@@ -53,7 +57,7 @@ public class SecurityDbHandlerTest {
 
 	@Test
 	public void getRolesTest() {
-		Set<String> roles = dbh.getRoles(TEST_APIKEY);
+		Set<String> roles = dbh.getRoles(testApiKey);
 		assertTrue(roles != null);
 		assertTrue(roles.size() > 0);
 		assertTrue(false);
@@ -61,7 +65,7 @@ public class SecurityDbHandlerTest {
 
 	@Test
 	public void getObjectPermissionsTest() {
-		Set<Permission> perms = dbh.getObjectPermissions(TEST_APIKEY);
+		Set<Permission> perms = dbh.getObjectPermissions(testApiKey);
 		assertTrue(perms != null);
 		assertTrue(perms.size() > 0);
 		assertTrue(false);
@@ -69,7 +73,7 @@ public class SecurityDbHandlerTest {
 
 	@Test
 	public void getStringPermissionsTest() {
-		Set<String> perms = dbh.getStringPermissions(TEST_APIKEY);
+		Set<String> perms = dbh.getStringPermissions(testApiKey);
 		assertTrue(perms != null);
 		assertTrue(perms.size() > 0);
 		assertTrue(false);

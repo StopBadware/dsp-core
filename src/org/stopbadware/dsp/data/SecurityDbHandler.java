@@ -134,7 +134,7 @@ public class SecurityDbHandler {
 	 * @return a String representing the API Key for the new account, or
 	 * null if an account could not be created
 	 */
-	public String addUser(Set<Role> roles, Subject subject, String participantPrefix) {
+	public String addUser(Set<Role> roles, String participantPrefix, Subject subject) {
 		String apiKey = createAPIKey();
 		boolean userAdded = false;
 		if (!keyIsUnique(apiKey)) {

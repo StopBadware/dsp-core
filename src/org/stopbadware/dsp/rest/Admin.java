@@ -30,7 +30,7 @@ public class Admin extends SecureREST {
 			SecurityDbHandler secdb = new SecurityDbHandler();
 			Set<Role> roles = new HashSet<>();
 			roles.add(Role.DATA_SHARING_PARTICIPANT);
-			String apiKey = secdb.addUser(roles, getSubject(), prefix);
+			String apiKey = secdb.addUser(roles, prefix, getSubject());
 			String secret = (apiKey != null) ? secdb.getSecret(apiKey) : null;
 			
 			if (apiKey != null && secret != null) {
