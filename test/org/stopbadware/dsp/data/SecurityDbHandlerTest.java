@@ -39,28 +39,34 @@ public class SecurityDbHandlerTest {
 	
 	@Test
 	public void disableUserTest() {
-		assertTrue(false);
+		String disabledTestApiKey = dbh.addUser(testRoles, testParticipant, subject);
+		boolean disabled = dbh.disableUser(disabledTestApiKey, subject);
+		assertTrue(disabled);
 	}
 	
 	@Test
 	public void getParticipantTest() {
-		assertTrue(false);
+		String participant = dbh.getParticipant(testApiKey);
+		assertTrue(participant != null);
+		assertTrue(participant.length() > 0);
+		assertTrue(participant.equals(testParticipant));
 	}
 
 	@Test
 	public void addUserTest() {
-//		Set<Role> roles = new HashSet<>();
-//		assertTrue(newAPIKey != null); 
-//		assertTrue(newAPIKey.length() > 0);
-		assertTrue(false);
+		String addUserTestApiKey = dbh.addUser(testRoles, testParticipant, subject);
+		assertTrue(addUserTestApiKey != null); 
+		assertTrue(addUserTestApiKey.length() > 0);
 	}
 
 	@Test
 	public void getRolesTest() {
 		Set<String> roles = dbh.getRoles(testApiKey);
 		assertTrue(roles != null);
-		assertTrue(roles.size() > 0);
-		assertTrue(false);
+		assertTrue(roles.size() == testRoles.size());
+		for (Role r : testRoles) {
+			assertTrue(roles.contains(r.toString()));
+		}
 	}
 
 	@Test
@@ -68,7 +74,6 @@ public class SecurityDbHandlerTest {
 		Set<Permission> perms = dbh.getObjectPermissions(testApiKey);
 		assertTrue(perms != null);
 		assertTrue(perms.size() > 0);
-		assertTrue(false);
 	}
 
 	@Test
@@ -76,15 +81,19 @@ public class SecurityDbHandlerTest {
 		Set<String> perms = dbh.getStringPermissions(testApiKey);
 		assertTrue(perms != null);
 		assertTrue(perms.size() > 0);
-		assertTrue(false);
 	}
 
 	@Test
 	public void getRolePermissionsTest() {
-		Set<String> perms = dbh.getRolePermissions(Role.ADMIN.toString());
-		assertTrue(perms != null);
-		assertTrue(perms.size() > 0);
-		assertTrue(false);
+		for (Role r : Role.values()) {
+			Set<String> perms = dbh.getRolePermissions(r.toString());
+			assertTrue(perms != null);
+			if (r.equals(Role.NO_PERMISSIONS)) {
+				assertTrue(perms.size() == 0);
+			} else {
+				assertTrue(perms.size() > 0);
+			}
+		}
 	}
 
 }
