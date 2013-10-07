@@ -310,7 +310,7 @@ public class SecurityDbHandler {
 	/**
 	 * Retrieves all permissions authorized to the role
 	 * @param role String representing the role to retrieve permissions for
-	 * @return a set of Strings representing the all permissions
+	 * @return a set of Strings representing the permissions
 	 * associated with the role
 	 */
 	public Set<String> getRolePermissions(String role) {
