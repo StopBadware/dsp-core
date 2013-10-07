@@ -15,7 +15,8 @@ public class IpsHandlerTest {
 	
 	@BeforeClass
 	public static void addTestIp() {
-		ips.addIP(TEST_IP);
+		boolean added = ips.addIP(TEST_IP);
+		assertTrue(added);
 	}
 	
 	@Test
