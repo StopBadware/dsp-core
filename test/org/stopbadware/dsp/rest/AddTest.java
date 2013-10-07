@@ -3,17 +3,17 @@ package org.stopbadware.dsp.rest;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.EventReports;
-import org.stopbadware.dsp.json.Response;
 import org.stopbadware.lib.util.SHA2;
 
 public class AddTest {
@@ -21,17 +21,13 @@ public class AddTest {
 	@Test
 	public void addEventsTest() {
 		String path = "/v2/add/events";
-		Object data = new EventReports();
+		EventReports data = new EventReports("test", new HashSet<ERWrapper>());
 		try {
 			int response = sendTestHttpRequest(path, data);
-			System.out.println(data);		//DELME DATA-120
-			System.out.println(response);	//DELME DATA-120
+			assertTrue(response == 200);
 		} catch (IOException e) {
-			e.printStackTrace();			//DELME DATA-120
 			fail("IOException thrown: "+e.getMessage());
 		}
-		
-		assertTrue(false);
 	}
 	
 	private int sendTestHttpRequest(String pathAndQuery, Object data) throws IOException {
@@ -48,10 +44,6 @@ public class AddTest {
 		PrintStream out = new PrintStream(conn.getOutputStream());
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(out, data);
-//		OutputStream out = conn.getOutputStream();
-//		out.write(data. getBytes("UTF-8"));
-//		out.flush();
-//		out.close();
 		int resCode = conn.getResponseCode();
 		conn.disconnect();
 		return resCode;
