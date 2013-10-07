@@ -1,8 +1,6 @@
 package org.stopbadware.dsp.sec;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
 
@@ -18,7 +16,6 @@ import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.data.SecurityDbHandler;
 
 /**
@@ -100,19 +97,4 @@ public abstract class AuthAuth {
 		return db.getParticipant(subject.getPrincipal().toString()).equalsIgnoreCase(participant);
 	}
 	
-	/**
-	 * Gets all ShareLevels the provided subject is authorized for
-	 * @param subject a Shiro subject to check authorizations with
-	 * @return an array of Strings representing each ShareLevel
-	 * the subject is authorized for
-	 */
-	public static String[] getAuthLevels(Subject subject) {
-		Set<String> levels = new HashSet<>();
-		for (ShareLevel level : ShareLevel.values()) {
-			if (subject.isPermitted("share_level:"+level.toString())) {
-				levels.add(level.toString());
-			}
-		}
-		return	levels.toArray(new String[levels.size()]);
-	}
 }
