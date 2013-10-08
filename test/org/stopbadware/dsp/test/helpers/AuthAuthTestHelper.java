@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.test.helpers;
 
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
@@ -33,10 +35,9 @@ public class AuthAuthTestHelper {
 	
 	public static Subject getSubject() {
 		Subject subject = SecurityUtils.getSubject();
-		String test = "TEST";
 		long ts = 0L;
-		String sig = SHA2.get256(test+ts+test+test);
-		RestToken token = new RestToken(test, sig, test, ts);
+		String sig = SHA2.get256(TEST+ts+TEST+TEST);
+		RestToken token = new RestToken(TEST, sig, TEST, ts);
 		subject.login(token);
 		return subject;
 	}

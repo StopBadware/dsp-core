@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,8 +11,6 @@ import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 
 public class AsnsHandlerTest {
 	
-	public static int PRIVATE_AS_RANGE_START = 64512;
-	public static int PRIVATE_AS_RANGE_END = 65534;
 	private static AsnsHandler asns = new AsnsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	
 	@BeforeClass
@@ -39,8 +38,8 @@ public class AsnsHandlerTest {
 			sr = asns.getAS(testNum++);
 		}
 		as.setAsn(testNum);
-		as.setCountry("TEST");
-		as.setName("TEST");
+		as.setCountry(TEST);
+		as.setName(TEST);
 		boolean added = asns.addAutonmousSystem(as);
 		assertTrue(added);
 		SearchResults confirm = asns.getAS(as.getAsn());

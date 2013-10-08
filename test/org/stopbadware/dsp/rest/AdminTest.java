@@ -1,7 +1,7 @@
 package org.stopbadware.dsp.rest;
 
 import static org.junit.Assert.*;
-import static org.stopbadware.dsp.test.helpers.HttpRequestTestHelper.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashSet;
 
@@ -13,7 +13,7 @@ import org.stopbadware.dsp.test.helpers.HttpRequestTestHelper;
 
 public class AdminTest {
 	
-	private static final String PREFIX = "test";
+	private static final String PREFIX = TEST;
 	private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 	
 	@Test

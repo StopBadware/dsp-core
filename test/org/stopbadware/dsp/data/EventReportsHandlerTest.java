@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.stopbadware.lib.util.SHA2;
 public class EventReportsHandlerTest {
 	
 	private static EventReportsHandler er = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
-	private static final String TEST_PREFIX = "TEST";
+	private static final String TEST_PREFIX = TEST;
 	private static final String TEST_HOST = "example.com";
 	private static long twentyFourHoursAgo = (System.currentTimeMillis()/1000) - (60*60*24);
 	private static Map<String, Object> erTestMap = new HashMap<>();

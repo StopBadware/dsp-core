@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.test.helpers;
 
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
@@ -18,11 +20,6 @@ import org.stopbadware.lib.util.SHA2;
  */
 public class HttpRequestTestHelper {
 	
-	public static final int OK = HttpURLConnection.HTTP_OK;
-	public static final int BAD_REQUEST = HttpURLConnection.HTTP_BAD_REQUEST;
-	public static final int FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
-	public static final int NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
-	public static final int INT_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
 	private static final String BASE = (System.getenv("SBW_CORE_HOST") != null) ? System.getenv("SBW_CORE_HOST") : "http://127.0.0.1:5000";
 	
 	public HttpRequestTestHelper() {
@@ -59,10 +56,9 @@ public class HttpRequestTestHelper {
 	
 	private Map<String, String> createAuthHeaders(String path) {
 		Map<String, String> headers = new HashMap<>();
-		String test = "TEST";
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-		String signature = SHA2.get256(test+timestamp+path+test);
-		headers.put("SBW-Key", test);
+		String signature = SHA2.get256(TEST+timestamp+path+TEST);
+		headers.put("SBW-Key", TEST);
 		headers.put("SBW-Timestamp", timestamp);
 		headers.put("SBW-Signature", signature);
 		return headers;

@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,8 +50,8 @@ public class IpsHandlerTest {
 	
 	@Test
 	public void updateAsnTest() {
-		ips.updateASN(TEST_IP, AsnsHandlerTest.PRIVATE_AS_RANGE_START);
-		int updated = ips.updateASN(TEST_IP, AsnsHandlerTest.PRIVATE_AS_RANGE_END);
+		ips.updateASN(TEST_IP, PRIVATE_AS_RANGE_START);
+		int updated = ips.updateASN(TEST_IP, PRIVATE_AS_RANGE_END);
 		assertTrue(updated > 0);
 	}
 	

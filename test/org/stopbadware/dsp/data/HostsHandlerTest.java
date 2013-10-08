@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class HostsHandlerTest {
 	
 	@Test
 	public void addHostTest() {
-		String host = "test"+System.currentTimeMillis()+".com";
+		String host = TEST+System.currentTimeMillis()+".com";
 		boolean added = hosts.addHost(host, ShareLevel.SBW_ONLY);
 		SearchResults sr = hosts.getHost(host);
 		assertTrue(added);

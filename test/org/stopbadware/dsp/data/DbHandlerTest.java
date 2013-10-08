@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +19,7 @@ import org.stopbadware.lib.util.SHA2;
 public class DbHandlerTest {
 	
 	private static DbHandler dbh = new DbHandler(AuthAuthTestHelper.getSubject()); 
-	private static final String TEST_PREFIX = "TEST";
+	private static final String TEST_PREFIX = TEST;
 	private static final String TEST_HOST = "example.com";
 	
 	@Test
@@ -65,11 +66,11 @@ public class DbHandlerTest {
 	public void addASNsForIPsTest() {
 		Map<Long, AutonomousSystem> asns = new HashMap<>();
 		AutonomousSystem asn = new AutonomousSystem();
-		asn.setAsn(AsnsHandlerTest.PRIVATE_AS_RANGE_START);
+		asn.setAsn(PRIVATE_AS_RANGE_START);
 		asns.put(0L, asn);
 		/* set to zero to ensure next call should result in a db write */
 		dbh.addASNsForIPs(asns);
-		asn.setAsn(AsnsHandlerTest.PRIVATE_AS_RANGE_END);
+		asn.setAsn(PRIVATE_AS_RANGE_END);
 		asns.put(0L, asn);
 		int added = dbh.addASNsForIPs(asns);
 		assertTrue(added > 0);

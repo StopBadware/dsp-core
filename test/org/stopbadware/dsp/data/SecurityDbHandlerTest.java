@@ -1,6 +1,7 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class SecurityDbHandlerTest {
 	private static SecurityDbHandler dbh = new SecurityDbHandler(); 
 	private static String testApiKey = null;
 	private static String testSecret = null;
-	private static String testParticipant = "test";
+	private static String testParticipant = TEST;
 	private static Set<Role> testRoles =  new HashSet<>();
 	
 	@BeforeClass
