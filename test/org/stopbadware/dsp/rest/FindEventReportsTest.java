@@ -8,7 +8,7 @@ import org.stopbadware.dsp.test.helpers.HttpRequestTestHelper;
 
 public class FindEventReportsTest {
 	
-private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
+	private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 
 	@Test
 	public void findSinceTest() {

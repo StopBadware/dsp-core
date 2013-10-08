@@ -15,7 +15,6 @@ public class FindAutonomousSystemsTest {
 		String basePath = "/v2/asns/";
 		HTTP.searchTest(basePath + PRIVATE_AS_RANGE_START);
 		HTTP.errorTest(basePath + "NAN", Error.BAD_FORMAT);
-		
 	}
 
 }
