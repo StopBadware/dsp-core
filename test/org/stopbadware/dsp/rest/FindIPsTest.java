@@ -8,7 +8,7 @@ public class FindIPsTest {
 	private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 	
 	@Test
-	public void findSinceTest() {
+	public void getIPTest() {
 		String basePath = "/v2/ips/";
 		HTTP.searchTest(basePath + "0");
 		HTTP.searchTest(basePath + "0.0.0.0");
