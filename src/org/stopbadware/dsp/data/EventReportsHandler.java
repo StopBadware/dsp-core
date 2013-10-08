@@ -56,6 +56,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	public SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
 		if (canRead) {
+			List<Map<String, Object>> results = new ArrayList<>();
 			sr = new SearchResults();
 			Map<String, Object> stats = new HashMap<>();
 			stats.put("total_count", coll.getCount());
@@ -67,7 +68,8 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			stats.put("added_last_1", getNumEventReportsAdded(dayAgo, now, source));
 			stats.put("added_last_7", getNumEventReportsAdded(weekAgo, now, source));
 			stats.put("added_last_30", getNumEventReportsAdded(monthAgo, now, source));
-			sr.setResults(stats);
+			results.add(stats);
+			sr.setResults(results);
 		} else {
 			sr = notPermitted();
 		}

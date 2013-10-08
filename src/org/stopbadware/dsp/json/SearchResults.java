@@ -1,7 +1,6 @@
 package org.stopbadware.dsp.json;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -58,12 +57,6 @@ public class SearchResults implements Response {
 		setDuration();
 	}
 
-	public void setResults(Map<?, ?> results) {
-		this.results = results;
-		count = results.size();
-		setDuration();
-	}
-	
 	public int getDuration() {
 		return duration;
 	}
