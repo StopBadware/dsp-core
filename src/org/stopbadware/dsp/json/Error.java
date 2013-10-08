@@ -10,6 +10,10 @@ public class Error extends SearchResults implements Response {
 	public static final int REQUEST_FAILED = 50;
 	public static final int DATABASE = 54;
 	
+	public Error() {
+		this(0, null);
+	}
+	
 	public Error(int code) {
 		this(code, null);
 	}
