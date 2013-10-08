@@ -23,12 +23,10 @@ public class FindAutonomousSystemsTest {
 		assertTrue(HTTP.getTest(path).code == OK);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			System.out.println(res.body);	//DELME DATA-120
 			SearchResults results = mapper.readValue(res.body, SearchResults.class);
 			assertTrue(results.getCode() == SearchResults.OK);
 		} catch (IOException e) {
-//			fail("IOException thrown: "+e.getMessage());
-			e.printStackTrace();	//DELME DATA-120
+			fail("IOException thrown: "+e.getMessage());
 		}
 		
 	}
