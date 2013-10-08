@@ -2,7 +2,10 @@ package org.stopbadware.dsp.test.helpers;
 
 import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -59,8 +62,15 @@ public class HttpRequestTestHelper {
 			mapper.writeValue(out, data);
 		}
 		int resCode = conn.getResponseCode();
+		String body = "";
+		InputStream in = conn.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			body += line;
+		}
 		conn.disconnect();
-		return new TestResponse(resCode, null);
+		return new TestResponse(resCode, body);
 	}
 	
 	private Map<String, String> createAuthHeaders(String path) {
@@ -75,8 +85,8 @@ public class HttpRequestTestHelper {
 	
 	public class TestResponse {
 		public final int code;
-		public final Object body;
-		public TestResponse(int code, Object body) {
+		public final String body;
+		public TestResponse(int code, String body) {
 			this.code = code;
 			this.body = body;
 		}

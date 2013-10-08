@@ -19,7 +19,6 @@ public class AdminTest {
 	@Test
 	public void createNewAccountTest() {
 		String path = "/v2/admin/account/create/" + PREFIX;
-		//TODO DATA-120 test response is AccountInfo
 		assertTrue(HTTP.postTest(path, null, OK));
 	}
 	
