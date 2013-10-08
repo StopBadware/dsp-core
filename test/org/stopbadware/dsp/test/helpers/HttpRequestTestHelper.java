@@ -26,25 +26,24 @@ public class HttpRequestTestHelper {
 		
 	}
 	
-	public boolean getTest(String pathAndQuery, int expectedResponse) {
-		return sendTest(pathAndQuery, null, expectedResponse, "GET");
+	public TestResponse getTest(String pathAndQuery) {
+		return sendTest(pathAndQuery, null, "GET");
 	}
 	
 	public boolean postTest(String pathAndQuery, Object data, int expectedResponse) {
-		return sendTest(pathAndQuery, data, expectedResponse, "POST");
+		return sendTest(pathAndQuery, data, "POST").code == expectedResponse;
 	}
 	
-	private boolean sendTest(String pathAndQuery, Object data, int expectedResponse, String method)  {
+	private TestResponse sendTest(String pathAndQuery, Object data, String method)  {
 		try {
-			int response = sendTestHttpRequest(pathAndQuery, data, method);
-			return response == expectedResponse;
+			return sendTestHttpRequest(pathAndQuery, data, method);
 		} catch (IOException e) {
 			System.out.println("IOException thrown: "+e.getMessage());
-			return false;
+			return null;
 		}
 	}
 	
-	public int sendTestHttpRequest(String pathAndQuery, Object data, String method) throws IOException {
+	public TestResponse sendTestHttpRequest(String pathAndQuery, Object data, String method) throws IOException {
 		URL url = new URL(BASE + pathAndQuery);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod(method);
@@ -61,7 +60,7 @@ public class HttpRequestTestHelper {
 		}
 		int resCode = conn.getResponseCode();
 		conn.disconnect();
-		return resCode;
+		return new TestResponse(resCode, null);
 	}
 	
 	private Map<String, String> createAuthHeaders(String path) {
@@ -72,6 +71,15 @@ public class HttpRequestTestHelper {
 		headers.put("SBW-Timestamp", timestamp);
 		headers.put("SBW-Signature", signature);
 		return headers;
+	}
+	
+	public class TestResponse {
+		public final int code;
+		public final Object body;
+		public TestResponse(int code, Object body) {
+			this.code = code;
+			this.body = body;
+		}
 	}
 
 }
