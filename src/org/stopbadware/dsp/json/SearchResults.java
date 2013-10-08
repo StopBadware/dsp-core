@@ -53,7 +53,7 @@ public class SearchResults implements Response {
 	
 	public void setResults(Collection<?> results) {
 		this.results = results;
-		count = results.size();
+		count = (results != null) ? results.size() : 0;
 		setDuration();
 	}
 
