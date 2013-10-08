@@ -26,9 +26,17 @@ public class HttpRequestTestHelper {
 		
 	}
 	
-	public boolean sendTest(String pathAndQuery, Object data, int expectedResponse)  {
+	public boolean getTest(String pathAndQuery, int expectedResponse) {
+		return sendTest(pathAndQuery, null, expectedResponse, "GET");
+	}
+	
+	public boolean postTest(String pathAndQuery, Object data, int expectedResponse) {
+		return sendTest(pathAndQuery, data, expectedResponse, "POST");
+	}
+	
+	private boolean sendTest(String pathAndQuery, Object data, int expectedResponse, String method)  {
 		try {
-			int response = sendTestHttpRequest(pathAndQuery, data);
+			int response = sendTestHttpRequest(pathAndQuery, data, method);
 			return response == expectedResponse;
 		} catch (IOException e) {
 			System.out.println("IOException thrown: "+e.getMessage());
@@ -36,19 +44,21 @@ public class HttpRequestTestHelper {
 		}
 	}
 	
-	public int sendTestHttpRequest(String pathAndQuery, Object data) throws IOException {
+	public int sendTestHttpRequest(String pathAndQuery, Object data, String method) throws IOException {
 		URL url = new URL(BASE + pathAndQuery);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("POST");
+		conn.setRequestMethod(method);
 		conn.setRequestProperty("Content-Type", "application/json");
 		Map<String, String> authHeaders = createAuthHeaders(url.getPath().toString());
 		for (String key : authHeaders.keySet()) {
 			conn.setRequestProperty(key, authHeaders.get(key));
 		}
-		conn.setDoOutput(true);
-		PrintStream out = new PrintStream(conn.getOutputStream());
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(out, data);
+		if (data != null) {
+			conn.setDoOutput(true);
+			PrintStream out = new PrintStream(conn.getOutputStream());
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.writeValue(out, data);
+		}
 		int resCode = conn.getResponseCode();
 		conn.disconnect();
 		return resCode;

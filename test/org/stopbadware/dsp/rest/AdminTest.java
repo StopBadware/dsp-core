@@ -20,14 +20,14 @@ public class AdminTest {
 	public void createNewAccountTest() {
 		String path = "/v2/admin/account/create/" + PREFIX;
 		//TODO DATA-120 test response is AccountInfo
-		assertTrue(HTTP.sendTest(path, null, OK));
+		assertTrue(HTTP.postTest(path, null, OK));
 	}
 	
 	@Test
 	public void disableAccountTest() {
 		String apiKey = new SecurityDbHandler().addUser(new HashSet<Role>(), PREFIX, AuthAuthTestHelper.getSubject());
 		String path = "/v2/admin/account/disable/" + apiKey;
-		assertTrue(HTTP.sendTest(path, null, OK));
+		assertTrue(HTTP.postTest(path, null, OK));
 	}
 
 }

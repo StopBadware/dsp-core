@@ -14,7 +14,7 @@ public class FindAutonomousSystemsTest {
 	public void getASTest() {
 		String path = "/v2/asns/" + PRIVATE_AS_RANGE_START;
 		//TODO DATA-120 test response is SearchResults
-		assertTrue(HTTP.sendTest(path, null, OK));
+		assertTrue(HTTP.getTest(path, OK));
 	}
 
 }
