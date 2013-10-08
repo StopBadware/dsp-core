@@ -1,5 +1,7 @@
 package org.stopbadware.dsp.test.helpers;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.io.BufferedReader;
@@ -13,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.stopbadware.dsp.json.Error;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.lib.util.SHA2;
 
 /**
@@ -31,6 +35,32 @@ public class HttpRequestTestHelper {
 	
 	public TestResponse getTest(String pathAndQuery) {
 		return sendTest(pathAndQuery, null, "GET");
+	}
+	
+	public void searchTest(String pathAndQuery) {
+		TestResponse res = getTest(pathAndQuery);
+		assertTrue(res != null);
+		assertTrue(res.code == OK);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			SearchResults results = mapper.readValue(res.body, SearchResults.class);
+			assertTrue(results.getCode() == SearchResults.OK);
+		} catch (IOException e) {
+			fail("IOException thrown: " + e.getMessage());
+		}
+	}
+	
+	public void errorTest(String pathAndQuery, int expectedResponse) {
+		TestResponse res = getTest(pathAndQuery);
+		assertTrue(res != null);
+		assertTrue(res.code == OK);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			Error results = mapper.readValue(res.body, Error.class);
+			assertTrue(results.getCode() == expectedResponse);
+		} catch (IOException e) {
+			fail("IOException thrown: " + e.getMessage());
+		}
 	}
 	
 	public boolean postTest(String pathAndQuery, Object data, int expectedResponse) {
