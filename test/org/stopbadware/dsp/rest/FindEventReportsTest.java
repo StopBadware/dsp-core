@@ -33,8 +33,7 @@ private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 	@Test
 	public void getStatsTest() {
 		String basePath = "/v2/events/stats/";
-//		HTTP.searchTest(basePath + "all");	//TODO
-//		HTTP.errorTest(basePath + "NAN", Error.BAD_FORMAT);
+		HTTP.searchTest(basePath + "all");
 	}
 
 }

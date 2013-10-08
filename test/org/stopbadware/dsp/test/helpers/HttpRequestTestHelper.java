@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.lib.util.SHA2;
+import org.codehaus.jackson.map.DeserializationConfig;
 
 /**
  * Helper class for testing responses to HTTP requests. Requires a running
@@ -42,10 +43,12 @@ public class HttpRequestTestHelper {
 		assertTrue(res != null);
 		assertTrue(res.code == OK);
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		try {
 			SearchResults results = mapper.readValue(res.body, SearchResults.class);
 			assertTrue(results.getCode() == SearchResults.OK);
 		} catch (IOException e) {
+			e.printStackTrace();	//DELME DATA-120
 			fail("IOException thrown: " + e.getMessage());
 		}
 	}
