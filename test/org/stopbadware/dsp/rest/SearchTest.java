@@ -67,7 +67,7 @@ public class SearchTest {
 	@Test
 	public void searchNotFoundTest() {
 		String path = "/v2/search/thereisnospoon";
-		TestResponse res = HTTP.getTest(path);	//TODO
+		TestResponse res = HTTP.getTest(path);
 		assertTrue(res.code == NOT_FOUND);
 	}
 

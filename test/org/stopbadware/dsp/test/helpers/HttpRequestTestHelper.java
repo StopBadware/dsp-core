@@ -96,11 +96,13 @@ public class HttpRequestTestHelper {
 		}
 		int resCode = conn.getResponseCode();
 		String body = "";
-		InputStream in = conn.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			body += line;
+		if (resCode == 200) {
+			InputStream in = conn.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				body += line;
+			}
 		}
 		conn.disconnect();
 		return new TestResponse(resCode, body);
