@@ -66,13 +66,14 @@ public class DbHandlerTest {
 	public void addASNsForIPsTest() {
 		Map<Long, AutonomousSystem> asns = new HashMap<>();
 		AutonomousSystem asn = new AutonomousSystem();
-		asn.setAsn(PRIVATE_AS_RANGE_START);
-		asns.put(0L, asn);
-		/* set to zero to ensure next call should result in a db write */
-		dbh.addASNsForIPs(asns);
-		asn.setAsn(PRIVATE_AS_RANGE_END);
-		asns.put(0L, asn);
-		int added = dbh.addASNsForIPs(asns);
+		int testAsn = PRIVATE_AS_RANGE_START;
+		int added = 0;
+		while (added == 0 && testAsn < PRIVATE_AS_RANGE_END) {
+			asn.setAsn(testAsn++);
+			asns.put(0L, asn);
+			added = dbh.addASNsForIPs(asns);
+			asns = new HashMap<>();
+		}
 		assertTrue(added > 0);
 	}
 
