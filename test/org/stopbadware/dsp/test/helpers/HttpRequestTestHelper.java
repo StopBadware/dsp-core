@@ -48,7 +48,6 @@ public class HttpRequestTestHelper {
 			SearchResults results = mapper.readValue(res.body, SearchResults.class);
 			assertTrue(results.getCode() == SearchResults.OK);
 		} catch (IOException e) {
-			e.printStackTrace();	//DELME DATA-120
 			fail("IOException thrown: " + e.getMessage());
 		}
 	}
@@ -72,19 +71,25 @@ public class HttpRequestTestHelper {
 	
 	private TestResponse sendTest(String pathAndQuery, Object data, String method)  {
 		try {
-			return sendTestHttpRequest(pathAndQuery, data, method);
+			return sendTestHttpRequest(pathAndQuery, data, method, null);
 		} catch (IOException e) {
 			System.out.println("IOException thrown: "+e.getMessage());
 			return null;
 		}
 	}
 	
-	public TestResponse sendTestHttpRequest(String pathAndQuery, Object data, String method) throws IOException {
+	public TestResponse sendTestHttpRequest(
+			String pathAndQuery, 
+			Object data, 
+			String method,
+			Map<String, String> authHeaders) throws IOException {
 		URL url = new URL(BASE + pathAndQuery);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod(method);
 		conn.setRequestProperty("Content-Type", "application/json");
-		Map<String, String> authHeaders = createAuthHeaders(url.getPath().toString());
+		if (authHeaders == null || authHeaders.size() == 0) {
+			authHeaders = createAuthHeaders(url.getPath().toString());
+		}
 		for (String key : authHeaders.keySet()) {
 			conn.setRequestProperty(key, authHeaders.get(key));
 		}
@@ -108,11 +113,46 @@ public class HttpRequestTestHelper {
 		return new TestResponse(resCode, body);
 	}
 	
-	private Map<String, String> createAuthHeaders(String path) {
+	/**
+	 * Creates valid authentication headers for an API request
+	 * @param path the path portion of the API endpoint that will be accessed
+	 * @return Map containing the required headers for authentication
+	 */
+	public Map<String, String> createAuthHeaders(String path) {
 		Map<String, String> headers = new HashMap<>();
 		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
 		String signature = SHA2.get256(TEST+timestamp+path+TEST);
 		headers.put("SBW-Key", TEST);
+		headers.put("SBW-Timestamp", timestamp);
+		headers.put("SBW-Signature", signature);
+		return headers;
+	}
+	
+	/**
+	 * Creates authentication headers for an API request based on the passed
+	 * parameters. For all params a null value can be passed, in which case a suitable 
+	 * and valid default will be used. 
+	 * @param path path the path portion of the API endpoint that will be accessed
+	 * @param key the account's public API key
+	 * @param ts timestamp to use in the request (represented as a String)
+	 * @param sec the account's secret API key
+	 * @param sig the request signature, normally derived from the SHA2-256
+	 * of the key, timestamp, path, and secret
+	 * @return Map containing the required headers for authentication
+	 */
+	public Map<String, String> createAuthHeaders(
+			String path,
+			String key,
+			String ts,
+			String sec,
+			String sig) {
+		Map<String, String> headers = new HashMap<>();
+		String urlPath = (path == null) ? VALID_API_PATH : path;
+		String apiKey = (key==null) ? TEST : key;
+		String secret = (sec==null) ? TEST : sec;
+		String timestamp = (ts==null) ? String.valueOf(System.currentTimeMillis() / 1000) : ts;
+		String signature = (sig==null) ? SHA2.get256(apiKey+timestamp+urlPath+secret) : sig;
+		headers.put("SBW-Key", apiKey);
 		headers.put("SBW-Timestamp", timestamp);
 		headers.put("SBW-Signature", signature);
 		return headers;

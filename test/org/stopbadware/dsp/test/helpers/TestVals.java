@@ -12,6 +12,7 @@ public class TestVals {
 	public static final int PRIVATE_AS_RANGE_START = 64512;
 	public static final int PRIVATE_AS_RANGE_END = 65534;
 	public static final String TEST_REPORT_UID = TEST+"-"+TEST+"-"+1701;
+	public static final String VALID_API_PATH = "/v2/events/timeoflast/test";
 	
 	public static final int OK = HttpURLConnection.HTTP_OK;
 	public static final int BAD_REQUEST = HttpURLConnection.HTTP_BAD_REQUEST;
