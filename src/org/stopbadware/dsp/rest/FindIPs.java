@@ -10,13 +10,13 @@ import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.Response;
 
 @Path("/ips")
-public class FindIPs extends SecureREST {
+public class FindIPs extends SecureRest {
 	
 	@GET
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHost(@PathParam("param") String ip) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		return (dbh != null) ? dbh.findIP(ip) : httpResponseCode(FORBIDDEN); 
 	}
 

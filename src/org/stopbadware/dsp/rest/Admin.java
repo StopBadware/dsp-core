@@ -18,14 +18,14 @@ import org.stopbadware.dsp.sec.Role;
 import org.stopbadware.dsp.json.Error;
 
 @Path("/admin")
-public class Admin extends SecureREST {
+public class Admin extends SecureRest {
 
 	@POST
 	@Path("/account/create/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewAccount(@PathParam("param") String prefix) {
 		Response response = null;
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			SecurityDbHandler secdb = new SecurityDbHandler();
 			Set<Role> roles = new HashSet<>();
@@ -49,7 +49,7 @@ public class Admin extends SecureREST {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response disableAccount(@PathParam("param") String pubKey) {
 		Response response = null;
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			SecurityDbHandler secdb = new SecurityDbHandler();
 			boolean disabled = secdb.disableUser(pubKey, getSubject());

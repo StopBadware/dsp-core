@@ -29,7 +29,7 @@ import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.lib.util.SHA2;
 
 @Path("/add")
-public class Add extends SecureREST {
+public class Add extends SecureRest {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Add.class);
 	
@@ -37,7 +37,7 @@ public class Add extends SecureREST {
 	@Path("/events")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addEvents(String data) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			processImports(data, dbh);
 			return httpResponseCode(OK);
@@ -103,7 +103,7 @@ public class Add extends SecureREST {
 	@Path("/clean")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response markClean(String data) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			processMarkClean(data, dbh);
 			return httpResponseCode(OK);
@@ -116,7 +116,7 @@ public class Add extends SecureREST {
 	@Path("/resolved")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addResolved(String data) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			processResolved(data, dbh);
 			return httpResponseCode(OK);

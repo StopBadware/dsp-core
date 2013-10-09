@@ -14,13 +14,13 @@ import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.Response;
 
 @Path("/search")
-public class Search extends SecureREST {
+public class Search extends SecureRest {
 	
 	@GET
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response search(@PathParam("param") String searchFor) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		if (dbh != null) {
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
 			try {

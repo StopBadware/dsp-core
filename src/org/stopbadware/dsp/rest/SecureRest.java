@@ -16,7 +16,7 @@ import org.stopbadware.dsp.sec.AuthAuth;
  * Super-class ALL other classes in org.stopbadware.dsp.rest should extend. This
  * class provides for retrieval of a DBHandler instance after authenticating   
  */
-public abstract class SecureREST {
+public abstract class SecureRest {
 	
 	@Context UriInfo uri;
 	@Context HttpHeaders httpHeaders;
@@ -31,7 +31,7 @@ public abstract class SecureREST {
 	 * @return a DBHandler instance associated with an authenticated subject,
 	 * or null if the subject is not authenticated
 	 */
-	protected DbHandler getDBH() {
+	protected DbHandler getDbh() {
 		Subject subject = getSubject();
 		if (subject != null && subject.isAuthenticated()) {
 			return new DbHandler(subject);

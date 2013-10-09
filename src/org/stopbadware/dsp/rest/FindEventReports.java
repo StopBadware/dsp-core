@@ -12,7 +12,7 @@ import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.Error;
 
 @Path("/events")
-public class FindEventReports extends SecureREST {
+public class FindEventReports extends SecureRest {
 	
 	/*
 	 * **********************************
@@ -24,7 +24,7 @@ public class FindEventReports extends SecureREST {
 	@Path("/since/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince(@PathParam("param") String sinceTime) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		try {
 			return (dbh != null) ? dbh.findEventReportsSince(Long.valueOf(sinceTime)) : httpResponseCode(FORBIDDEN);
 		} catch (NumberFormatException e) {
@@ -36,7 +36,7 @@ public class FindEventReports extends SecureREST {
 	@Path("/timeoflast/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getLastReportedTime(@PathParam("source") String source) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		return (dbh != null) ? dbh.getTimeOfLast(source) : httpResponseCode(FORBIDDEN);
 	}
 	
@@ -50,7 +50,7 @@ public class FindEventReports extends SecureREST {
 	@Path("/stats/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStats(@PathParam("source") String source) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		return (dbh != null) ? dbh.getEventReportsStats(source) : httpResponseCode(FORBIDDEN);
 	}
 	
@@ -58,7 +58,7 @@ public class FindEventReports extends SecureREST {
 	@Path("/report/{uid}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response find(@PathParam("uid") String uid) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		try {
 			return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
 		} catch (SearchException e) {

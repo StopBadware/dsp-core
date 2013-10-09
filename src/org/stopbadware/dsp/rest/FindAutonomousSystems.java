@@ -11,13 +11,13 @@ import org.stopbadware.dsp.json.Response;
 import org.stopbadware.dsp.json.Error;
 
 @Path("/asns")
-public class FindAutonomousSystems extends SecureREST {
+public class FindAutonomousSystems extends SecureRest {
 	
 	@GET
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAS(@PathParam("param") String asn) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		try {
 			return (dbh != null) ? dbh.findAS(Integer.valueOf(asn)) : httpResponseCode(FORBIDDEN);
 		} catch (NumberFormatException e) {

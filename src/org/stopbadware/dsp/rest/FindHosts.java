@@ -11,13 +11,13 @@ import org.stopbadware.dsp.json.ResolverRequest;
 import org.stopbadware.dsp.json.Response;
 
 @Path("/hosts")
-public class FindHosts extends SecureREST {
+public class FindHosts extends SecureRest {
 
 	@GET
 	@Path("/blacklisted/now")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response findSince() {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		return (dbh != null) ? new ResolverRequest(dbh.getCurrentlyBlacklistedHosts()) : httpResponseCode(FORBIDDEN);
 	}
 	
@@ -25,7 +25,7 @@ public class FindHosts extends SecureREST {
 	@Path("/{param}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getHost(@PathParam("param") String host) {
-		DbHandler dbh = getDBH();
+		DbHandler dbh = getDbh();
 		return (dbh != null) ? dbh.findHost(host) : httpResponseCode(FORBIDDEN);
 	}
 	
