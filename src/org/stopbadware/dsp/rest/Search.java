@@ -29,30 +29,33 @@ public class Search extends SecureRest {
 		if (dbh != null) {
 			SearchResults sr = null;
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
+			String queryString = uri.getRequestUri().getQuery();
 			try {
 				switch (searchFor) {
 				case "events":
 					sr = dbh.search(SearchType.EVENT_REPORT, params);
+					break;
 				case "hosts":
 					sr = dbh.search(SearchType.HOST, params);
+					break;
 				case "ips":
 					sr = dbh.search(SearchType.IP, params);
+					break;
 				case "asns":
 					sr = dbh.search(SearchType.AS, params);
+					break;
 				default:
 					break;
 				}
 				
 				if (sr != null) {
-					//TODO DATA-126 get query string
-					LOG.info("{}:Returning {} results in {}ms for '{}'", sr.getCode(), sr.getCount(), sr.getDuration(), searchFor);
+					LOG.info("{}:Fetching {} results took {}ms for '{}'", sr.getCode(), sr.getCount(), sr.getDuration(), queryString);
 					return sr;
 				} else {
 					return httpResponseCode(NOT_FOUND);
 				}
 			} catch (SearchException e) {
-				//TODO DATA-126 get query string
-				LOG.warn("{}:Searching for '{}' resulted in: {}", e.getCode(), searchFor, e.getMessage());
+				LOG.warn("{}:SearchException thrown for '{}': {}", e.getCode(), queryString, e.getMessage());
 				return new Error(e.getCode(), e.getMessage());
 			}
 		} else {
