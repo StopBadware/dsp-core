@@ -29,7 +29,7 @@ public class Search extends SecureRest {
 		if (dbh != null) {
 			SearchResults sr = null;
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
-			String queryString = uri.getRequestUri().getQuery();
+			String pathAndParams = uri.getPath() + params.toString();
 			try {
 				switch (searchFor) {
 				case "events":
@@ -49,13 +49,13 @@ public class Search extends SecureRest {
 				}
 				
 				if (sr != null) {
-					LOG.info("{}:Fetching {} results took {}ms for '{}'", sr.getCode(), sr.getCount(), sr.getDuration(), queryString);
+					LOG.info("{}:Fetching {} results took {}ms for '{}'", sr.getCode(), sr.getCount(), sr.getDuration(), pathAndParams);
 					return sr;
 				} else {
 					return httpResponseCode(NOT_FOUND);
 				}
 			} catch (SearchException e) {
-				LOG.warn("{}:SearchException thrown for '{}': {}", e.getCode(), queryString, e.getMessage());
+				LOG.warn("{}:SearchException thrown for '{}': {}", e.getCode(), pathAndParams, e.getMessage());
 				return new Error(e.getCode(), e.getMessage());
 			}
 		} else {
