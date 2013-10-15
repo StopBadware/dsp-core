@@ -116,13 +116,18 @@ public class Add extends SecureRest {
 	@Path("/resolved")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addResolved(String data) {
+		int status = FORBIDDEN;
 		DbHandler dbh = getDbh();
 		if (dbh != null) {
-			processResolved(data, dbh);
-			return httpResponseCode(OK);
-		} else {
-			return httpResponseCode(FORBIDDEN);
+			ResolverResults results = mapResolved(data);
+			if (results != null) {
+				//TODO DATA-124 execute processResolverResults in new thread
+				status = OK;
+			} else {
+				status = BAD_REQUEST;
+			}
 		}
+		return httpResponseCode(status);
 	}
 	
 	private void processImports(String data, DbHandler dbh) {
@@ -195,7 +200,13 @@ public class Add extends SecureRest {
 		}
 	}
 	
-	private void processResolved(String data, DbHandler dbh) {
+	/**
+	 * Maps and processes results from the IP/AS Resolver
+	 * @param data JSON String containing the results of the resolver run
+	 * @return a valid ResolverResults instance if the passed data was 
+	 * successfully mapped to a ResolverResults object, otherwise null.
+	 */
+	private ResolverResults mapResolved(String data) {
 		ObjectMapper mapper = new ObjectMapper();
 		ResolverResults rr = null;
 		try {
@@ -205,11 +216,25 @@ public class Add extends SecureRest {
 		}
 		
 		if (rr != null) {
-			dbh.addIPsForHosts(rr.getHostToIPMappings());
-			Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
-			dbh.addASNsForIPs(ipAS);
-			dbh.addAutonmousSystems(ipAS.values());
+			new Thread() {
+				@Override
+				public void run() {
+//					dbh.addIPsForHosts(rr.getHostToIPMappings());
+//					Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
+//					dbh.addASNsForIPs(ipAS);
+//					dbh.addAutonmousSystems(ipAS.values());
+				}
+			};
+//			dbh.addIPsForHosts(rr.getHostToIPMappings());
+//			Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
+//			dbh.addASNsForIPs(ipAS);
+//			dbh.addAutonmousSystems(ipAS.values());
 		}
+		return rr;
+	}
+	
+	private void processResolverResults(ResolverResults rr, DbHandler dbh) {
+		
 	}
 	
 }
