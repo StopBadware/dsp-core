@@ -49,7 +49,12 @@ public class Search extends SecureRest {
 				}
 				
 				if (sr != null) {
-					LOG.info("{}:Fetching {} results took {}ms for '{}'", sr.getCode(), sr.getCount(), sr.getDuration(), pathAndParams);
+					int duration = sr.getDuration();
+					if (duration > 200) {
+						LOG.warn("{}:Fetching {} results took {}ms [SLOW] for '{}'", sr.getCode(), sr.getCount(), duration, pathAndParams);
+					} else {
+						LOG.info("{}:Fetching {} results took {}ms for '{}'", sr.getCode(), sr.getCount(), duration, pathAndParams);
+					}
 					return sr;
 				} else {
 					return httpResponseCode(NOT_FOUND);
