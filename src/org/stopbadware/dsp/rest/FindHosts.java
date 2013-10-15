@@ -16,9 +16,17 @@ public class FindHosts extends SecureRest {
 	@GET
 	@Path("/blacklisted/now")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response findSince() {
+	public Response getCurrentlyBlacklisted() {
 		DbHandler dbh = getDbh();
 		return (dbh != null) ? new ResolverRequest(dbh.getCurrentlyBlacklistedHosts()) : httpResponseCode(FORBIDDEN);
+	}
+	
+	@GET
+	@Path("/since/{param}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response findSince(@PathParam("param") long since) {
+		DbHandler dbh = getDbh();
+		return (dbh != null) ? new ResolverRequest(dbh.getHostsWithEventReportsSince(since)) : httpResponseCode(FORBIDDEN);
 	}
 	
 	@GET

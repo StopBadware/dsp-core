@@ -1,6 +1,8 @@
 package org.stopbadware.dsp.data;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -14,13 +16,14 @@ import org.stopbadware.dsp.json.SearchResults;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
 public abstract class MdbCollectionHandler {
 	
-	protected DB db;
-	protected DBCollection coll;
+	protected final DB db;
+	protected final DBCollection coll;
 	protected boolean canRead = false;
 	protected boolean canWrite = false;
 	
@@ -74,6 +77,32 @@ public abstract class MdbCollectionHandler {
 			keys.put(key, 0);
 		}
 		return keys;
+	}
+	
+	/**
+	 * Searches the collection and returns only the values for a single, specified
+	 * field as a set of Strings
+	 * @param query DBObject with the search criteria
+	 * @param field name of the field to return results for
+	 * @return Set of Strings containing the (unique) values for the field specified
+	 */
+	protected Set<String> findSingleFieldResults(DBObject query, String field) {
+		Set<String> results = new HashSet<>();
+		DBObject keys = new BasicDBObject();
+		keys.put("_id", 0);
+		keys.put(field, 1);
+		DBCursor cur = null;
+		if (canRead) {
+			cur = coll.find(query, keys);
+		}
+		while (cur != null && cur.hasNext()) {
+			try {
+				results.add(cur.next().get(field).toString());
+			} catch (MongoException | NullPointerException e) {
+				LOG.error("Unable to retrieve object from cursor:\t{}", e.getMessage());
+			}
+		}
+		return results;
 	}
 	
 	/**

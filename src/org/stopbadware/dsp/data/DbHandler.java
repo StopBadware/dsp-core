@@ -160,11 +160,21 @@ public class DbHandler {
 	}
 	
 	/**
-	 * Finds and returns all hosts of currently blacklisted event reports
+	 * Finds all hosts of currently blacklisted event reports
 	 * @return Set of Strings containing the blacklisted hosts
 	 */
 	public Set<String> getCurrentlyBlacklistedHosts() {
 		return eventsHandler.getCurrentlyBlacklistedHosts();
+	}
+	
+	/**
+	 * Finds all hosts corresponding to event reports added
+	 * since the time specified
+	 * @param since start time as a UNIX timestamp
+	 * @return Set of Strings containing the hosts
+	 */
+	public Set<String> getHostsWithEventReportsSince(long since) {
+		return eventsHandler.getHostsWithEventReportsSince(since);
 	}
 	
 	/**

@@ -8,8 +8,14 @@ public class FindHostsTest {
 	private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 	
 	@Test
-	public void findSinceTest() {
+	public void findCurrentlyBlacklistedTest() {
 		String path = "/v2/hosts/blacklisted/now";
+		HTTP.searchTest(path);
+	}
+	
+	@Test
+	public void findSinceTest() {
+		String path = "/v2/hosts/since/0";
 		HTTP.searchTest(path);
 	}
 	

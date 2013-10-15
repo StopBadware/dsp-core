@@ -90,6 +90,13 @@ public class EventReportsHandlerTest {
 	}
 	
 	@Test
+	public void getHostsWithEventReportsSinceTest() {
+		Set<String> hosts = er.getHostsWithEventReportsSince(0);
+		assertTrue(hosts.size() > 0);
+		assertTrue(hosts.contains(TEST_HOST));
+	}
+	
+	@Test
 	public void findCurrentlyBlacklistedBySourceTest() {
 		Set<String> blacklisted = er.findCurrentlyBlacklistedBySource(TEST_PREFIX, "host");
 		assertTrue(blacklisted.size() > 0);

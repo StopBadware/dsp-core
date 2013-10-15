@@ -127,24 +127,12 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	}
 	
 	public Set<String> getCurrentlyBlacklistedHosts() {
-		Set<String> hosts = new HashSet<>();
-		DBObject query = new BasicDBObject();
-		query.put("is_on_blacklist", true);
-		DBObject keys = new BasicDBObject();
-		keys.put("_id", 0);
-		keys.put("host", 1);
-		DBCursor cur = null;
-		if (canRead) {
-			cur = coll.find(query, keys);
-		}
-		while (cur != null && cur.hasNext()) {
-			try {
-				hosts.add(cur.next().get("host").toString());
-			} catch (MongoException | NullPointerException e) {
-				LOG.error("Unable to retrieve object from cursor:\t{}", e.getMessage());
-			}
-		}
-		return hosts;
+		return findSingleFieldResults(new BasicDBObject("is_on_blacklist", true), "host");
+	}
+	
+	public Set<String> getHostsWithEventReportsSince(long since) {
+		DBObject query = new BasicDBObject("reported_at", new BasicDBObject("$gte", since));
+		return findSingleFieldResults(query, "host");
 	}
 	
 	@Override
