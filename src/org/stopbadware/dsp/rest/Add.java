@@ -117,11 +117,16 @@ public class Add extends SecureRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addResolved(String data) {
 		int status = FORBIDDEN;
-		DbHandler dbh = getDbh();
+		final DbHandler dbh = getDbh();
 		if (dbh != null) {
-			ResolverResults results = mapResolved(data);
+			final ResolverResults results = mapResolved(data);
 			if (results != null) {
-				//TODO DATA-124 execute processResolverResults in new thread
+				new Thread() {
+					@Override
+					public void run() {
+						processResolverResults(results, dbh);
+					}
+				}.start();
 				status = OK;
 			} else {
 				status = BAD_REQUEST;
@@ -201,7 +206,7 @@ public class Add extends SecureRest {
 	}
 	
 	/**
-	 * Maps and processes results from the IP/AS Resolver
+	 * Maps results from the IP/AS Resolver
 	 * @param data JSON String containing the results of the resolver run
 	 * @return a valid ResolverResults instance if the passed data was 
 	 * successfully mapped to a ResolverResults object, otherwise null.
@@ -214,27 +219,14 @@ public class Add extends SecureRest {
 		} catch (IOException e) {
 			LOG.error("Error parsing JSON:\t{}", e.getMessage());
 		}
-		
-		if (rr != null) {
-			new Thread() {
-				@Override
-				public void run() {
-//					dbh.addIPsForHosts(rr.getHostToIPMappings());
-//					Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
-//					dbh.addASNsForIPs(ipAS);
-//					dbh.addAutonmousSystems(ipAS.values());
-				}
-			};
-//			dbh.addIPsForHosts(rr.getHostToIPMappings());
-//			Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
-//			dbh.addASNsForIPs(ipAS);
-//			dbh.addAutonmousSystems(ipAS.values());
-		}
 		return rr;
 	}
 	
 	private void processResolverResults(ResolverResults rr, DbHandler dbh) {
-		
+		dbh.addIPsForHosts(rr.getHostToIPMappings());
+		Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
+		dbh.addASNsForIPs(ipAS);
+		dbh.addAutonmousSystems(ipAS.values());
 	}
 	
 }
