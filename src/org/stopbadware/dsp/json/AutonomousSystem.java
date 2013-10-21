@@ -44,4 +44,18 @@ public class AutonomousSystem implements Response {
 		this.name = name;
 	}
 	
+	@Override
+	public int hashCode() {
+		return asn;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AutonomousSystem) {
+			return ((AutonomousSystem) obj).getAsn() == this.asn;
+		} else {
+			return false;
+		}
+	}
+	
 }
