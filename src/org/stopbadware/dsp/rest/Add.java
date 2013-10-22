@@ -147,7 +147,7 @@ public class Add extends SecureRest {
 		
 		if (imports != null) {
 			long age = (System.currentTimeMillis() / 1000) - imports.getTime();
-			LOG.info("Received import with timestamp {} for '{}')", imports.getTime(), imports.getSource());
+			LOG.info("Received import with timestamp {} for '{}'", imports.getTime(), imports.getSource());
 			if (age > 3600) {
 				LOG.warn("Import timestamp is more than an hour old");
 			}
