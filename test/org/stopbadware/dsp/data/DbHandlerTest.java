@@ -54,9 +54,10 @@ public class DbHandlerTest {
 	@Test
 	public void addIPsForHostsTest() {
 		Map<String, Long> ips = new HashMap<>();
+		/* set to zero to ensure subsequent call should result in a db write */
 		ips.put(TEST_HOST, 0L);
 		dbh.addIPsForHosts(ips);
-		/* set to zero to ensure next call should result in a db write */
+		ips.clear();
 		ips.put(TEST_HOST, 1L);
 		int added = dbh.addIPsForHosts(ips);
 		assertTrue(added > 0);
