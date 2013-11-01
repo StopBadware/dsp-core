@@ -53,8 +53,8 @@ public class SecurityDbHandler {
 	/**
 	 * Retrieves the secret key associated with the API key provided
 	 * @param apiKey the API Key to retrieve the secret key for
-	 * @return String containing the associated secret key, or 
-	 * null if one could not be retrieved for the provided API key
+	 * @return String containing the associated secret key, an empty 
+	 * string is returned if one could not be retrieved for the provided API key
 	 * (i.e. key doesn't exist or account is disabled)
 	 */
 	public String getSecret(String apiKey) {
@@ -72,7 +72,7 @@ public class SecurityDbHandler {
 			}
 		}
 		touch(apiKey);
-		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : null;
+		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
 	}
 	
 	/**

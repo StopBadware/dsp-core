@@ -28,6 +28,7 @@ public class SecurityDbHandlerTest {
 		testApiKey = dbh.addUser(testRoles, testParticipant, subject);
 		testSecret = dbh.getSecret(testApiKey);
 		assertTrue(testApiKey != null);
+		assertTrue(testSecret != null);
 	}
 	
 	@Test
