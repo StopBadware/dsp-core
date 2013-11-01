@@ -6,8 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
-import com.mongodb.MongoURI;
 
 public abstract class MongoDb {
 	
@@ -26,14 +27,15 @@ public abstract class MongoDb {
 	public static final int DESC = -1;
 	
 	static {
-		String mongoURI = System.getenv("MONGO_URL");
+		String mongoUrl = System.getenv("MONGO_URL");
 		try {
-			if (mongoURI != null) {
-				MongoURI m = new MongoURI(mongoURI);
-				if (m != null) {
-					db = m.connectDB();
-					if (m.getUsername() != null && m.getPassword() != null) {
-						db.authenticate(m.getUsername(), m.getPassword());
+			if (mongoUrl != null) {
+				MongoClientURI mongoUri = new MongoClientURI(mongoUrl);
+				MongoClient mongoClient = new MongoClient(mongoUri);
+				if (mongoUri != null) {
+					db = mongoClient.getDB(mongoUri.getDatabase());
+					if (mongoUri.getUsername() != null && mongoUri.getPassword() != null) {
+						db.authenticate(mongoUri.getUsername(), mongoUri.getPassword());
 					}
 				}
 			} else {
