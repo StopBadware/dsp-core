@@ -9,6 +9,8 @@ import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.IP;
 
+import com.mongodb.MongoException;
+
 public class IpsHandlerTest {
 	
 	private static IpsHandler ips = new IpsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
@@ -16,8 +18,14 @@ public class IpsHandlerTest {
 	
 	@BeforeClass
 	public static void addTestIp() {
-		boolean added = ips.addIP(TEST_IP);
-		assertTrue(added || ips.getIP(TEST_IP).getCount() > 0);
+		try {
+			boolean added = ips.addIP(TEST_IP);
+			assertTrue(added || ips.getIP(TEST_IP).getCount() > 0);
+		} catch (MongoException e) {
+			if (!e.getMessage().contains("duplicate")) {
+				fail("MongoException thrown: "+e.getMessage());
+			}
+		}
 	}
 	
 	@Test
@@ -39,7 +47,8 @@ public class IpsHandlerTest {
 		long notInDb = 0L;
 		SearchResults sr = ips.getIP(notInDb);
 		while (sr.getCount() != 0) {
-			sr = ips.getIP(notInDb++);
+			notInDb++;
+			sr = ips.getIP(notInDb);
 		}
 		boolean added = ips.addIP(notInDb);
 		sr = ips.getIP(notInDb);

@@ -16,6 +16,8 @@ import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.SHA2;
 
+import com.mongodb.MongoException;
+
 public class DbHandlerTest {
 	
 	private static DbHandler dbh = new DbHandler(AuthAuthTestHelper.getSubject()); 
@@ -56,11 +58,17 @@ public class DbHandlerTest {
 		Map<String, Long> ips = new HashMap<>();
 		/* set to zero to ensure subsequent call should result in a db write */
 		ips.put(TEST_HOST, 0L);
-		dbh.addIPsForHosts(ips);
-		ips.clear();
-		ips.put(TEST_HOST, 1L);
-		int added = dbh.addIPsForHosts(ips);
-		assertTrue(added > 0);
+		try {
+			dbh.addIPsForHosts(ips);
+			ips.clear();
+			ips.put(TEST_HOST, 1L);
+			int added = dbh.addIPsForHosts(ips);
+			assertTrue(added > 0);
+		} catch (MongoException e) {
+			if (!e.getMessage().contains("duplicate")) {
+				fail("MongoException thrown: "+e.getMessage());
+			}
+		}
 	}
 
 	@Test
