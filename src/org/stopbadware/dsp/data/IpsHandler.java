@@ -15,6 +15,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 public class IpsHandler extends MdbCollectionHandler {
@@ -46,11 +47,11 @@ public class IpsHandler extends MdbCollectionHandler {
 		return critDoc;
 	}
 	
-	public SearchResults getIP(String ipDots) {
-		return getIP(IP.dotsToLong(ipDots));
+	public SearchResults getIp(String ipDots) {
+		return getIp(IP.dotsToLong(ipDots));
 	}
 	
-	public SearchResults getIP(long ip) {
+	public SearchResults getIp(long ip) {
 		return getSearchResult(new BasicDBObject("ip", ip));
 	}
 	
@@ -58,17 +59,19 @@ public class IpsHandler extends MdbCollectionHandler {
 	 * Adds an IP address to the database
 	 * @param ip the IP address to add
 	 */
-	public boolean addIP(long ip) {
-		boolean wroteToDB = false;
+	public boolean addIp(long ip) {
+		boolean wroteToDb = false;
 		if (canWrite) {
-			WriteResult wr = coll.insert(new BasicDBObject("ip", ip));
-			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-				LOG.error("Error writing {} / {} to database", ip, IP.longToDots(ip));
-			} else {
-				wroteToDB = true;
+			try {
+				coll.insert(new BasicDBObject("ip", ip));
+				wroteToDb = true;
+			} catch (MongoException e) {
+				if (e.getCode() != DUPE_ERR) {
+					LOG.error("Error writing {} / {} to database: {}", ip, IP.longToDots(ip), e.getMessage());
+				}
 			}
 		}
-		return wroteToDB;
+		return wroteToDb;
 	}
 	
 	/**
@@ -78,13 +81,11 @@ public class IpsHandler extends MdbCollectionHandler {
 	 * @param asn the new ASN
 	 * @return the number of documents updated
 	 */
-	public int updateASN(long ip, int asn) {
+	public int updateAsn(long ip, int asn) {
 		int updated = 0;
 		DBObject ipDoc = new BasicDBObject("ip", ip);
-		if (coll.find(ipDoc).count() == 0) {
-			addIP(ip);
-		}
-		if (canWrite && asnHasChanged(ip, asn)) {
+		boolean ipExists = (coll.find(ipDoc).count()>0) ? true : addIp(ip);
+		if (ipExists && canWrite && asnHasChanged(ip, asn)) {
 			DBObject asnDoc = new BasicDBObject();
 			asnDoc.put("asn", asn);
 			asnDoc.put("timestamp", System.currentTimeMillis()/1000L);
@@ -92,11 +93,13 @@ public class IpsHandler extends MdbCollectionHandler {
 			DBObject updateDoc = new BasicDBObject();
 			updateDoc.put("$push", new BasicDBObject("asns", asnDoc));
 			
-			WriteResult wr = coll.update(ipDoc, updateDoc);
-			if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-				LOG.error("Error writing to collection: {}", wr.getError());
-			} else  {
+			try {
+				WriteResult wr = coll.update(ipDoc, updateDoc);
 				updated += wr.getN();
+			} catch (MongoException e) {
+				if (e.getCode() != DUPE_ERR) {
+					LOG.error("Error writing IP{}=>AS{} to database: {}", ip, asn, e.getMessage());
+				}
 			}
 		}
 		return updated;
@@ -110,7 +113,7 @@ public class IpsHandler extends MdbCollectionHandler {
 	 */
 	private boolean asnHasChanged(long ip, int asn) {
 		long mostRecentTimestamp = 0L;
-		int mostRecentASN = 0;
+		int mostRecentAsn = 0;
 		
 		DBCursor cur = null;
 		if (canRead) {
@@ -131,16 +134,16 @@ public class IpsHandler extends MdbCollectionHandler {
 					if (timestamp > mostRecentTimestamp) {
 						mostRecentTimestamp = timestamp;
 						try {
-							mostRecentASN = (int) ((BasicDBObject) asns.get(as)).get("asn");
+							mostRecentAsn = (int) ((BasicDBObject) asns.get(as)).get("asn");
 						} catch (ClassCastException e) {
 							/*Set to 0 to force write of new entry if unable to cast db entry*/
-							mostRecentASN = 0;
+							mostRecentAsn = 0;
 						}
 					}
 				}
 			}
 		}
 		
-		return mostRecentASN != asn;
+		return mostRecentAsn != asn;
 	}
 }

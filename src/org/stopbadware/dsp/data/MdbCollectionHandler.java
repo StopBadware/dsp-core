@@ -27,7 +27,7 @@ public abstract class MdbCollectionHandler {
 	protected boolean canRead = false;
 	protected boolean canWrite = false;
 	
-	protected static final String DUPE_ERR = "E11000";
+	protected static final int DUPE_ERR = 11000;
 	protected static final int SECONDS_IN_DAY = 60 * 60 * 24;
 	protected static final int ASC = MongoDb.ASC;
 	protected static final int DESC = MongoDb.DESC;

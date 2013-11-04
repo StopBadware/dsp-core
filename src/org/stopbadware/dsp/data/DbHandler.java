@@ -138,7 +138,7 @@ public class DbHandler {
 	 * @return SearchResults containing the IP record
 	 */
 	public SearchResults findIP(String ip) {
-		return (ip.matches("^\\d+$")) ? ipsHandler.getIP(Long.valueOf(ip)) : ipsHandler.getIP(ip);
+		return (ip.matches("^\\d+$")) ? ipsHandler.getIp(Long.valueOf(ip)) : ipsHandler.getIp(ip);
 	}
 	
 	/**
@@ -147,7 +147,7 @@ public class DbHandler {
 	 * @return SearchResults containing the AS record
 	 */
 	public SearchResults findAS(int asn) {
-		return asnsHandler.getAS(asn);
+		return asnsHandler.getAutonomousSystem(asn);
 	}
 	
 	/**
@@ -223,9 +223,9 @@ public class DbHandler {
 		for (String host : ips.keySet()) {
 			long ip = ips.get(host);
 			if (ip > 0) {
-				ipsHandler.addIP(ip);
+				ipsHandler.addIp(ip);
 			}
-			boolean addedOrUpdatedIP = hostsHandler.addIPForHost(host, ip);
+			boolean addedOrUpdatedIP = hostsHandler.addIpForHost(host, ip);
 			if (addedOrUpdatedIP) {
 				dbWrites++;
 			}
@@ -242,7 +242,7 @@ public class DbHandler {
 	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
 		int dbWrites = 0;
 		for (long ip : asns.keySet()) {
-			dbWrites += ipsHandler.updateASN(ip, asns.get(ip).getAsn());
+			dbWrites += ipsHandler.updateAsn(ip, asns.get(ip).getAsn());
 		}
 		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
 		return dbWrites;		

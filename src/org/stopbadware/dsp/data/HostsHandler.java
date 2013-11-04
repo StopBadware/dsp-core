@@ -20,6 +20,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 public class HostsHandler extends MdbCollectionHandler {
@@ -99,41 +100,37 @@ public class HostsHandler extends MdbCollectionHandler {
 		updateDoc.put("host", host);
 		updateDoc.put("share_level", level.toString());
 
-		WriteResult wr = null;
 		if (canWrite) {
-			wr = coll.update(query, updateDoc, true, false);
-		}
-		if (wr != null && wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-			LOG.error("Error writing {} to host collection: {}", host, wr.getError());
-		} else {
-			wroteToDB = true;
+			try {
+				WriteResult wr = coll.update(query, updateDoc, true, false);
+				wroteToDB = wr.getN() > 0;
+			} catch (MongoException e) {
+				if (e.getCode() != DUPE_ERR) {
+					LOG.error("Error writing host '{}' to database: {}", host, e.getMessage());
+				}
+			}
 		}
 		return wroteToDB;	
 	}
 	
-	public boolean addIPForHost(String host, long ip) {
-		boolean wroteToDB = false;
-		DBObject hostDoc = new BasicDBObject();
-		hostDoc.put("host", host);
-		
-		
+	public boolean addIpForHost(String host, long ip) {
+		boolean wroteToDb = false;
+		DBObject hostDoc = new BasicDBObject("host", host);
 		DBObject ipDoc = new BasicDBObject();
 		ipDoc.put("ip", ip);
 		ipDoc.put("timestamp", System.currentTimeMillis()/1000);
-		
-		DBObject updateDoc = new BasicDBObject();
-		updateDoc.put("$push", new BasicDBObject("ips", ipDoc));
-		if (ipHasChanged(host, ip)) {
-			if (canWrite) {
+		DBObject updateDoc = new BasicDBObject("$push", new BasicDBObject("ips", ipDoc));
+		if (ipHasChanged(host, ip) && canWrite) {
+			try {
 				WriteResult wr = coll.update(hostDoc, updateDoc);
-				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-					LOG.error("Error writing to collection: {}", wr.getError());
-				} else  {
-					wroteToDB = wr.getN() > 0;
+				wroteToDb = wr.getN() > 0;
+			} catch (MongoException e) {
+				if (e.getCode() != DUPE_ERR) {
+					LOG.error("Error adding IP{} for host '{}': {}", ip, host, e.getMessage());
 				}
 			}
 		}
-		return wroteToDB;		
+		return wroteToDb;		
 	}
 	
 	/**

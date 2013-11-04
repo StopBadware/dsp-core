@@ -37,8 +37,8 @@ public class HostsHandlerTest {
 	
 	@Test
 	public void addIPForHostTest() {
-		hosts.addIPForHost(TEST_HOST, 0L);
-		boolean added = hosts.addIPForHost(TEST_HOST, 1L);
+		hosts.addIpForHost(TEST_HOST, 0L);
+		boolean added = hosts.addIpForHost(TEST_HOST, 1L);
 		assertTrue(added);
 	}
 }

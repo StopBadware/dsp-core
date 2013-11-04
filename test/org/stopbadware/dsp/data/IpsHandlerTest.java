@@ -9,8 +9,6 @@ import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.IP;
 
-import com.mongodb.MongoException;
-
 public class IpsHandlerTest {
 	
 	private static IpsHandler ips = new IpsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
@@ -18,26 +16,20 @@ public class IpsHandlerTest {
 	
 	@BeforeClass
 	public static void addTestIp() {
-		try {
-			boolean added = ips.addIP(TEST_IP);
-			assertTrue(added || ips.getIP(TEST_IP).getCount() > 0);
-		} catch (MongoException e) {
-			if (!e.getMessage().contains("duplicate")) {
-				fail("MongoException thrown: "+e.getMessage());
-			}
-		}
+		boolean added = ips.addIp(TEST_IP);
+		assertTrue(added || ips.getIp(TEST_IP).getCount() > 0);
 	}
 	
 	@Test
 	public void getIpFromLongTest() {
-		SearchResults sr = ips.getIP(TEST_IP);
+		SearchResults sr = ips.getIp(TEST_IP);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 	}
 	
 	@Test
 	public void getIpFromStringTest() {
-		SearchResults sr = ips.getIP(IP.longToDots(TEST_IP));
+		SearchResults sr = ips.getIp(IP.longToDots(TEST_IP));
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 	}
@@ -45,13 +37,13 @@ public class IpsHandlerTest {
 	@Test
 	public void addIpTest() {
 		long notInDb = 0L;
-		SearchResults sr = ips.getIP(notInDb);
+		SearchResults sr = ips.getIp(notInDb);
 		while (sr.getCount() != 0) {
 			notInDb++;
-			sr = ips.getIP(notInDb);
+			sr = ips.getIp(notInDb);
 		}
-		boolean added = ips.addIP(notInDb);
-		sr = ips.getIP(notInDb);
+		boolean added = ips.addIp(notInDb);
+		sr = ips.getIp(notInDb);
 		assertTrue(added);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
@@ -59,8 +51,8 @@ public class IpsHandlerTest {
 	
 	@Test
 	public void updateAsnTest() {
-		ips.updateASN(TEST_IP, PRIVATE_AS_RANGE_START);
-		int updated = ips.updateASN(TEST_IP, PRIVATE_AS_RANGE_END);
+		ips.updateAsn(TEST_IP, PRIVATE_AS_RANGE_START);
+		int updated = ips.updateAsn(TEST_IP, PRIVATE_AS_RANGE_END);
 		assertTrue(updated > 0);
 	}
 	

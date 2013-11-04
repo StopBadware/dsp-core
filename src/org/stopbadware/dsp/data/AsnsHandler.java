@@ -14,6 +14,7 @@ import org.stopbadware.dsp.sec.Permissions;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 
 public class AsnsHandler extends MdbCollectionHandler {
@@ -54,36 +55,37 @@ public class AsnsHandler extends MdbCollectionHandler {
 		return critDoc;
 	}
 	
-	public SearchResults getAS(int asn) {
+	public SearchResults getAutonomousSystem(int asn) {
 		return getSearchResult(new BasicDBObject("asn", asn));
 	}
 	
 	/**
 	 * Adds an Autonomous System to database
 	 * @param autonomousSystem the Autonomous Systems to add
-	 * @return boolean: if a DB write occured 
+	 * @return boolean: if a DB write occurred 
 	 */
 	public boolean addAutonmousSystem(AutonomousSystem as) {
-		boolean wroteToDB = false;
+		boolean wroteToDb = false;
 		int asn = as.getAsn();
 		if (asn > 0) {
 			DBObject doc = new BasicDBObject();
 			doc.put("asn", asn);
 			doc.put("country", as.getCountry());
 			doc.put("name", as.getName());
-			
 			DBObject asnDoc = new BasicDBObject("asn", asn);
 			
 			if (canWrite) {
-				WriteResult wr = coll.update(asnDoc, doc, true, false);
-				if (wr.getError() != null && !wr.getError().contains(DUPE_ERR)) {
-					LOG.error("Error writing ASN {} to collection: {}", asn, wr.getError());
-				} else {
-					wroteToDB = wr.getN() > 0;
+				try {
+					WriteResult wr = coll.update(asnDoc, doc, true, false);
+					wroteToDb = wr.getN() > 0;
+				} catch (MongoException e) {
+					if (e.getCode() != DUPE_ERR) {
+						LOG.error("Error writing ASN{} / {} to database: {}", asn, e.getMessage());
+					}
 				}
 			}
 		}
-		return wroteToDB;
+		return wroteToDb;
 	}
 
 }

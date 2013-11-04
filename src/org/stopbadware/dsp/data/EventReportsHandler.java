@@ -145,7 +145,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			if (!value.isEmpty()) {
 				switch (key	.toLowerCase()) {
 					case "url":
-						critDoc.putAll(createURLDoc(value));
+						critDoc.putAll(createUrlDoc(value));
 						break;
 					case "scheme":
 						critDoc.put("scheme", value);
@@ -207,7 +207,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return critDoc;
 	}
 	
-	private DBObject createURLDoc(String url) {
+	private DBObject createUrlDoc(String url) {
 		DBObject urlDoc = new BasicDBObject();
 		if (url.matches("^\\w+://.*")) {
 			urlDoc.put("sha2_256", SHA2.get256(url));
@@ -265,21 +265,17 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		if (canWrite) {
 			try {
 				WriteResult wr = coll.insert(doc);
-				if (wr.getError() != null) {
-					if (wr.getError().contains(DUPE_ERR)) {
-						status = WriteStatus.DUPLICATE;
-					} else	{
-						if (doc.get("url") != null) {
-							LOG.error("Error writing {} report to collection: {}", doc.get("url"), wr.getError());
-						} else {
-							LOG.error("Error writing report with null URL to collection: {}", wr.getError());
-						}
-					}
-				} else {
-					status = WriteStatus.SUCCESS;
-				}
+				status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
 			} catch (MongoException e) {
-				LOG.error("MongoException thrown when adding event report:\t{}", e.getMessage());
+				if (e.getCode() == DUPE_ERR) {
+					status = WriteStatus.DUPLICATE;
+				} else {
+					if (doc.get("url") != null) {
+						LOG.error("Error writing '{}' report to collection: {}", doc.get("url"), e.getMessage());
+					} else {
+						LOG.error("Error writing report with null URL to collection: {}", e.getMessage());
+					}
+				}
 			}
 		}
 		
