@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoException;
 
@@ -14,12 +15,11 @@ public abstract class MongoDb {
 	
 	private static DB db = null;
 	private static final Logger LOG = LoggerFactory.getLogger(MongoDb.class);
-
+	
 	public static final String EVENT_REPORTS = "event_reports";
 	public static final String HOSTS = "hosts";
 	public static final String IPS = "ips";
 	public static final String ASNS = "autonomous_systems";
-	
 	public static final String ACCOUNTS = "accounts";
 	public static final String ROLES = "roles";
 
@@ -30,13 +30,14 @@ public abstract class MongoDb {
 		String mongoUrl = System.getenv("MONGO_URL");
 		try {
 			if (mongoUrl != null) {
-				MongoClientURI mongoUri = new MongoClientURI(mongoUrl);
-				MongoClient mongoClient = new MongoClient(mongoUri);
+				MongoClientOptions.Builder options = new MongoClientOptions.Builder();
+				int maxConnections = (System.getenv("MONGO_MAX_CONN")!=null) ? Integer.valueOf(System.getenv("MONGO_MAX_CONN")) : 10;
+				options.connectionsPerHost(maxConnections);
+				options.autoConnectRetry(true);
+				MongoClientURI mongoUri = new MongoClientURI(mongoUrl, options);
 				if (mongoUri != null) {
+					MongoClient mongoClient = new MongoClient(mongoUri);
 					db = mongoClient.getDB(mongoUri.getDatabase());
-					if (mongoUri.getUsername() != null && mongoUri.getPassword() != null) {
-						db.authenticate(mongoUri.getUsername(), mongoUri.getPassword());
-					}
 				}
 			} else {
 				LOG.error("No database specified, 'MONGO_URL' must be set as an environment variable!");
@@ -52,7 +53,7 @@ public abstract class MongoDb {
 	 */
 	public static DB getDB() {
 		if (db == null) {
-			LOG.error("***NO DATABASE CONNECTED, RETURNING NULL***");
+			LOG.error("*** NO DATABASE CONNECTED ***");
 		}
 		return db;
 	}
