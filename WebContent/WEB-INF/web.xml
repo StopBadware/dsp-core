@@ -26,7 +26,6 @@
  
 	<servlet-mapping>
 		<servlet-name>jersey-servlet</servlet-name>
-		<url-pattern>/v0.2/*</url-pattern>
 		<url-pattern>/v2/*</url-pattern>
 	</servlet-mapping>
  	
