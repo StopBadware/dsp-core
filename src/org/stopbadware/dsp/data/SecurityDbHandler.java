@@ -60,18 +60,28 @@ public class SecurityDbHandler {
 	public String getSecret(String apiKey) {
 		String crypted = "";
 		boolean enabled = false;
-		DBObject query = new BasicDBObject("api_key", apiKey);
-		DBCursor cur = accountsColl.find(query).limit(1);
-		while (cur.hasNext()) {
-			DBObject obj = cur.next();
-			if (obj.containsField("secret_key")) {
-				crypted = obj.get("secret_key").toString();
+		int attempt = 0;
+		/* [DATA-129] MongoDB's Java driver only detects dead connection on use (throwing a SocketException)
+		 * making multiple attempts on a request's first DB access (retrieving the secret key during
+		 * authentication) to handle dead connections */
+		while (crypted.isEmpty() && attempt < 3) {
+			try {
+				DBCursor cur = accountsColl.find(new BasicDBObject("api_key", apiKey)).limit(1);
+				while (cur.hasNext()) {
+					DBObject obj = cur.next();
+					if (obj.containsField("secret_key")) {
+						crypted = obj.get("secret_key").toString();
+					}
+					if (obj.containsField("enabled")) {
+						enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
+					}
+				}
+				touch(apiKey);
+			} catch (Exception e) {
+				LOG.error("Exception thrown while authenticating '{}': {}", apiKey, e.getMessage());
 			}
-			if (obj.containsField("enabled")) {
-				enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
-			}
+			attempt++;
 		}
-		touch(apiKey);
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
 	}
 	
