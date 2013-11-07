@@ -319,7 +319,7 @@ public class DbHandler {
 			}
 		}
 		
-		return updateBlacklistFlagsFromDirty(reporter, removedTime, sha2urls, key);
+		return (set.size() > 0) ? updateBlacklistFlagsFromDirty(reporter, removedTime, sha2urls, key) : 0;
 	}
 	
 	/**
