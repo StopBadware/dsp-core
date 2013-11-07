@@ -39,6 +39,29 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
 	
+	public Map<String, String> getParticipantPrefixes() {
+		Map<String, String> prefixes = new HashMap<>();
+		if (canRead) {
+			//coll.group({key: {prefix:1, reported_by:1}, cond: { }, reduce: function() {}, initial: {}})
+			DBObject groupBy = new BasicDBObject();
+			groupBy.put("prefix", 1);
+			groupBy.put("reported_by", 1);
+			DBObject results = coll.group(groupBy, new BasicDBObject(), new BasicDBObject(), "function() {}");
+			System.out.println(results);	//DELME DATA-128
+			for (Object key : results.toMap().keySet()) {
+				String prefix = key.toString();
+				System.out.println(prefix+"\t"+results.get(prefix).toString());	//DELME DATA-128
+				prefixes.put(prefix, results.get(prefix).toString());
+			}
+		}
+		System.out.println(prefixes.size());	//DELME DATA-128
+		for (String str : prefixes.keySet()) {
+			System.out.println(str+"\t"+prefixes.get(str));
+		}
+		//DELME DATA-128
+		return prefixes;
+	}
+	
 	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
 		if (canRead) {

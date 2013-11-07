@@ -117,5 +117,12 @@ public class EventReportsHandlerTest {
 		int removed = er.removeFromBlacklist(TEST_PREFIX, "sha2_256", hash, System.currentTimeMillis()/1000);
 		assertTrue(removed > 0);
 	}
+	
+	@Test
+	public void getParticipantPrefixesTest() {
+		Map<String, String> prefixes = er.getParticipantPrefixes();
+		assertTrue(!prefixes.isEmpty());
+		assertTrue(prefixes.containsKey(TEST_PREFIX));
+	}
 
 }
