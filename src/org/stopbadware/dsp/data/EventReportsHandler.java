@@ -315,9 +315,11 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			doc.put("reported_at", event.get("reported_at"));
 			DBObject existing = coll.findOne(doc);
 			if (existing != null) {
-				boolean blTimeChanged = !existing.get("removed_from_blacklist").equals(event.get("removed_from_blacklist"));
+				long existingTime = Long.valueOf(existing.get("removed_from_blacklist").toString());
+				long eventTime = Long.valueOf(event.get("removed_from_blacklist").toString());
+				boolean blTimeUpdated = eventTime > existingTime;
 				boolean blFlagChanged =  !existing.get("is_on_blacklist").equals(event.get("is_on_blacklist"));
-				needsUpdate = blTimeChanged || blFlagChanged;  
+				needsUpdate = blTimeUpdated || blFlagChanged;  
 			}
 		}
 		return needsUpdate;
