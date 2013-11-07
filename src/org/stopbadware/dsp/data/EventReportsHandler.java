@@ -270,7 +270,6 @@ public class EventReportsHandler extends MdbCollectionHandler {
 				if (e.getCode() == DUPE_ERR) {
 					if (blacklistFieldsHaveChanged(event)) {
 						boolean updated = updateBlacklistFields(event);
-						System.out.println(updated);	//DELME DATA-128
 						status = (updated) ? WriteStatus.UPDATED : WriteStatus.DUPLICATE;
 					} else {
 						status = WriteStatus.DUPLICATE;
@@ -316,10 +315,8 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			doc.put("reported_at", event.get("reported_at"));
 			DBObject existing = coll.findOne(doc);
 			if (existing != null) {
-				boolean blTimeChanged = existing.get("removed_from_blacklist").equals(event.get("removed_from_blacklist"));
-				boolean blFlagChanged =  existing.get("is_on_blacklist").equals(event.get("is_on_blacklist"));
-				System.out.println("blTimeChanged: "+blTimeChanged);	//DELME DATA-128
-				System.out.println("blFlagChanged: "+blFlagChanged);	//DELME DATA-128
+				boolean blTimeChanged = !existing.get("removed_from_blacklist").equals(event.get("removed_from_blacklist"));
+				boolean blFlagChanged =  !existing.get("is_on_blacklist").equals(event.get("is_on_blacklist"));
 				needsUpdate = blTimeChanged || blFlagChanged;  
 			}
 		}

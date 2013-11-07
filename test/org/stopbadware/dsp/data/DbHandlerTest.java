@@ -70,18 +70,12 @@ public class DbHandlerTest {
 		cleanMap.putAll(origMap);
 		cleanMap.put("is_on_blacklist", false);
 		cleanMap.put("removed_from_blacklist", System.currentTimeMillis()/1000);
-		System.out.println(origMap.get("removed_from_blacklist"));			//DELME DATA-128
-		System.out.println(blacklistedMap.get("removed_from_blacklist"));	//DELME DATA-128
-		System.out.println(cleanMap.get("removed_from_blacklist"));			//DELME DATA-128
 		addEventReport(blacklistedMap.get("host").toString(), blacklistedMap);
 		String uid = origMap.get("sha2_256")+"-"+origMap.get("prefix")+"-"+origMap.get("reported_at");
 		long removed = getRemovedFromBlacklistTime(uid);
 		assertTrue(removed == Long.valueOf(blacklistedMap.get("removed_from_blacklist").toString()));
-		System.out.println(removed);	//DELME DATA-128
-//		addEventReport(cleanMap.get("host").toString(), cleanMap);
-		addEventReport(cleanMap.get("host").toString(), blacklistedMap);
+		addEventReport(cleanMap.get("host").toString(), cleanMap);
 		removed = getRemovedFromBlacklistTime(uid);
-		System.out.println(removed);	//DELME DATA-128
 		assertTrue(removed == Long.valueOf(cleanMap.get("removed_from_blacklist").toString()));
 	}
 	
