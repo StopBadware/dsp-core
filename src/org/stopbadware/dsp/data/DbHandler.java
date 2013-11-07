@@ -184,23 +184,33 @@ public class DbHandler {
 	 * duplicate documents that were ignored 
 	 */
 	public int addEventReports(Set<ERWrapper> reports) {	
-		int dbWrites = 0;
+		int dbInserts = 0;
+		int dbUpdates = 0;
 		int dbDupes = 0;
 		for (ERWrapper er : reports) {
 			if (er.getErMap() != null && er.getErMap().size() > 0) {
 				WriteStatus status = eventsHandler.addEventReport(er.getErMap());
-				if (status == WriteStatus.DUPLICATE) {
-					dbDupes++;
-				} else if (status == WriteStatus.SUCCESS) {
-					dbWrites++;
+				switch(status) {
+					case DUPLICATE:
+						dbDupes++;
+						break;
+					case UPDATED:
+						dbUpdates++;
+						break;
+					case SUCCESS:
+						dbInserts++;
+						break;
+					default:
+						break;
 				}
 			}
 			addHost(er.getHost(), ShareLevel.value(er.getShareLevel()));
 		}
 		
-		LOG.info("{} new event reports added", dbWrites);
+		LOG.info("{} new event reports added", dbInserts);
+		LOG.info("{} existing event reports updated", dbUpdates);
 		LOG.info("{} duplicate entries ignored", dbDupes);
-		return dbWrites+dbDupes;
+		return dbInserts + dbUpdates + dbDupes;
 	}
 	
 	/**

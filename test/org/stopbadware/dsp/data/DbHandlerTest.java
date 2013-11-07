@@ -5,13 +5,16 @@ import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
+import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.SHA2;
@@ -44,11 +47,72 @@ public class DbHandlerTest {
 		erMap.put("sha2_256", SHA2.get256("A long time ago, in a galaxy far, far away..."));
 		erMap.put("prefix", TEST_PREFIX);
 		erMap.put("reported_at", System.currentTimeMillis()/1000);
-		erMap.put("host", "");
+		erMap.put("host", TEST_HOST);
 		ERWrapper erw = new ERWrapper(TEST_HOST, ShareLevel.PUBLIC.toString(), erMap);
 		reports.add(erw);
 		int added = dbh.addEventReports(reports);
 		assertTrue(added > 0);
+	}
+	
+	@Test
+	public void addEventReportsWithUpdateTest() {
+		Map<String, Object> origMap = new HashMap<>();
+		origMap.put("sha2_256", SHA2.get256("It doesn't feel pity, or remorse, or fear."));
+		origMap.put("prefix", TEST_PREFIX);
+		origMap.put("reported_at", System.currentTimeMillis()/1000);
+		origMap.put("host", TEST_HOST);
+		Map<String, Object> blacklistedMap = new HashMap<>();
+		blacklistedMap.putAll(origMap);
+		blacklistedMap.put("is_on_blacklist", true);
+		blacklistedMap.put("removed_from_blacklist", 0);
+		blacklistedMap.put(TEST_PREFIX+"_model", 101);
+		Map<String, Object> cleanMap = new HashMap<>();
+		cleanMap.putAll(origMap);
+		cleanMap.put("is_on_blacklist", false);
+		cleanMap.put("removed_from_blacklist", System.currentTimeMillis()/1000);
+		System.out.println(origMap.get("removed_from_blacklist"));			//DELME DATA-128
+		System.out.println(blacklistedMap.get("removed_from_blacklist"));	//DELME DATA-128
+		System.out.println(cleanMap.get("removed_from_blacklist"));			//DELME DATA-128
+		addEventReport(blacklistedMap.get("host").toString(), blacklistedMap);
+		String uid = origMap.get("sha2_256")+"-"+origMap.get("prefix")+"-"+origMap.get("reported_at");
+		long removed = getRemovedFromBlacklistTime(uid);
+		assertTrue(removed == Long.valueOf(blacklistedMap.get("removed_from_blacklist").toString()));
+		System.out.println(removed);	//DELME DATA-128
+//		addEventReport(cleanMap.get("host").toString(), cleanMap);
+		addEventReport(cleanMap.get("host").toString(), blacklistedMap);
+		removed = getRemovedFromBlacklistTime(uid);
+		System.out.println(removed);	//DELME DATA-128
+		assertTrue(removed == Long.valueOf(cleanMap.get("removed_from_blacklist").toString()));
+	}
+	
+	private void addEventReport(String host, Map<String, Object> erMap) {
+		Set<ERWrapper> reports = new HashSet<>();
+		ERWrapper erw = new ERWrapper(host, ShareLevel.PUBLIC.toString(), erMap);
+		reports.add(erw);
+		int added = dbh.addEventReports(reports);
+		assertTrue(added > 0);
+	}
+	
+	private long getRemovedFromBlacklistTime(String uid) {
+		long removed = -1;
+		SearchResults sr = null;
+		try {
+			sr = dbh.findEventReport(uid);
+		} catch (SearchException e) {
+			fail("SearchException thrown: " + e.getMessage());
+		}
+		assertTrue(sr != null);
+		Object results = sr.getResults();
+		assertTrue(results != null);
+		assertTrue(results instanceof List<?>);
+		if (results instanceof List<?>) {
+			@SuppressWarnings("unchecked")
+			List<Map<String, Object>> resultList = (List<Map<String, Object>>) results;
+			assertTrue(resultList.size() > 0);
+			assertTrue(resultList.get(0).containsKey("removed_from_blacklist"));
+			removed = Long.valueOf(resultList.get(0).get("removed_from_blacklist").toString());
+		}
+		return removed;
 	}
 
 	@Test

@@ -268,7 +268,13 @@ public class EventReportsHandler extends MdbCollectionHandler {
 				status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
 			} catch (MongoException e) {
 				if (e.getCode() == DUPE_ERR) {
-					status = WriteStatus.DUPLICATE;
+					if (blacklistFieldsHaveChanged(event)) {
+						boolean updated = updateBlacklistFields(event);
+						System.out.println(updated);	//DELME DATA-128
+						status = (updated) ? WriteStatus.UPDATED : WriteStatus.DUPLICATE;
+					} else {
+						status = WriteStatus.DUPLICATE;
+					}
 				} else {
 					if (doc.get("url") != null) {
 						LOG.error("Error writing '{}' report to collection: {}", doc.get("url"), e.getMessage());
@@ -280,6 +286,44 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		}
 		
 		return status;
+	}
+	
+	private boolean updateBlacklistFields(Map<String, Object> event) {
+		boolean updated = false;
+		if (canWrite && event.containsKey("removed_from_blacklist") && event.containsKey("is_on_blacklist")) {
+			DBObject doc = new BasicDBObject();
+			doc.put("sha2_256", event.get("sha2_256"));
+			doc.put("prefix", event.get("prefix"));
+			doc.put("reported_at", event.get("reported_at"));
+			
+			DBObject set = new BasicDBObject();
+			set.put("removed_from_blacklist", event.get("removed_from_blacklist"));
+			set.put("is_on_blacklist", event.get("is_on_blacklist"));
+			DBObject upd = new BasicDBObject("$set", set);
+			
+			WriteResult wr = coll.update(doc, upd);
+			updated = wr.getN() > 0;
+		}
+		return updated;
+	}
+	
+	private boolean blacklistFieldsHaveChanged(Map<String, Object> event) {
+		boolean needsUpdate = false;
+		if (canRead && event.containsKey("removed_from_blacklist") && event.containsKey("is_on_blacklist")) {
+			DBObject doc = new BasicDBObject();
+			doc.put("sha2_256", event.get("sha2_256"));
+			doc.put("prefix", event.get("prefix"));
+			doc.put("reported_at", event.get("reported_at"));
+			DBObject existing = coll.findOne(doc);
+			if (existing != null) {
+				boolean blTimeChanged = existing.get("removed_from_blacklist").equals(event.get("removed_from_blacklist"));
+				boolean blFlagChanged =  existing.get("is_on_blacklist").equals(event.get("is_on_blacklist"));
+				System.out.println("blTimeChanged: "+blTimeChanged);	//DELME DATA-128
+				System.out.println("blFlagChanged: "+blFlagChanged);	//DELME DATA-128
+				needsUpdate = blTimeChanged || blFlagChanged;  
+			}
+		}
+		return needsUpdate;
 	}
 	
 	/**
