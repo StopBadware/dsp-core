@@ -80,6 +80,7 @@ public class SecurityDbHandler {
 			} catch (Exception e) {
 				LOG.error("Exception thrown while authenticating '{}': {}", apiKey, e.getMessage());
 			}
+			LOG.debug("crypted.length: {} (crypted.isEmpty: {})\tenabled: {}\tattempt: {}", crypted.length(),crypted.isEmpty(),enabled,attempt);	//DELME DATA-129
 			attempt++;
 		}
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
