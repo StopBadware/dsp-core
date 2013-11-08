@@ -42,23 +42,22 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	public Map<String, String> getParticipantPrefixes() {
 		Map<String, String> prefixes = new HashMap<>();
 		if (canRead) {
-			//coll.group({key: {prefix:1, reported_by:1}, cond: { }, reduce: function() {}, initial: {}})
 			DBObject groupBy = new BasicDBObject();
 			groupBy.put("prefix", 1);
 			groupBy.put("reported_by", 1);
 			DBObject results = coll.group(groupBy, new BasicDBObject(), new BasicDBObject(), "function() {}");
-			System.out.println(results);	//DELME DATA-128
-			for (Object key : results.toMap().keySet()) {
-				String prefix = key.toString();
-				System.out.println(prefix+"\t"+results.get(prefix).toString());	//DELME DATA-128
-				prefixes.put(prefix, results.get(prefix).toString());
+			for (Object key : results.keySet()) {
+				Object obj = results.get(key.toString());
+				if (obj instanceof DBObject) {
+					DBObject doc = (DBObject) results.get(key.toString());
+					Object prefix = doc.get("prefix");
+					Object reportedBy = doc.get("reported_by");
+					if (prefix != null && reportedBy != null) {
+						prefixes.put(prefix.toString(), reportedBy.toString());
+					}
+				}
 			}
 		}
-		System.out.println(prefixes.size());	//DELME DATA-128
-		for (String str : prefixes.keySet()) {
-			System.out.println(str+"\t"+prefixes.get(str));
-		}
-		//DELME DATA-128
 		return prefixes;
 	}
 	
