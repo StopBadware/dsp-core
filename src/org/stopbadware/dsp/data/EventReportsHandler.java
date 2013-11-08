@@ -39,9 +39,11 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
 	
-	public Map<String, String> getParticipantPrefixes() {
-		Map<String, String> prefixes = new HashMap<>();
+	public SearchResults getParticipantPrefixes() {
+		SearchResults sr = null;
 		if (canRead) {
+			sr = new SearchResults();
+			Map<String, String> prefixes = new HashMap<>();
 			DBObject groupBy = new BasicDBObject();
 			groupBy.put("prefix", 1);
 			groupBy.put("reported_by", 1);
@@ -57,8 +59,13 @@ public class EventReportsHandler extends MdbCollectionHandler {
 					}
 				}
 			}
+			List<Map<String, String>> resultList = new ArrayList<>();
+			resultList.add(prefixes);
+			sr.setResults(resultList);
+		} else {
+			sr = notPermitted();
 		}
-		return prefixes;
+		return sr;
 	}
 	
 	public SearchResults findEventReportsSince(long sinceTime) {

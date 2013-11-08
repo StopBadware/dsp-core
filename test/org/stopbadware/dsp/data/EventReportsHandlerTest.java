@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -120,9 +121,24 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void getParticipantPrefixesTest() {
-		Map<String, String> prefixes = er.getParticipantPrefixes();
-		assertTrue(!prefixes.isEmpty());
-		assertTrue(prefixes.containsKey(TEST_PREFIX));
+		SearchResults sr = er.getParticipantPrefixes();
+		assertTrue(sr != null);
+		assertTrue(sr.getCode() == SearchResults.OK);
+		assertTrue(sr.getCount() > 0);
+		Object results = sr.getResults();
+		if (results instanceof List<?>) {
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> resultList = (List<Map<String, String>>) results;
+			if (!resultList.isEmpty() && resultList.get(0) instanceof Map<?, ?>) {
+				Map<String, String> prefixes = (Map<String, String>) resultList.get(0);
+				assertTrue(!prefixes.isEmpty());
+				assertTrue(prefixes.containsKey(TEST_PREFIX));
+			} else {
+				fail("Results do not include expected prefix=>particpant map");
+			}
+		} else {
+			fail("Unexpected results collection");
+		}
 	}
 
 }

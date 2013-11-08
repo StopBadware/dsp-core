@@ -60,6 +60,15 @@ public class DbHandler {
 	}
 	
 	/**
+	 * Retrieves a map of prefixes and their corresponding participant (full) names
+	 * for participants with at least one event report associated with their prefix
+	 * @return SearchResults containing a map of prefix=>participant mappings
+	 */
+	public SearchResults getParticipantPrefixes() {
+		return eventsHandler.getParticipantPrefixes();
+	}
+	
+	/**
 	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
 	 * sorted by reported at time ascending
 	 * @param sinceTime UNIX timestamp to retrieve reports since
