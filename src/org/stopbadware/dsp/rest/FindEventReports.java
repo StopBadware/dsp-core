@@ -35,6 +35,20 @@ public class FindEventReports extends SecureRest {
 	}
 	
 	@GET
+	@Path("/prefixes")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getParticipantPrefixes() {
+		Response response = null;
+		DbHandler dbh = getDbh();
+		if (dbh != null) {
+			response = dbh.getParticipantPrefixes();
+		} else {
+			response = httpResponseCode(FORBIDDEN);
+		}
+		return response;
+	}
+	
+	@GET
 	@Path("/stats/{source}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStats(@PathParam("source") String source) {

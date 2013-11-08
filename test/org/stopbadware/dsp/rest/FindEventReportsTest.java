@@ -24,6 +24,11 @@ public class FindEventReportsTest {
 	}
 	
 	@Test
+	public void getParticipantPrefixesTest() {
+		HTTP.searchTest("/v2/events/prefixes");
+	}
+	
+	@Test
 	public void findTest() {
 		String basePath = "/v2/events/report/";
 		HTTP.searchTest(basePath + TEST_REPORT_UID);
