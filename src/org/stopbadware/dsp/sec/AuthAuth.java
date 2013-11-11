@@ -45,30 +45,38 @@ public abstract class AuthAuth {
 	 * authentication checks, or null if authentication failed
 	 */
 	public static Subject getSubject(HttpHeaders httpHeaders, URI uri) {
-		String path = null;
-		String key = null;
+		String path = (uri.getPath() != null) ? uri.getPath().toString() : "";
+		String key = "UNKNOWN";
 		String sig = null;
 		long ts = 0L;
 		try {
-			path = uri.getPath().toString();
 			key = httpHeaders.getRequestHeaders().getFirst("SBW-Key");
 			sig = httpHeaders.getRequestHeaders().getFirst("SBW-Signature");
 			ts = Long.valueOf(httpHeaders.getRequestHeaders().getFirst("SBW-Timestamp"));
-			LOG.info("{} accessing '{}'", key, path);
 		} catch (NullPointerException | IllegalStateException | NumberFormatException e) {
 			LOG.warn("Exception thrown parsing headers:\t{}", e.toString());
 		}
 		
+		LOG.info("{} accessing '{}'", key, path);
 		Subject subject = SecurityUtils.getSubject();
 		subject.logout();
-		if (keyIsValid(key) && sigIsValid(sig) && tsIsValid(ts)) {
+		
+		boolean validKey = keyIsValid(key);
+		boolean validSig = sigIsValid(sig);
+		boolean validTs = tsIsValid(ts);
+		if (validKey && validSig && validTs) {
 			RestToken token = new RestToken(key, sig, path, ts);
 			try {
 				subject.login(token);
 			} catch (AuthenticationException e) {
-				LOG.warn("Authentication failure for API Key {}:\t{}", token.getPrincipal(), e.getMessage());
+				LOG.warn("Authentication failure for '{}': {}", token.getPrincipal(), e.getMessage());
+			} catch (Exception e) {
+				LOG.warn("Exception thrown authenticating '{}': {}", token.getPrincipal(), e.getMessage());
 			} 
+		} else {
+			LOG.warn("Authentication failure for '{}' - valid key: {}\tvalid signature: {}\tvalid timestamp: {}", key, validKey, validSig, validTs);
 		}
+		LOG.debug("{} is authenticated: {}", key, subject.isAuthenticated());	//DELME DATA-129
 		
 		return (subject.isAuthenticated()) ? subject : null;
 	}
