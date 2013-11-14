@@ -76,7 +76,6 @@ public abstract class AuthAuth {
 		} else {
 			LOG.warn("Authentication failure for '{}' - valid key: {}\tvalid signature: {}\tvalid timestamp: {}", key, validKey, validSig, validTs);
 		}
-		LOG.debug("{} is authenticated: {}", key, subject.isAuthenticated());	//DELME DATA-129
 		
 		return (subject.isAuthenticated()) ? subject : null;
 	}
