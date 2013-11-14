@@ -34,8 +34,8 @@ public abstract class MongoDb {
 				int maxConnections = (System.getenv("MONGO_MAX_CONN")!=null) ? Integer.valueOf(System.getenv("MONGO_MAX_CONN")) : 10;
 				options.connectionsPerHost(maxConnections);
 				options.autoConnectRetry(true);
-				options.connectTimeout(15000);
-				options.socketTimeout(15000);
+				options.connectTimeout(2500);
+				options.socketTimeout(2500);
 				MongoClientURI mongoUri = new MongoClientURI(mongoUrl, options);
 				if (mongoUri != null) {
 					MongoClient mongoClient = new MongoClient(mongoUri);
