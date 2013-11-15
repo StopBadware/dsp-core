@@ -72,8 +72,8 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
-			DBObject query = new BasicDBObject("reported_at", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			DBObject sort = new BasicDBObject("reported_at", ASC);
+			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+			DBObject sort = new BasicDBObject("_created", ASC);
 			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
 			sr.setResults(res);
 		} else {

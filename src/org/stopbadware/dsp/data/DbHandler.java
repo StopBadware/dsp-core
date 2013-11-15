@@ -69,8 +69,8 @@ public class DbHandler {
 	}
 	
 	/**
-	 * Finds Event Reports since the specified timestamp, up to a maximum of 25K
-	 * sorted by reported at time ascending
+	 * Finds Event Reports added since the specified timestamp, 
+	 * up to a maximum of 25K sorted by time ascending
 	 * @param sinceTime UNIX timestamp to retrieve reports since
 	 * @return SearchResults with the results
 	 */

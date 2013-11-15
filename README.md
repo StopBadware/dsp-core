@@ -30,6 +30,7 @@ JAVA_OPTS=-'Xmx384m -Xss512k -XX:+UseCompressedOops -javaagent:./full/path/to/ja
 * {"scheme":1}
 * {"path":1}
 * {"query":1}
+* {"_created":1}
 * {"sha2_256":1,"prefix":1,"reported_at":-1},{unique:true}
 
 ### hosts
