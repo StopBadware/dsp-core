@@ -3,7 +3,7 @@
   <groupId>org.stopbadware</groupId>
   <artifactId>dsp-core</artifactId>
   <version>0.0.1</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <repositories>
     <repository>
         <id>project.local</id>
@@ -114,6 +114,14 @@
   	</dependency>
   </dependencies>
   <build>
+   <resources>
+       <resource>
+        <directory>config</directory>
+        <includes>
+          <include>logback.xml</include>
+        </includes>
+      </resource>
+    </resources>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <plugins>
       <plugin>
@@ -162,7 +170,7 @@
 	      </executions>
         </plugin>
     </plugins>
-  </build>  
+  </build>
   <name>dsp-core</name>
   <url>https://dsp.stopbadware.org/</url>
 </project>
