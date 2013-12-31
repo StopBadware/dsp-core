@@ -37,8 +37,16 @@ public class EventReportsHandlerTest {
 	}
 	
 	@Test
-	public void findEventReportsSinceTest() {
+	public void findEventReportsSinceTimeTest() {
 		SearchResults sr = er.findEventReportsSince(twentyFourHoursAgo);
+		assertTrue(sr.getCode() == SearchResults.OK);
+		assertTrue(sr.getCount() > 0);
+	}
+	
+	@Test
+	public void findEventReportsSinceReportTest() {
+		String uid = ""; //TODO DATA-138
+		SearchResults sr = er.findEventReportsSince(uid);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 	}

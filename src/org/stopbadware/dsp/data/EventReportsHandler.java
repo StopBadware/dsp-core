@@ -74,13 +74,32 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			sr = new SearchResults();
 			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
 			DBObject sort = new BasicDBObject("_created", ASC);
-			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
+			List<DBObject> res = coll.find(query, new BasicDBObject("_created", 0)).sort(sort).limit(MAX).toArray();
+			for (DBObject result : res) {
+				result.put("uid", result.get("_id"));
+				result.removeField("_id");	//TODO DATA-138 add test to check uid
+			}
 			sr.setResults(res);
 		} else {
 			sr = notPermitted();
 		}
 		return sr;
 	}
+	
+	public SearchResults findEventReportsSince(String sinceReport) {
+		SearchResults sr = null;
+		//TODO DATA-138
+//		if (canRead) {
+//			sr = new SearchResults();
+//			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+//			DBObject sort = new BasicDBObject("_created", ASC);
+//			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
+//			sr.setResults(res);
+//		} else {
+//			sr = notPermitted();
+//		}
+		return sr;
+	}	
 	
 	public SearchResults getEventReportsStats(String source) {
 		SearchResults sr = null;
@@ -123,7 +142,8 @@ public class EventReportsHandler extends MdbCollectionHandler {
 					throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
 				}
 				searchFor.put("reported_at", reportedAt);
-				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(1).toArray();
+				List<DBObject> res = coll.find(searchFor, new BasicDBObject("_created", 0)).limit(1).toArray();
+				//TODO DATA-138 add uid
 				sr.setResults(res);
 			}
 		} else {
