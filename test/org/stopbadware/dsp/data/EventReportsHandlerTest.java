@@ -3,6 +3,7 @@ package org.stopbadware.dsp.data;
 import static org.junit.Assert.*;
 import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class EventReportsHandlerTest {
 	
 	@BeforeClass
 	public static void addTestReport() {
-		erTestMap.put("sha2_256", SHA2.get256("For the Horde!"));
+		erTestMap.put("sha2_256", SHA2.get256("For the Horde!"+System.nanoTime()));
 		erTestMap.put("is_on_blacklist", true);
 		erTestMap.put("prefix", TEST_PREFIX);
 		erTestMap.put("reported_at", System.currentTimeMillis()/1000);
@@ -41,14 +42,35 @@ public class EventReportsHandlerTest {
 		SearchResults sr = er.findEventReportsSince(twentyFourHoursAgo);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
+		List<Map<String, Object>> results = getResults(sr.getResults());
+		assertTrue(!results.isEmpty());
+		for (Map<String, Object> result : results) {
+			assertTrue(result.containsKey("uid"));
+			assertTrue(!result.containsKey("_id"));
+		}
 	}
 	
 	@Test
 	public void findEventReportsSinceReportTest() {
-		String uid = ""; //TODO DATA-138
-		SearchResults sr = er.findEventReportsSince(uid);
-		assertTrue(sr.getCode() == SearchResults.OK);
-		assertTrue(sr.getCount() > 0);
+		String uid = Long.toHexString(twentyFourHoursAgo) + "3bf4421940d5029c";
+		try {
+			SearchResults sr = er.findEventReportsSince(uid);
+			assertTrue(sr.getCode() == SearchResults.OK);
+			assertTrue(sr.getCount() > 0);
+		} catch (SearchException e) {
+			fail("SearchException thrown" + e.getMessage());
+		}
+		
+	}
+	
+	@Test(expected = SearchException.class)
+	public void findEventReportsSinceReportInvalidStringTest() throws SearchException {
+		er.findEventReportsSince("");
+	}
+	
+	@Test(expected = SearchException.class)
+	public void findEventReportsSinceReportInvalidTimeTest() throws SearchException {
+		er.findEventReportsSince("XXXXXXXX3bf4421940d5029c");
 	}
 	
 	@Test
@@ -60,20 +82,22 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void getEventReportTest() {
-		SearchResults sr;
-		String uid = erTestMap.get("sha2_256")+"-"+TEST_PREFIX+"-"+erTestMap.get("reported_at");
-		try {
-			sr = er.getEventReport(uid);
-			assertTrue(sr.getCode() == SearchResults.OK);
-			assertTrue(sr.getCount() > 0);
-		} catch (SearchException e) {
-			fail("SearchException thrown");
+		Map<String, Object> head = getResults(er.findEventReportsSince(twentyFourHoursAgo).getResults()).get(0);
+		SearchResults sr = er.getEventReport(head.get("uid").toString());
+		assertTrue(sr.getCode() == SearchResults.OK);
+		assertTrue(sr.getCount() == 1);
+		Map<String, Object> result = getResults(sr.getResults()).get(0);
+		assertTrue(result.keySet().size() == head.keySet().size());
+		for (String key : head.keySet()) {
+			assertTrue(result.containsKey(key));
+			assertTrue(result.get(key).equals(head.get(key)));
 		}
 		
 	}
 	
 	@Test
 	public void getTimeOfLastTest() {
+		addTestReport();
 		TimeOfLast tol = er.getTimeOfLast(TEST_PREFIX);
 		assertTrue(tol.getLast() == (long) erTestMap.get("reported_at"));
 	}
@@ -133,20 +157,25 @@ public class EventReportsHandlerTest {
 		assertTrue(sr != null);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
-		Object results = sr.getResults();
-		if (results instanceof List<?>) {
-			@SuppressWarnings("unchecked")
-			List<Map<String, String>> resultList = (List<Map<String, String>>) results;
-			if (!resultList.isEmpty() && resultList.get(0) instanceof Map<?, ?>) {
-				Map<String, String> prefixes = (Map<String, String>) resultList.get(0);
-				assertTrue(!prefixes.isEmpty());
-				assertTrue(prefixes.containsKey(TEST_PREFIX));
-			} else {
-				fail("Results do not include expected prefix=>particpant map");
-			}
+		List<Map<String, Object>> results = getResults(sr.getResults());
+		if (!results.isEmpty() && results.get(0) instanceof Map<?, ?>) {
+			Map<String, Object> prefixes = (Map<String, Object>) results.get(0);
+			assertTrue(!prefixes.isEmpty());
+			assertTrue(prefixes.containsKey(TEST_PREFIX));
 		} else {
-			fail("Unexpected results collection");
+			fail("Results do not include expected prefix=>particpant map");
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getResults(Object rawResults) {
+		List<Map<String, Object>> results = null; 
+		if (rawResults instanceof List<?>) {
+			results = (List<Map<String, Object>>) rawResults;
+		} else {
+			results = new ArrayList<>();
+		}
+		return results;
 	}
 
 }

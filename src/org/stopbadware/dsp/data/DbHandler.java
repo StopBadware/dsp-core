@@ -69,13 +69,18 @@ public class DbHandler {
 	}
 	
 	/**
-	 * Finds Event Reports added since the specified timestamp, 
+	 * Finds Event Reports added since the specified timestamp or UID, 
 	 * up to a maximum of 25K sorted by time ascending
-	 * @param sinceTime UNIX timestamp to retrieve reports since
+	 * @param since String representing either a UNIX timestamp or a valid UID
 	 * @return SearchResults with the results
 	 */
-	public SearchResults findEventReportsSince(long sinceTime) {
-		return eventsHandler.findEventReportsSince(sinceTime);
+	public SearchResults findEventReportsSince(String since) throws SearchException {
+		try {
+			return eventsHandler.findEventReportsSince(Long.valueOf(since));
+		} catch (NumberFormatException e) {
+			return eventsHandler.findEventReportsSince(since);
+		}
+		
 	}
 	
 	/**
@@ -124,11 +129,10 @@ public class DbHandler {
 	
 	/**
 	 * Finds a specific Event Report based on the UID
-	 * @param UID (SHA2-PREFIX-UNIXTIME) of the Event Report to find
+	 * @param UID (MongoDB generated ID) of the Event Report to find
 	 * @return SearchResults containing the Event Report
-	 * @throws SearchException
 	 */
-	public SearchResults findEventReport(String uid) throws SearchException {
+	public SearchResults findEventReport(String uid) {
 		return eventsHandler.getEventReport(uid);
 	}
 	

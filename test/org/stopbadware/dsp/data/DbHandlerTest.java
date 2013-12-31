@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
 import org.stopbadware.dsp.json.ERWrapper;
@@ -22,6 +21,7 @@ import org.stopbadware.lib.util.SHA2;
 public class DbHandlerTest {
 	
 	private static DbHandler dbh = new DbHandler(AuthAuthTestHelper.getSubject()); 
+	private static EventReportsHandler er = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	private static final String TEST_PREFIX = TEST;
 	private static final String TEST_HOST = "example.com";
 	
@@ -71,11 +71,10 @@ public class DbHandlerTest {
 		cleanMap.put("is_on_blacklist", false);
 		cleanMap.put("removed_from_blacklist", System.currentTimeMillis()/1000);
 		addEventReport(blacklistedMap.get("host").toString(), blacklistedMap);
-		String uid = origMap.get("sha2_256")+"-"+origMap.get("prefix")+"-"+origMap.get("reported_at");
-		long removed = getRemovedFromBlacklistTime(uid);
+		long removed = getRemovedFromBlacklistTime(origMap);
 		assertTrue(removed == Long.valueOf(blacklistedMap.get("removed_from_blacklist").toString()));
 		addEventReport(cleanMap.get("host").toString(), cleanMap);
-		removed = getRemovedFromBlacklistTime(uid);
+		removed = getRemovedFromBlacklistTime(origMap);
 		assertTrue(removed == Long.valueOf(cleanMap.get("removed_from_blacklist").toString()));
 	}
 	
@@ -87,14 +86,9 @@ public class DbHandlerTest {
 		assertTrue(added > 0);
 	}
 	
-	private long getRemovedFromBlacklistTime(String uid) {
+	private long getRemovedFromBlacklistTime(Map<String, Object> erMap) {
 		long removed = -1;
-		SearchResults sr = null;
-		try {
-			sr = dbh.findEventReport(uid);
-		} catch (SearchException e) {
-			fail("SearchException thrown: " + e.getMessage());
-		}
+		SearchResults sr = er.getEventReport(erMap.get("prefix").toString(), erMap.get("sha2_256").toString(), Long.valueOf(erMap.get("reported_at").toString()));
 		assertTrue(sr != null);
 		Object results = sr.getResults();
 		assertTrue(results != null);

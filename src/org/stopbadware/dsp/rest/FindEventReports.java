@@ -20,9 +20,9 @@ public class FindEventReports extends SecureRest {
 	public Response findSince(@PathParam("param") String sinceTime) {
 		DbHandler dbh = getDbh();
 		try {
-			return (dbh != null) ? dbh.findEventReportsSince(Long.valueOf(sinceTime)) : httpResponseCode(FORBIDDEN);
-		} catch (NumberFormatException e) {
-			return new Error(Error.BAD_FORMAT, "Invalid timestamp to retrieve reports since");
+			return (dbh != null) ? dbh.findEventReportsSince(sinceTime) : httpResponseCode(FORBIDDEN);
+		} catch (SearchException e) {
+			return new Error(e.getCode(), e.getMessage());
 		}
 	}
 	
@@ -61,10 +61,6 @@ public class FindEventReports extends SecureRest {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response find(@PathParam("uid") String uid) {
 		DbHandler dbh = getDbh();
-		try {
-			return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
-		} catch (SearchException e) {
-			return new Error(e.getCode(), e.getMessage());
-		}
+		return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
 	}	
 }

@@ -22,6 +22,7 @@ import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.Domain;
 import org.stopbadware.lib.util.SHA2;
 
+import org.bson.types.ObjectId;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
@@ -73,32 +74,19 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		if (canRead) {
 			sr = new SearchResults();
 			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			DBObject sort = new BasicDBObject("_created", ASC);
-			List<DBObject> res = coll.find(query, new BasicDBObject("_created", 0)).sort(sort).limit(MAX).toArray();
-			for (DBObject result : res) {
-				result.put("uid", result.get("_id"));
-				result.removeField("_id");	//TODO DATA-138 add test to check uid
-			}
-			sr.setResults(res);
+			sr.setResults(findAndSetUid(query, new BasicDBObject("_created", ASC)));
 		} else {
 			sr = notPermitted();
 		}
 		return sr;
 	}
 	
-	public SearchResults findEventReportsSince(String sinceReport) {
-		SearchResults sr = null;
-		//TODO DATA-138
-//		if (canRead) {
-//			sr = new SearchResults();
-//			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-//			DBObject sort = new BasicDBObject("_created", ASC);
-//			List<DBObject> res = coll.find(query, hideKeys()).sort(sort).limit(MAX).toArray();
-//			sr.setResults(res);
-//		} else {
-//			sr = notPermitted();
-//		}
-		return sr;
+	public SearchResults findEventReportsSince(String sinceReport) throws SearchException {
+		try {
+			return findEventReportsSince(Long.valueOf(sinceReport.substring(0, 8), 16));
+		} catch (NumberFormatException | IndexOutOfBoundsException e) {
+			throw new SearchException("'"+sinceReport+"' is not a valid Event Report ID", Error.BAD_FORMAT);
+		}
 	}	
 	
 	public SearchResults getEventReportsStats(String source) {
@@ -124,28 +112,26 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return sr;
 	}
 	
-	public SearchResults getEventReport(String uid) throws SearchException {
+	public SearchResults getEventReport(String uid) {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
-			String[] tokens = uid.split("-");
-			if (tokens.length != 3) {
-				throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
-			} else {
-				DBObject searchFor = new BasicDBObject();
-				searchFor.put("sha2_256", tokens[0]);
-				searchFor.put("prefix", tokens[1]);
-				Long reportedAt = 0L;
-				try {
-					reportedAt = Long.valueOf(tokens[2]);
-				} catch (NumberFormatException e) {
-					throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
-				}
-				searchFor.put("reported_at", reportedAt);
-				List<DBObject> res = coll.find(searchFor, new BasicDBObject("_created", 0)).limit(1).toArray();
-				//TODO DATA-138 add uid
-				sr.setResults(res);
-			}
+			sr.setResults(findAndSetUid(new BasicDBObject("_id", new ObjectId(uid)), new BasicDBObject("_created", ASC)));
+		} else {
+			sr = notPermitted();
+		}
+		return sr;
+	}
+	
+	public SearchResults getEventReport(String prefix, String sha256, long reportedAt) {
+		SearchResults sr = null;
+		if (canRead) {
+			sr = new SearchResults();
+			DBObject query = new BasicDBObject();
+			query.put("prefix", prefix);
+			query.put("sha2_256", sha256);
+			query.put("reported_at", reportedAt);
+			sr.setResults(findAndSetUid(query, new BasicDBObject("_created", ASC)));
 		} else {
 			sr = notPermitted();
 		}
@@ -296,6 +282,15 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			cnt = coll.getCount(search);
 		}
 		return cnt;
+	}
+	
+	private List<DBObject> findAndSetUid(DBObject query, DBObject sort) {
+		List<DBObject> results = coll.find(query, new BasicDBObject("_created", 0)).sort(sort).limit(MAX).toArray();
+		for (DBObject result : results) {
+			result.put("uid", result.get("_id").toString());
+			result.removeField("_id");
+		}
+		return results;
 	}
 	
 	/**
