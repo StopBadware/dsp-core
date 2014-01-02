@@ -141,13 +141,17 @@ public abstract class MdbCollectionHandler {
 			if (searchFor.keySet().size() < 1) {
 				throw new SearchException("No search criteria specified", Error.BAD_FORMAT);
 			} else {
-				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
-				sr.setResults(res);
+//				List<DBObject> res = coll.find(searchFor, hideKeys()).limit(MAX).toArray();
+				sr.setResults(getResults(searchFor));
 			}
 		} else {
 			sr = notPermitted();
 		}
 		return sr;
+	}
+	
+	protected List<DBObject> getResults(DBObject searchFor) {
+		return coll.find(searchFor, hideKeys()).limit(MAX).toArray();
 	}
 	
 

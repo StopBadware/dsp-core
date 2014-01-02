@@ -74,7 +74,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		if (canRead) {
 			sr = new SearchResults();
 			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			sr.setResults(findAndSetUid(query, new BasicDBObject("_created", ASC)));
+			sr.setResults(findAndSetUid(query));
 		} else {
 			sr = notPermitted();
 		}
@@ -116,7 +116,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
-			sr.setResults(findAndSetUid(new BasicDBObject("_id", new ObjectId(uid)), new BasicDBObject("_created", ASC)));
+			sr.setResults(findAndSetUid(new BasicDBObject("_id", new ObjectId(uid))));
 		} else {
 			sr = notPermitted();
 		}
@@ -131,7 +131,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 			query.put("prefix", prefix);
 			query.put("sha2_256", sha256);
 			query.put("reported_at", reportedAt);
-			sr.setResults(findAndSetUid(query, new BasicDBObject("_created", ASC)));
+			sr.setResults(findAndSetUid(query));
 		} else {
 			sr = notPermitted();
 		}
@@ -284,8 +284,8 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return cnt;
 	}
 	
-	private List<DBObject> findAndSetUid(DBObject query, DBObject sort) {
-		List<DBObject> results = coll.find(query, new BasicDBObject("_created", 0)).sort(sort).limit(MAX).toArray();
+	private List<DBObject> findAndSetUid(DBObject query) {
+		List<DBObject> results = coll.find(query, new BasicDBObject("_created", 0)).sort(new BasicDBObject("_created", ASC)).limit(MAX).toArray();
 		for (DBObject result : results) {
 			result.put("uid", result.get("_id").toString());
 			result.removeField("_id");
@@ -429,6 +429,11 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		}
 		
 		return updated;
+	}
+	
+	@Override
+	protected List<DBObject> getResults(DBObject searchFor) {
+		return findAndSetUid(searchFor);
 	}
 	
 }
