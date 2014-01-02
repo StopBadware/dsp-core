@@ -31,11 +31,13 @@ public abstract class MongoDb {
 		try {
 			if (mongoUrl != null) {
 				MongoClientOptions.Builder options = new MongoClientOptions.Builder();
+				options.autoConnectRetry(true);
 				int maxConnections = (System.getenv("MONGO_MAX_CONN")!=null) ? Integer.valueOf(System.getenv("MONGO_MAX_CONN")) : 10;
 				options.connectionsPerHost(maxConnections);
-				options.autoConnectRetry(true);
-				options.connectTimeout(2500);
-				options.socketTimeout(2500);
+				int connectTimeout = (System.getenv("MONGO_CONN_TIMEOUT_SEC")!=null) ? Integer.valueOf(System.getenv("MONGO_CONN_TIMEOUT_SEC")) * 1000 : 30000;
+				options.connectTimeout(connectTimeout);
+				int socketTimeout = (System.getenv("MONGO_SOCK_TIMEOUT_SEC")!=null) ? Integer.valueOf(System.getenv("MONGO_SOCK_TIMEOUT_SEC")) * 1000 : 0;
+				options.socketTimeout(socketTimeout);
 				MongoClientURI mongoUri = new MongoClientURI(mongoUrl, options);
 				if (mongoUri != null) {
 					MongoClient mongoClient = new MongoClient(mongoUri);

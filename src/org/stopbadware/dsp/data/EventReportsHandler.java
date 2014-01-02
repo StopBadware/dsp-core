@@ -138,11 +138,10 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return sr;
 	}
 	
-	public TimeOfLast getTimeOfLast(String source) {
+	public TimeOfLast getTimeOfLast(String prefix) {
 		long time = 0L;
 		DBObject query = new BasicDBObject();
-		Pattern sourceRegex = getRegex(source);
-		query.put("prefix", sourceRegex);
+		query.put("prefix", prefix.toLowerCase());
 		
 		DBObject keys = new BasicDBObject();
 		keys.put("_id", 0);
@@ -158,7 +157,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 				time = 0L;
 			}
 		}
-		return new TimeOfLast(source, time);
+		return new TimeOfLast(prefix, time);
 	}
 	
 	public Set<String> getCurrentlyBlacklistedHosts() {
@@ -371,13 +370,13 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	
 	/**
 	 * Find the event reports currently marked as blacklisted for the reporter provided
-	 * @param reporter prefix for the blacklisting source
+	 * @param prefix blacklisting source's assigned prefix
 	 * @param field the key to retrieve from each report
 	 * @return a Set of Strings containing the value for the corresponding key
 	 */
-	public Set<String> findCurrentlyBlacklistedBySource(String reporter, String field) {
+	public Set<String> findCurrentlyBlacklistedBySource(String prefix, String field) {
 		DBObject query = new BasicDBObject();
-		query.put("prefix", getRegex(reporter));
+		query.put("prefix", prefix.toLowerCase());
 		query.put("is_on_blacklist", true);
 		DBObject keys = new BasicDBObject(field, 1);
 		keys.put("_id", 0);
