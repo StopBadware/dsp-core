@@ -22,7 +22,7 @@ public class DbHandlerTest {
 	
 	private static DbHandler dbh = new DbHandler(AuthAuthTestHelper.getSubject()); 
 	private static EventReportsHandler er = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
-	private static final String TEST_PREFIX = TEST;
+	private static final String TEST_PREFIX = "test";
 	private static final String TEST_HOST = "example.com";
 	
 	@Test

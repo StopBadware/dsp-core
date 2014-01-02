@@ -131,8 +131,9 @@ public class DbHandler {
 	 * Finds a specific Event Report based on the UID
 	 * @param UID (MongoDB generated ID) of the Event Report to find
 	 * @return SearchResults containing the Event Report
+	 * @throws SearchException 
 	 */
-	public SearchResults findEventReport(String uid) {
+	public SearchResults findEventReport(String uid) throws SearchException {
 		return eventsHandler.getEventReport(uid);
 	}
 	

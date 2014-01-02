@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -112,11 +111,15 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return sr;
 	}
 	
-	public SearchResults getEventReport(String uid) {
+	public SearchResults getEventReport(String uid) throws SearchException {
 		SearchResults sr = null;
 		if (canRead) {
 			sr = new SearchResults();
-			sr.setResults(findAndSetUid(new BasicDBObject("_id", new ObjectId(uid))));
+			try {
+				sr.setResults(findAndSetUid(new BasicDBObject("_id", new ObjectId(uid))));
+			} catch (IllegalArgumentException e) {
+				throw new SearchException("'"+uid+"' is not a valid Event Report ID", Error.BAD_FORMAT);
+			}
 		} else {
 			sr = notPermitted();
 		}

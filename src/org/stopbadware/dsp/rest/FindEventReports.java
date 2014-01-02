@@ -61,6 +61,10 @@ public class FindEventReports extends SecureRest {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response find(@PathParam("uid") String uid) {
 		DbHandler dbh = getDbh();
-		return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
+		try {
+			return (dbh != null) ? dbh.findEventReport(uid) : httpResponseCode(FORBIDDEN);
+		} catch (SearchException e) {
+			return new Error(e.getCode(), e.getMessage());
+		}
 	}	
 }

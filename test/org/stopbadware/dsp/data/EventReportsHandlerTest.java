@@ -1,7 +1,6 @@
 package org.stopbadware.dsp.data;
 
 import static org.junit.Assert.*;
-import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +16,12 @@ import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.SHA2;
+import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 public class EventReportsHandlerTest {
 	
 	private static EventReportsHandler er = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
-	private static final String TEST_PREFIX = TEST;
+	private static final String TEST_PREFIX = "test";
 	private static final String TEST_HOST = "example.com";
 	private static long twentyFourHoursAgo = (System.currentTimeMillis()/1000) - (60*60*24);
 	private static Map<String, Object> erTestMap = new HashMap<>();
@@ -31,6 +31,7 @@ public class EventReportsHandlerTest {
 		erTestMap.put("sha2_256", SHA2.get256("For the Horde!"+System.nanoTime()));
 		erTestMap.put("is_on_blacklist", true);
 		erTestMap.put("prefix", TEST_PREFIX);
+		erTestMap.put("reported_by", TEST_PREFIX.toUpperCase());
 		erTestMap.put("reported_at", System.currentTimeMillis()/1000);
 		erTestMap.put("host", TEST_HOST);
 		WriteStatus ws = er.addEventReport(erTestMap);
@@ -52,7 +53,7 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void findEventReportsSinceReportTest() {
-		String uid = Long.toHexString(twentyFourHoursAgo) + "3bf4421940d5029c";
+		String uid = Long.toHexString(twentyFourHoursAgo) + TEST;
 		try {
 			SearchResults sr = er.findEventReportsSince(uid);
 			assertTrue(sr.getCode() == SearchResults.OK);
@@ -83,16 +84,20 @@ public class EventReportsHandlerTest {
 	@Test
 	public void getEventReportTest() {
 		Map<String, Object> head = getResults(er.findEventReportsSince(twentyFourHoursAgo).getResults()).get(0);
-		SearchResults sr = er.getEventReport(head.get("uid").toString());
-		assertTrue(sr.getCode() == SearchResults.OK);
-		assertTrue(sr.getCount() == 1);
-		Map<String, Object> result = getResults(sr.getResults()).get(0);
-		assertTrue(result.keySet().size() == head.keySet().size());
-		for (String key : head.keySet()) {
-			assertTrue(result.containsKey(key));
-			assertTrue(result.get(key).equals(head.get(key)));
+		SearchResults sr;
+		try {
+			sr = er.getEventReport(head.get("uid").toString());
+			assertTrue(sr.getCode() == SearchResults.OK);
+			assertTrue(sr.getCount() == 1);
+			Map<String, Object> result = getResults(sr.getResults()).get(0);
+			assertTrue(result.keySet().size() == head.keySet().size());
+			for (String key : head.keySet()) {
+				assertTrue(result.containsKey(key));
+				assertTrue(result.get(key).equals(head.get(key)));
+			}
+		} catch (SearchException e) {
+			fail("SearchException thrown: "+e.getMessage());
 		}
-		
 	}
 	
 	@Test

@@ -31,7 +31,7 @@ public class FindEventReportsTest {
 	@Test
 	public void findTest() {
 		String basePath = "/v2/events/report/";
-		HTTP.searchTest(basePath + TEST_REPORT_UID);
+		HTTP.searchTest(basePath + VALID_ER_UID);
 		HTTP.errorTest(basePath + TEST, Error.BAD_FORMAT);
 	}
 	
