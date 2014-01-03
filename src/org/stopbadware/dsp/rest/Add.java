@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -39,7 +40,7 @@ public class Add extends SecureRest {
 	public Response addEvents(String data) {
 		DbHandler dbh = getDbh();
 		if (dbh != null) {
-			processImports(data, dbh);
+			Executors.newSingleThreadExecutor().execute(new AddEvents(data, dbh));
 			return httpResponseCode(OK);
 		} else {
 			return httpResponseCode(FORBIDDEN);
@@ -135,42 +136,6 @@ public class Add extends SecureRest {
 		return httpResponseCode(status);
 	}
 	
-	private void processImports(String data, DbHandler dbh) {
-		int numWroteToDB = 0;
-		ObjectMapper mapper = new ObjectMapper();
-		EventReports imports = null;
-		try {
-			imports = mapper.readValue(data, EventReports.class);
-		} catch (IOException e) {
-			LOG.error("Error parsing JSON:\t{}", e.getMessage());
-		}
-		
-		if (imports != null) {
-			long age = (System.currentTimeMillis() / 1000) - imports.getTime();
-			LOG.info("Received import with timestamp {} for '{}'", imports.getTime(), imports.getSource());
-			if (age > 3600) {
-				LOG.warn("Import timestamp is more than an hour old");
-			}
-			Set<ERWrapper> reports = imports.getReports(); 
-			if (reports != null) {
-				if (imports.getSize() == reports.size()) {
-					if (imports.isDifferentialBlacklist()) {
-						processClean(imports, dbh);
-					}
-					LOG.info("{} event reports to write", imports.getSize());
-					numWroteToDB = dbh.addEventReports(reports);
-					LOG.info("{} successful write attempts", numWroteToDB);
-				} else {
-					LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
-				}
-			} else {
-				LOG.error("Reports field is null");
-			}
-		} else {
-			LOG.error("Add events called but no valid EventReports could be mapped from data");
-		}
-	}
-	
 	private void processClean(EventReports er, DbHandler dbh) {
 		LOG.info("Updating blacklist flags");
 		int numCleaned = dbh.updateBlacklistFlagsFromDirtyReports(er.getSource(), er.getTime(), er.getReports());
@@ -227,6 +192,55 @@ public class Add extends SecureRest {
 		Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
 		dbh.addASNsForIPs(ipAS);
 		dbh.addAutonmousSystems(ipAS.values());
+	}
+	
+	private class AddEvents implements Runnable {
+		
+		private String data = null;
+		private DbHandler dbh = null;
+		
+		public AddEvents(String data, DbHandler dbh) {
+			this.data = data;
+			this.dbh = dbh;
+		}
+		
+		private void processImports() {
+			int numWroteToDB = 0;
+			ObjectMapper mapper = new ObjectMapper();
+			EventReports imports = null;
+			try {
+				imports = mapper.readValue(data, EventReports.class);
+			} catch (IOException e) {
+				LOG.error("Error parsing JSON:\t{}", e.getMessage());
+			}
+			
+			if (imports != null) {
+				LOG.info("Received import with timestamp {} for '{}'", imports.getTime(), imports.getSource());
+				Set<ERWrapper> reports = imports.getReports(); 
+				if (reports != null) {
+					if (imports.getSize() == reports.size()) {
+						if (imports.isDifferentialBlacklist()) {
+							processClean(imports, dbh);
+						}
+						LOG.info("{} event reports to write", imports.getSize());
+						numWroteToDB = dbh.addEventReports(reports);
+						LOG.info("{} successful write attempts", numWroteToDB);
+					} else {
+						LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
+					}
+				} else {
+					LOG.error("Reports field is null");
+				}
+			} else {
+				LOG.warn("Add events called but no valid EventReports could be mapped from data");
+			}
+		}
+
+		@Override
+		public void run() {
+			processImports();
+		}
+		
 	}
 	
 }

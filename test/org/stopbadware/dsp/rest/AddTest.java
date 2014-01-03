@@ -16,7 +16,7 @@ import org.stopbadware.dsp.test.helpers.HttpRequestTestHelper;
 
 public class AddTest {
 	
-	private static final String PREFIX = TEST;
+	private static final String PREFIX = "test";
 	private static final HttpRequestTestHelper HTTP = new HttpRequestTestHelper();
 	
 	@Test
