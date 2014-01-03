@@ -14,12 +14,6 @@
 * MONGO_SOCK_TIMEOUT_SEC
 * IRON_MQ_PROJECT_ID
 * IRON_MQ_TOKEN
-* NEW_RELIC_LICENSE_KEY
-* NEW_RELIC_LOG
-* NEW_RELIC_APP_NAME
-
-For New Relic monitoring the path to the New Relic agent jar must be _added_ to the JAVA_OPTS variable, e.g.:
-JAVA_OPTS=-'Xmx384m -Xss512k -XX:+UseCompressedOops -javaagent:./full/path/to/jar/jarname.jar'
 
 ## MongoDB Indexes
 ### event_reports
