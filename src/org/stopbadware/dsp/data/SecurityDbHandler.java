@@ -61,10 +61,11 @@ public class SecurityDbHandler {
 		String crypted = "";
 		boolean enabled = false;
 		int attempt = 0;
+		final int maxAttempts = 3;
 		/* [DATA-129] MongoDB's Java driver only detects dead connection on use (throwing a SocketException)
 		 * making multiple attempts on a request's first DB access (retrieving the secret key during
 		 * authentication) to handle dead connections */
-		while (crypted.isEmpty() && attempt < 3) {
+		while (crypted.isEmpty() && attempt < maxAttempts) {
 			try {
 				DBCursor cur = accountsColl.find(new BasicDBObject("api_key", apiKey)).limit(1);
 				while (cur.hasNext()) {
@@ -78,9 +79,14 @@ public class SecurityDbHandler {
 				}
 				touch(apiKey);
 			} catch (Exception e) {
-				LOG.error("Exception thrown while authenticating '{}': {}", apiKey, e.getMessage());
+				if (attempt > 0) {
+					LOG.warn("Exception thrown while retrieving key for '{}': {}", apiKey, e.getMessage());
+				}
 			}
 			attempt++;
+		}
+		if (attempt >= maxAttempts && crypted.isEmpty()) {
+			LOG.error("Failed to retrieve key for '{}'", apiKey);
 		}
 		return (enabled && crypted.length() > 0) ? decryptSecret(crypted) : "";
 	}
