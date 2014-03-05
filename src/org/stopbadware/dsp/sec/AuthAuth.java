@@ -25,7 +25,7 @@ public abstract class AuthAuth {
 	
 	private static Realm realm = new Realm();
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
-	private static final long MAX_AGE = Long.valueOf(System.getenv("MAX_AUTH_AGE"));
+	private static final long MAX_AGE = (System.getenv("MAX_AUTH_AGE") != null) ? Long.valueOf(System.getenv("MAX_AUTH_AGE")) : 180L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
 	
 	static {
@@ -100,8 +100,22 @@ public abstract class AuthAuth {
 	 * @return true if, and only if, the account is associated with the participant
 	 */
 	public static boolean subjectIsMemberOf(Subject subject, String participant) {
-		SecurityDbHandler db = new SecurityDbHandler();
-		return db.getParticipant(subject.getPrincipal().toString()).equalsIgnoreCase(participant);
+		return new SecurityDbHandler().getParticipant(subject.getPrincipal().toString()).equalsIgnoreCase(participant);
+	}
+	
+	
+	/**
+	 * Increments an account's rate limit counter and checks if the account is rate limited
+	 * @param subject the Subject to update and check
+	 * @return true if the account has accessed rate limited resources more than the 
+	 * RATE_LIMIT_MAX setting times in the previous RATE_LIMIT_SECONDS setting seconds
+	 */
+	public static boolean isRateLimited(Subject subject) {
+		if (subject.hasRole(Role.RATELIMIT_WHITELISTED.toString())) {
+			return false;
+		} else {
+			return new SecurityDbHandler().isRateLimited(subject.getPrincipal().toString());
+		}
 	}
 	
 }

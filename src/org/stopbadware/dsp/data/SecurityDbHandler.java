@@ -32,9 +32,11 @@ public class SecurityDbHandler {
 	private DB db;
 	private DBCollection accountsColl;
 	private DBCollection rolesColl;
-	private static final String KEY = "La Forge Theta-2-9-9-7"; /* Geordi's command code from "The Mind's Eye" */
-	private static final String ALGORITHM = "PBEWITHSHA1ANDDESEDE";
-	private static StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
+	private static final String KEY = System.getenv("CRYPT_KEY");
+	private static final String ALGORITHM = System.getenv("CRYPT_ALG");
+	private static final StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
+	private static final int RATE_LIMIT_MAX = (System.getenv("RATE_LIMIT_MAX")!=null) ? Integer.valueOf(System.getenv("RATE_LIMIT_MAX")) : 10;
+	private static final long RATE_LIMIT_SECS = (System.getenv("RATE_LIMIT_SECONDS")!=null) ? Long.valueOf(System.getenv("RATE_LIMIT_SECONDS")) : 30L;
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDbHandler.class);
 	public static final int ASC = MongoDb.ASC;
 	public static final int DESC = MongoDb.DESC;
@@ -67,14 +69,13 @@ public class SecurityDbHandler {
 		 * authentication) to handle dead connections */
 		while (crypted.isEmpty() && attempt < maxAttempts) {
 			try {
-				DBCursor cur = accountsColl.find(new BasicDBObject("api_key", apiKey)).limit(1);
-				while (cur.hasNext()) {
-					DBObject obj = cur.next();
-					if (obj.containsField("secret_key")) {
-						crypted = obj.get("secret_key").toString();
+				DBObject account = getAccount(apiKey);
+				if (account != null) {
+					if (account.containsField("secret_key")) {
+						crypted = account.get("secret_key").toString();
 					}
-					if (obj.containsField("enabled")) {
-						enabled = obj.get("enabled").toString().equalsIgnoreCase("true");
+					if (account.containsField("enabled")) {
+						enabled = account.get("enabled").toString().equalsIgnoreCase("true");
 					}
 				}
 				touch(apiKey);
@@ -109,7 +110,66 @@ public class SecurityDbHandler {
 		} catch (MongoException e) {
 			LOG.error("Unable to update access fields:\t{}", e.getMessage());
 		}
-		
+	}
+	
+	/**
+	 * Updates the account's rate limit fields
+	 * @param apiKey API Key of the account to update
+	 * @param reset if this update should reset the counter to zero (true) or
+	 * increment the counter by one (false)
+	 */
+	private void touchRateLimit(String apiKey, boolean reset) {
+		DBObject doc = new BasicDBObject("api_key", apiKey);
+		DBObject upd = new BasicDBObject();
+		if (reset) {
+			upd.put("$set", new BasicDBObject("rate_limit_num_access", 0));
+		} else {
+			upd.put("$inc", new BasicDBObject("rate_limit_num_access", 1));
+		}
+		long resetTime = (System.currentTimeMillis() / 1000) + RATE_LIMIT_SECS;
+		upd.put("$set", new BasicDBObject("rate_limit_reset_time", resetTime));
+		WriteResult wr = null;
+		try {
+			wr = accountsColl.update(doc, upd);
+			if (wr.getError() != null) {
+				LOG.error("Unable to update access fields:\t{}", wr.getError());
+			}
+		} catch (MongoException e) {
+			LOG.error("Unable to update access fields:\t{}", e.getMessage());
+		}
+	}
+	
+	/**
+	 * Checks if an account is rate limited
+	 * @param apiKey API key of the account to check
+	 * @return true if the account has accessed rate limited resources more than the 
+	 * RATE_LIMIT_MAX setting times in the previous RATE_LIMIT_SECONDS setting seconds
+	 */
+	public boolean isRateLimited(String apiKey) {
+		boolean rateLimited = true;
+		DBObject account = getAccount(apiKey);
+		if (account != null) {
+			long resetTime; 
+			try {
+				resetTime = Long.valueOf(account.get("rate_limit_reset_time").toString());
+			} catch (NumberFormatException | NullPointerException e) {
+				resetTime = 0L;
+			}
+			if (resetTime < System.currentTimeMillis() / 1000) {
+				touchRateLimit(apiKey, true);
+				rateLimited = false;
+			} else {
+				touchRateLimit(apiKey, false);
+				int ctr = Integer.valueOf(account.get("rate_limit_num_access").toString());
+				try {
+					ctr = Integer.valueOf(account.get("rate_limit_num_access").toString());
+				} catch (NumberFormatException | NullPointerException e) {
+					ctr = 1;
+				}
+				rateLimited = ctr >= RATE_LIMIT_MAX;
+			}
+		}
+		return rateLimited;
 	}
 	
 	/**
@@ -205,9 +265,7 @@ public class SecurityDbHandler {
 	}
 	
 	private boolean keyIsUnique(String apiKey) {
-		DBObject query = new BasicDBObject("api_key", apiKey);
-		int count = accountsColl.find(query).count();
-		return count==0;
+		return getAccount(apiKey) == null;
 	}
 	
 	private String createAPIKey() {
@@ -253,13 +311,9 @@ public class SecurityDbHandler {
 	 */
 	public String getParticipant(String apiKey) {
 		String participant = "";
-		DBObject query = new BasicDBObject("api_key", apiKey);
-		DBCursor cur = accountsColl.find(query);
-		while (cur.hasNext()) {
-			DBObject account = cur.next();
-			if (account.containsField("participant")) {
-				participant = account.get("participant").toString();
-			}
+		DBObject account = getAccount(apiKey);
+		if (account != null && account.containsField("participant")) {
+			participant = account.get("participant").toString();
 		}
 		return participant;
 	}
@@ -271,18 +325,20 @@ public class SecurityDbHandler {
 	 */
 	public Set<String> getRoles(String apiKey) {
 		Set<String> roles = new HashSet<>();
-		DBObject query = new BasicDBObject("api_key", apiKey);
-		DBCursor cur = accountsColl.find(query);
-		while (cur.hasNext()) {
-			DBObject obj = cur.next();
-			if (obj.containsField("roles")) {
-				BasicDBList roleList = (BasicDBList)obj.get("roles");
+		DBObject account = getAccount(apiKey);
+		if (account != null) {
+			if (account.containsField("roles")) {
+				BasicDBList roleList = (BasicDBList)account.get("roles");
 				for (Object role : roleList) {
 					roles.add(role.toString());
 				}
 			}
 		}
 		return roles;
+	}
+	
+	private DBObject getAccount(String apiKey) {
+		return accountsColl.findOne(new BasicDBObject("api_key", apiKey));
 	}
 	
 	/**

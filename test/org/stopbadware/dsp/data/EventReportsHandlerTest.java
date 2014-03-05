@@ -16,6 +16,7 @@ import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.test.helpers.AuthAuthTestHelper;
 import org.stopbadware.lib.util.SHA2;
+
 import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 public class EventReportsHandlerTest {
@@ -72,6 +73,18 @@ public class EventReportsHandlerTest {
 	@Test(expected = SearchException.class)
 	public void findEventReportsSinceReportInvalidTimeTest() throws SearchException {
 		er.findEventReportsSince("XXXXXXXX3bf4421940d5029c");
+	}
+	
+	@Test(expected = SearchException.class)
+	public void findEventReportsRateLimitTest() {
+		for (int i=0; i<Integer.valueOf(System.getenv("RATE_LIMIT_MAX"))*2; i++) {
+			new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getRateLimitSubject()).findEventReportsSince(twentyFourHoursAgo);
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				fail("InterruptedException thrown: " + e.getMessage());
+			}
+		}
 	}
 	
 	@Test
@@ -175,6 +188,8 @@ public class EventReportsHandlerTest {
 	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getResults(Object rawResults) {
 		List<Map<String, Object>> results = null; 
+		System.out.println(rawResults instanceof List<?>);	//DELME DATA-122
+		System.out.println(rawResults == null);				//DELME DATA-122
 		if (rawResults instanceof List<?>) {
 			results = (List<Map<String, Object>>) rawResults;
 		} else {

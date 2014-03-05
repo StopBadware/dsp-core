@@ -17,11 +17,12 @@ import org.stopbadware.dsp.data.DbHandler.WriteStatus;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.Domain;
 import org.stopbadware.lib.util.SHA2;
-
 import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCursor;
@@ -31,10 +32,12 @@ import com.mongodb.WriteResult;
 
 public class EventReportsHandler extends MdbCollectionHandler {
 	
+	private Subject subject;
 	private static final Logger LOG = LoggerFactory.getLogger(EventReportsHandler.class);
 	
 	public EventReportsHandler(DB db, Subject subject) {
 		super(db, db.getCollection(MongoDb.EVENT_REPORTS));
+		this.subject = subject;
 		canRead = subject.isPermitted(Permissions.READ_EVENTS);
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
@@ -71,9 +74,13 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	public SearchResults findEventReportsSince(long sinceTime) {
 		SearchResults sr = null;
 		if (canRead) {
-			sr = new SearchResults();
-			DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
-			sr.setResults(findAndSetUid(query));
+			if (AuthAuth.isRateLimited(subject)) {
+				sr = notPermitted();	//TODO DATA-122 return rate limit error
+			} else {
+				sr = new SearchResults();
+				DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
+				sr.setResults(findAndSetUid(query));
+			}
 		} else {
 			sr = notPermitted();
 		}

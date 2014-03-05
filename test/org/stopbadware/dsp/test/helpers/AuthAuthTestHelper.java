@@ -16,9 +16,7 @@ import org.stopbadware.dsp.sec.RestToken;
 import org.stopbadware.lib.util.SHA2;
 
 /**
- * Helper class to provide an authenticated subject for testing purposes. This
- * requires the test database to have an enabled account with public key of
- * 'TEST' and secret key of 'koJNTJMoMiu7XmRr5XV4QQ==' ('TEST' encrypted) 
+ * Helper class to provide an authenticated subject for testing purposes. 
  *
  */
 public class AuthAuthTestHelper {
@@ -38,6 +36,16 @@ public class AuthAuthTestHelper {
 		long ts = 0L;
 		String sig = SHA2.get256(TEST+ts+TEST+TEST);
 		RestToken token = new RestToken(TEST, sig, TEST, ts);
+		subject.login(token);
+		return subject;
+	}
+	
+	public static Subject getRateLimitSubject() {
+		String rlTest = "RATELIMITTEST";
+		Subject subject = SecurityUtils.getSubject();
+		long ts = 0L;
+		String sig = SHA2.get256(rlTest+ts+rlTest+rlTest);
+		RestToken token = new RestToken(rlTest, sig, rlTest, ts);
 		subject.login(token);
 		return subject;
 	}

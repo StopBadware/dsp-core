@@ -19,6 +19,7 @@ public enum Role {
 	TAKEDOWN_EXECUTER,
 	RESEARCHER,
 	PUBLIC,
+	RATELIMIT_WHITELISTED,
 	NO_PERMISSIONS;
 	
 	private Set<Permission> objPerms = new HashSet<>();

@@ -90,7 +90,7 @@ public class SecurityDbHandlerTest {
 		for (Role r : Role.values()) {
 			Set<String> perms = dbh.getRolePermissions(r.toString());
 			assertTrue(perms != null);
-			if (r.equals(Role.NO_PERMISSIONS)) {
+			if (r.equals(Role.NO_PERMISSIONS) || r.equals(Role.RATELIMIT_WHITELISTED)) {
 				assertTrue(perms.size() == 0);
 			} else {
 				assertTrue(perms.size() > 0);
