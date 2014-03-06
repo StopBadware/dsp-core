@@ -18,6 +18,7 @@ import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
+import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.lib.util.SHA2;
 
 import com.mongodb.DB;
@@ -99,10 +100,14 @@ public class DbHandler {
 	 * @param criteria Map of search criteria
 	 * @return SearchResults containing the matching documents
 	 * @throws SearchException
+	 * @throws RateLimitException 
 	 */
-	public SearchResults search(SearchType type, MultivaluedMap<String, String> criteria) throws SearchException {
+	public SearchResults search(SearchType type, MultivaluedMap<String, String> criteria) throws SearchException, RateLimitException {
 		if (criteria == null || criteria.size() < 1) {
 			throw new SearchException("Insufficient search criteria", Error.BAD_FORMAT);
+		}
+		if (AuthAuth.isRateLimited(subject)) {
+			throw new RateLimitException();
 		}
 		MdbCollectionHandler handler = null;
 		switch (type) {

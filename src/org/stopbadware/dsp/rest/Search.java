@@ -9,6 +9,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.data.DbHandler.SearchType;
@@ -62,6 +63,8 @@ public class Search extends SecureRest {
 			} catch (SearchException e) {
 				LOG.warn("{}:SearchException thrown for '{}': {}", e.getCode(), pathAndParams, e.getMessage());
 				return new Error(e.getCode(), e.getMessage());
+			} catch (RateLimitException e) {
+				return rateLimitExceeded(e.getMessage());
 			}
 		} else {
 			return httpResponseCode(FORBIDDEN);
