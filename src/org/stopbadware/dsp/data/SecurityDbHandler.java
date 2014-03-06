@@ -160,7 +160,7 @@ public class SecurityDbHandler {
 				rateLimited = false;
 			} else {
 				touchRateLimit(apiKey, false);
-				int ctr = Integer.valueOf(account.get("rate_limit_num_access").toString());
+				int ctr;
 				try {
 					ctr = Integer.valueOf(account.get("rate_limit_num_access").toString());
 				} catch (NumberFormatException | NullPointerException e) {
