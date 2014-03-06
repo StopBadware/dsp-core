@@ -12,6 +12,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DbHandler.WriteStatus;
 import org.stopbadware.dsp.json.Error;
@@ -71,11 +72,11 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return sr;
 	}
 	
-	public SearchResults findEventReportsSince(long sinceTime) {
+	public SearchResults findEventReportsSince(long sinceTime) throws RateLimitException {
 		SearchResults sr = null;
 		if (canRead) {
 			if (AuthAuth.isRateLimited(subject)) {
-				sr = notPermitted();	//TODO DATA-122 return rate limit error
+				throw new RateLimitException();
 			} else {
 				sr = new SearchResults();
 				DBObject query = new BasicDBObject("_created", new BasicDBObject(new BasicDBObject("$gte", sinceTime)));
@@ -87,7 +88,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return sr;
 	}
 	
-	public SearchResults findEventReportsSince(String sinceReport) throws SearchException {
+	public SearchResults findEventReportsSince(String sinceReport) throws SearchException, RateLimitException {
 		try {
 			return findEventReportsSince(Long.valueOf(sinceReport.substring(0, 8), 16));
 		} catch (NumberFormatException | IndexOutOfBoundsException e) {

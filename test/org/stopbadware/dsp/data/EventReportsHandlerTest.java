@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DbHandler.WriteStatus;
 import org.stopbadware.dsp.json.SearchResults;
@@ -21,7 +22,6 @@ import static org.stopbadware.dsp.test.helpers.TestVals.*;
 
 public class EventReportsHandlerTest {
 	
-	private static EventReportsHandler er = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	private static final String TEST_PREFIX = "test";
 	private static final String TEST_HOST = "example.com";
 	private static long twentyFourHoursAgo = (System.currentTimeMillis()/1000) - (60*60*24);
@@ -35,13 +35,13 @@ public class EventReportsHandlerTest {
 		erTestMap.put("reported_by", TEST_PREFIX.toUpperCase());
 		erTestMap.put("reported_at", System.currentTimeMillis()/1000);
 		erTestMap.put("host", TEST_HOST);
-		WriteStatus ws = er.addEventReport(erTestMap);
+		WriteStatus ws = erHandler().addEventReport(erTestMap);
 		assertTrue(ws.equals(WriteStatus.SUCCESS));
 	}
 	
 	@Test
-	public void findEventReportsSinceTimeTest() {
-		SearchResults sr = er.findEventReportsSince(twentyFourHoursAgo);
+	public void findEventReportsSinceTimeTest() throws RateLimitException {
+		SearchResults sr = erHandler().findEventReportsSince(twentyFourHoursAgo);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 		List<Map<String, Object>> results = getResults(sr.getResults());
@@ -53,10 +53,10 @@ public class EventReportsHandlerTest {
 	}
 	
 	@Test
-	public void findEventReportsSinceReportTest() {
+	public void findEventReportsSinceReportTest() throws RateLimitException {
 		String uid = Long.toHexString(twentyFourHoursAgo) + TEST;
 		try {
-			SearchResults sr = er.findEventReportsSince(uid);
+			SearchResults sr = erHandler().findEventReportsSince(uid);
 			assertTrue(sr.getCode() == SearchResults.OK);
 			assertTrue(sr.getCount() > 0);
 		} catch (SearchException e) {
@@ -66,17 +66,17 @@ public class EventReportsHandlerTest {
 	}
 	
 	@Test(expected = SearchException.class)
-	public void findEventReportsSinceReportInvalidStringTest() throws SearchException {
-		er.findEventReportsSince("");
+	public void findEventReportsSinceReportInvalidStringTest() throws SearchException, RateLimitException {
+		erHandler().findEventReportsSince("");
 	}
 	
 	@Test(expected = SearchException.class)
-	public void findEventReportsSinceReportInvalidTimeTest() throws SearchException {
-		er.findEventReportsSince("XXXXXXXX3bf4421940d5029c");
+	public void findEventReportsSinceReportInvalidTimeTest() throws SearchException, RateLimitException {
+		erHandler().findEventReportsSince("XXXXXXXX3bf4421940d5029c");
 	}
 	
-	@Test(expected = SearchException.class)
-	public void findEventReportsRateLimitTest() {
+	@Test(expected = RateLimitException.class)
+	public void findEventReportsRateLimitTest() throws RateLimitException {
 		for (int i=0; i<Integer.valueOf(System.getenv("RATE_LIMIT_MAX"))*2; i++) {
 			new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getRateLimitSubject()).findEventReportsSince(twentyFourHoursAgo);
 			try {
@@ -89,13 +89,14 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void getEventReportsStatsTest() {
-		SearchResults sr = er.getEventReportsStats(TEST_PREFIX);
+		SearchResults sr = erHandler().getEventReportsStats(TEST_PREFIX);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
 	}
 	
 	@Test
-	public void getEventReportTest() {
+	public void getEventReportTest() throws RateLimitException {
+		EventReportsHandler er = erHandler();
 		Map<String, Object> head = getResults(er.findEventReportsSince(twentyFourHoursAgo).getResults()).get(0);
 		SearchResults sr;
 		try {
@@ -116,7 +117,7 @@ public class EventReportsHandlerTest {
 	@Test
 	public void getTimeOfLastTest() {
 		addTestReport();
-		TimeOfLast tol = er.getTimeOfLast(TEST_PREFIX);
+		TimeOfLast tol = erHandler().getTimeOfLast(TEST_PREFIX);
 		assertTrue(tol.getLast() == (long) erTestMap.get("reported_at"));
 	}
 	
@@ -129,27 +130,27 @@ public class EventReportsHandlerTest {
 		erMap.put("prefix", TEST_PREFIX);
 		erMap.put("reported_at", System.currentTimeMillis()/1000);
 		erMap.put("host", TEST_HOST);
-		WriteStatus ws = er.addEventReport(erMap);
+		WriteStatus ws = erHandler().addEventReport(erMap);
 		assertTrue(ws.equals(WriteStatus.SUCCESS));
 	}
 	
 	@Test
 	public void getCurrentlyBlacklistedHostsTest() {
-		Set<String> blacklisted = er.getCurrentlyBlacklistedHosts();
+		Set<String> blacklisted = erHandler().getCurrentlyBlacklistedHosts();
 		assertTrue(blacklisted.size() > 0);
 		assertTrue(blacklisted.contains(TEST_HOST));
 	}
 	
 	@Test
 	public void getHostsWithEventReportsSinceTest() {
-		Set<String> hosts = er.getHostsWithEventReportsSince(0);
+		Set<String> hosts = erHandler().getHostsWithEventReportsSince(0);
 		assertTrue(hosts.size() > 0);
 		assertTrue(hosts.contains(TEST_HOST));
 	}
 	
 	@Test
 	public void findCurrentlyBlacklistedBySourceTest() {
-		Set<String> blacklisted = er.findCurrentlyBlacklistedBySource(TEST_PREFIX, "host");
+		Set<String> blacklisted = erHandler().findCurrentlyBlacklistedBySource(TEST_PREFIX, "host");
 		assertTrue(blacklisted.size() > 0);
 		assertTrue(blacklisted.contains(TEST_HOST));
 	}
@@ -163,6 +164,7 @@ public class EventReportsHandlerTest {
 		erMap.put("prefix", TEST_PREFIX);
 		erMap.put("reported_at", System.currentTimeMillis()/1000);
 		erMap.put("host", TEST_HOST);
+		EventReportsHandler er = erHandler();
 		WriteStatus ws = er.addEventReport(erMap);
 		assertTrue(ws.equals(WriteStatus.SUCCESS));
 		int removed = er.removeFromBlacklist(TEST_PREFIX, "sha2_256", hash, System.currentTimeMillis()/1000);
@@ -171,7 +173,7 @@ public class EventReportsHandlerTest {
 	
 	@Test
 	public void getParticipantPrefixesTest() {
-		SearchResults sr = er.getParticipantPrefixes();
+		SearchResults sr = erHandler().getParticipantPrefixes();
 		assertTrue(sr != null);
 		assertTrue(sr.getCode() == SearchResults.OK);
 		assertTrue(sr.getCount() > 0);
@@ -188,14 +190,16 @@ public class EventReportsHandlerTest {
 	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getResults(Object rawResults) {
 		List<Map<String, Object>> results = null; 
-		System.out.println(rawResults instanceof List<?>);	//DELME DATA-122
-		System.out.println(rawResults == null);				//DELME DATA-122
 		if (rawResults instanceof List<?>) {
 			results = (List<Map<String, Object>>) rawResults;
 		} else {
 			results = new ArrayList<>();
 		}
 		return results;
+	}
+	
+	private static EventReportsHandler erHandler() {
+		return new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getSubject());
 	}
 
 }

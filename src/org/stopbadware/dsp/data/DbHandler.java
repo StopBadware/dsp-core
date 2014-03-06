@@ -10,6 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.ShareLevel;
 import org.stopbadware.dsp.json.AutonomousSystem;
@@ -73,14 +74,15 @@ public class DbHandler {
 	 * up to a maximum of 25K sorted by time ascending
 	 * @param since String representing either a UNIX timestamp or a valid UID
 	 * @return SearchResults with the results
+	 * @throws SearchException
+	 * @throws RateLimitException 
 	 */
-	public SearchResults findEventReportsSince(String since) throws SearchException {
+	public SearchResults findEventReportsSince(String since) throws SearchException, RateLimitException {
 		try {
 			return eventsHandler.findEventReportsSince(Long.valueOf(since));
 		} catch (NumberFormatException e) {
 			return eventsHandler.findEventReportsSince(since);
 		}
-		
 	}
 	
 	/**

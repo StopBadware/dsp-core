@@ -50,6 +50,7 @@ public abstract class MdbCollectionHandler {
 	protected SearchResults notPermitted() {
 		return new Error(Error.NOT_PERMITTED, "Your account is not permitted to access the requested resource");
 	}
+	
 	/**
 	 * Convenience method for creating an exact case insensitive regex Pattern
 	 * @param str String to match

@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.shiro.subject.Subject;
@@ -60,6 +61,17 @@ public abstract class SecureRest {
 	 */
 	protected Response httpResponseCode(int status) {
 		throw new WebApplicationException(status);
+	}
+	
+	/**
+	 * Returns a response indicating the account has exceeded the rate limit
+	 * @param msg the message body to include with the response
+	 * @return HTTP response with HTTP status 429 and the provided message
+	 */
+	protected Response rateLimitExceeded(String msg) {
+		ResponseBuilder builder = javax.ws.rs.core.Response.status(429);
+		builder.entity(msg);
+		throw new WebApplicationException(builder.build());
 	}
 
 }

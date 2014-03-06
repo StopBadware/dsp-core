@@ -36,7 +36,7 @@ public class SecurityDbHandler {
 	private static final String ALGORITHM = System.getenv("CRYPT_ALG");
 	private static final StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
 	private static final int RATE_LIMIT_MAX = (System.getenv("RATE_LIMIT_MAX")!=null) ? Integer.valueOf(System.getenv("RATE_LIMIT_MAX")) : 10;
-	private static final long RATE_LIMIT_SECS = (System.getenv("RATE_LIMIT_SECONDS")!=null) ? Long.valueOf(System.getenv("RATE_LIMIT_SECONDS")) : 30L;
+	public static final long RATE_LIMIT_SECS = (System.getenv("RATE_LIMIT_SECONDS")!=null) ? Long.valueOf(System.getenv("RATE_LIMIT_SECONDS")) : 30L;
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDbHandler.class);
 	public static final int ASC = MongoDb.ASC;
 	public static final int DESC = MongoDb.DESC;
@@ -167,6 +167,9 @@ public class SecurityDbHandler {
 					ctr = 1;
 				}
 				rateLimited = ctr >= RATE_LIMIT_MAX;
+			}
+			if (rateLimited) {
+				LOG.warn("{} exceeded rate limit ({} requests over {} seconds)", apiKey, RATE_LIMIT_MAX, RATE_LIMIT_SECS);
 			}
 		}
 		return rateLimited;

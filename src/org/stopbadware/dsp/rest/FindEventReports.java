@@ -6,6 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DbHandler;
 import org.stopbadware.dsp.json.Response;
@@ -23,6 +24,8 @@ public class FindEventReports extends SecureRest {
 			return (dbh != null) ? dbh.findEventReportsSince(sinceTime) : httpResponseCode(FORBIDDEN);
 		} catch (SearchException e) {
 			return new Error(e.getCode(), e.getMessage());
+		} catch (RateLimitException e) {
+			return rateLimitExceeded(e.getMessage());
 		}
 	}
 	
