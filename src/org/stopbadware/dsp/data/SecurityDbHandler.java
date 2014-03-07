@@ -35,8 +35,8 @@ public class SecurityDbHandler {
 	private static final String KEY = System.getenv("CRYPT_KEY");
 	private static final String ALGORITHM = System.getenv("CRYPT_ALG");
 	private static final StandardPBEStringEncryptor textEncryptor = new StandardPBEStringEncryptor();
-	private static final int RATE_LIMIT_MAX = (System.getenv("RATE_LIMIT_MAX")!=null) ? Integer.valueOf(System.getenv("RATE_LIMIT_MAX")) : 10;
-	public static final long RATE_LIMIT_SECS = (System.getenv("RATE_LIMIT_SECONDS")!=null) ? Long.valueOf(System.getenv("RATE_LIMIT_SECONDS")) : 30L;
+	private static final int RATE_LIMIT_MAX = Integer.valueOf(System.getenv("RATE_LIMIT_MAX"));
+	public static final long RATE_LIMIT_SECS = Long.valueOf(System.getenv("RATE_LIMIT_SECONDS"));
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityDbHandler.class);
 	public static final int ASC = MongoDb.ASC;
 	public static final int DESC = MongoDb.DESC;
@@ -121,13 +121,15 @@ public class SecurityDbHandler {
 	private void touchRateLimit(String apiKey, boolean reset) {
 		DBObject doc = new BasicDBObject("api_key", apiKey);
 		DBObject upd = new BasicDBObject();
+		DBObject set = new BasicDBObject();
 		if (reset) {
-			upd.put("$set", new BasicDBObject("rate_limit_num_access", 0));
+			set.put("rate_limit_num_access", 0);
 		} else {
 			upd.put("$inc", new BasicDBObject("rate_limit_num_access", 1));
 		}
 		long resetTime = (System.currentTimeMillis() / 1000) + RATE_LIMIT_SECS;
-		upd.put("$set", new BasicDBObject("rate_limit_reset_time", resetTime));
+		set.put("rate_limit_reset_time", resetTime);
+		upd.put("$set", set);
 		WriteResult wr = null;
 		try {
 			wr = accountsColl.update(doc, upd);

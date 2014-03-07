@@ -31,24 +31,28 @@ public class Search extends SecureRest {
 			SearchResults sr = null;
 			MultivaluedMap<String, String> params = uri.getQueryParameters();
 			String pathAndParams = uri.getPath() + params.toString();
+			SearchType type = null;
+			switch (searchFor) {
+			case "events":
+				type = SearchType.EVENT_REPORT;
+				break;
+			case "hosts":
+				type = SearchType.HOST;
+				break;
+			case "ips":
+				type = SearchType.IP;
+				break;
+			case "asns":
+				type = SearchType.AS;
+				break;
+			default:
+				break;
+			}
+			
 			try {
-				switch (searchFor) {
-				case "events":
-					sr = dbh.search(SearchType.EVENT_REPORT, params);
-					break;
-				case "hosts":
-					sr = dbh.search(SearchType.HOST, params);
-					break;
-				case "ips":
-					sr = dbh.search(SearchType.IP, params);
-					break;
-				case "asns":
-					sr = dbh.search(SearchType.AS, params);
-					break;
-				default:
-					break;
+				if (type != null) {
+					sr = dbh.search(type, params);
 				}
-				
 				if (sr != null) {
 					int duration = sr.getDuration();
 					if (duration > 200) {

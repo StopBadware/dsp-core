@@ -107,8 +107,8 @@ public abstract class AuthAuth {
 	/**
 	 * Increments an account's rate limit counter and checks if the account is rate limited
 	 * @param subject the Subject to update and check
-	 * @return true if the account has accessed rate limited resources more than the 
-	 * RATE_LIMIT_MAX setting times in the previous RATE_LIMIT_SECONDS setting seconds
+	 * @return true if the account has accessed rate limited resources at a frequency
+	 * exceeding the rate limit
 	 */
 	public static boolean isRateLimited(Subject subject) {
 		if (subject.hasRole(Role.RATELIMIT_WHITELISTED.toString())) {

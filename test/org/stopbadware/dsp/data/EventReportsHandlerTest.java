@@ -88,6 +88,37 @@ public class EventReportsHandlerTest {
 	}
 	
 	@Test
+	public void findEventReportsRateLimitResetTest() {
+		boolean accountIsRateLimited = false;
+		try {
+			for (int i=0; i<Integer.valueOf(System.getenv("RATE_LIMIT_MAX"))*2; i++) {
+				new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getRateLimitSubject()).findEventReportsSince(twentyFourHoursAgo);
+				Thread.sleep(50);
+			}
+		} catch (InterruptedException e) {
+			fail("InterruptedException thrown: " + e.getMessage());
+		} catch (RateLimitException e) {
+			accountIsRateLimited = true;
+		}
+		assertTrue(accountIsRateLimited);
+		try {
+			long sleepDur = (Long.valueOf(System.getenv("RATE_LIMIT_SECONDS")) + 1) * 1000;
+			Thread.sleep(sleepDur);
+		} catch (NumberFormatException e) {
+			fail("Invalid RATE_LIMIT_SECONDS: " + e.getMessage());
+		} catch (InterruptedException e) {
+			fail("InterruptedException thrown: " + e.getMessage());
+		}
+		SearchResults sr = null;
+		try {
+			sr = new EventReportsHandler(MongoDb.getDB(), AuthAuthTestHelper.getRateLimitSubject()).findEventReportsSince(twentyFourHoursAgo);
+		} catch (RateLimitException e) {
+			fail("RateLimitException thrown: " + e.getMessage());
+		}
+		assertTrue(sr != null);
+	}
+	
+	@Test
 	public void getEventReportsStatsTest() {
 		SearchResults sr = erHandler().getEventReportsStats(TEST_PREFIX);
 		assertTrue(sr.getCode() == SearchResults.OK);
