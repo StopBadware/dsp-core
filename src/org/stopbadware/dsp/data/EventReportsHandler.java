@@ -48,18 +48,15 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		if (canRead) {
 			sr = new SearchResults();
 			Map<String, String> prefixes = new HashMap<>();
-			DBObject groupBy = new BasicDBObject();
-			groupBy.put("prefix", 1);
-			groupBy.put("reported_by", 1);
-			DBObject results = coll.group(groupBy, new BasicDBObject(), new BasicDBObject(), "function() {}");
-			for (Object key : results.keySet()) {
-				Object obj = results.get(key.toString());
-				if (obj instanceof DBObject) {
-					DBObject doc = (DBObject) results.get(key.toString());
-					Object prefix = doc.get("prefix");
-					Object reportedBy = doc.get("reported_by");
-					if (prefix != null && reportedBy != null) {
-						prefixes.put(prefix.toString(), reportedBy.toString());
+			List<?> distinct = coll.distinct("prefix");
+			for (Object prefix : distinct) {
+				if (prefix instanceof String) {
+					DBObject query = new BasicDBObject();
+					query.put("prefix", prefix);
+					query.put("reported_by", new BasicDBObject("$exists", true));
+					DBObject findOne = coll.findOne(query, new BasicDBObject("reported_by", true));
+					if (findOne != null && findOne.containsField("reported_by")) {
+						prefixes.put(prefix.toString(), findOne.get("reported_by").toString());
 					}
 				}
 			}
