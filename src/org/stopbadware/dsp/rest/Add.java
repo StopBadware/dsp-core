@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -189,9 +190,11 @@ public class Add extends SecureRest {
 	
 	private void processResolverResults(ResolverResults rr, DbHandler dbh) {
 		dbh.addIPsForHosts(rr.getHostToIPMappings());
-		Map<Long, AutonomousSystem> ipAS = rr.getIpToASMappings();
-		dbh.addASNsForIPs(ipAS);
-		dbh.addAutonmousSystems(ipAS.values());
+		Map<Long, AutonomousSystem> ipAs = rr.getIpToASMappings();
+		dbh.addAsnsForIps(ipAs);
+		Set<AutonomousSystem> uniqueAutonomousSystems = new HashSet<>();
+		uniqueAutonomousSystems.addAll(ipAs.values());
+		dbh.addAutonmousSystems(uniqueAutonomousSystems);
 	}
 	
 	private class AddEvents implements Runnable {

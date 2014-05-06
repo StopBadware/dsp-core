@@ -124,7 +124,7 @@ public class DbHandlerTest {
 		while (added == 0 && testAsn < PRIVATE_AS_RANGE_END) {
 			asn.setAsn(testAsn++);
 			asns.put(0L, asn);
-			added = dbh.addASNsForIPs(asns);
+			added = dbh.addAsnsForIps(asns);
 			asns = new HashMap<>();
 		}
 		assertTrue(added > 0);

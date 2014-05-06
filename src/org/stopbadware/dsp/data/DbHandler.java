@@ -1,6 +1,5 @@
 package org.stopbadware.dsp.data;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -270,7 +269,7 @@ public class DbHandler {
 	 * @param asns a Map containing keys of IP addresses as longs and AS objects as values
 	 * @return int: the number of inserted or updated documents
 	 */
-	public int addASNsForIPs(Map<Long, AutonomousSystem> asns) {
+	public int addAsnsForIps(Map<Long, AutonomousSystem> asns) {
 		int dbWrites = 0;
 		for (long ip : asns.keySet()) {
 			dbWrites += ipsHandler.updateAsn(ip, asns.get(ip).getAsn());
@@ -284,16 +283,16 @@ public class DbHandler {
 	 * @param autonomousSystems the set containing the Autonomous Systems to add
 	 * @return int: the number of inserted or updated documents
 	 */
-	public int addAutonmousSystems(Collection<AutonomousSystem> autonomousSystems) {
-		int dbWrites = 0;
+	public int addAutonmousSystems(Set<AutonomousSystem> autonomousSystems) {
+		int addedOrUpdated = 0;
 		for (AutonomousSystem as : autonomousSystems) {
-			boolean addedOrUpdated = asnsHandler.addAutonmousSystem(as);
-			if (addedOrUpdated) {
-				dbWrites++;
+			boolean success = asnsHandler.addAutonmousSystem(as);
+			if (success) {
+				addedOrUpdated++;
 			}
 		}
-		LOG.info("Wrote {} Autonomous Systems to database", dbWrites);
-		return dbWrites;
+		LOG.info("Added or updated {} Autonomous Systems ({} expected)", addedOrUpdated, autonomousSystems.size());
+		return addedOrUpdated;
 	}
 	
 	/**
