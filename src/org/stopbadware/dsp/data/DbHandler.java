@@ -274,7 +274,7 @@ public class DbHandler {
 		for (long ip : asns.keySet()) {
 			dbWrites += ipsHandler.updateAsn(ip, asns.get(ip).getAsn());
 		}
-		LOG.info("Associated {} Autonomous Systems with IP addresses", dbWrites);
+		LOG.info("Added or updated Autonomous System info for {} IP addresses", dbWrites);
 		return dbWrites;		
 	}
 	
