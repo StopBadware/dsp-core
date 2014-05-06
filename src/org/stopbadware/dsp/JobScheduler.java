@@ -61,7 +61,7 @@ public class JobScheduler {
 					queue.push("all");
 					LOG.info("Added begin importing request to queue");
 				} catch (IOException e) {
-					LOG.error("Unable to add import request for all to queue:\t{}", e.getMessage());
+					LOG.error("Unable to add import request for all to queue: {}", e.getMessage());
 				}
 			}
 		}
@@ -80,10 +80,10 @@ public class JobScheduler {
 				Client client = new Client(IRON_PROJECT_ID, IRON_TOKEN, IRON_CLOUD);
 				Queue queue = client.queue("resolve_queue");
 				try {
-					queue.push("resolve_all_current");
+					queue.push("DSP");
 					LOG.info("Added begin resolving request to queue");
 				} catch (IOException e) {
-					LOG.error("Unable to add resolve request to queue:\t{}", e.getMessage());
+					LOG.error("Unable to add resolve request to queue: {}", e.getMessage());
 				}
 			}
 		}
