@@ -27,7 +27,7 @@ public abstract class MongoDb {
 	public static final int DESC = -1;
 	
 	static {
-		String mongoUrl = System.getenv("MONGOLAB_URI");
+		String mongoUrl = System.getenv("STANDALONE_MONGOLAB_URI");
 		try {
 			if (mongoUrl != null) {
 				MongoClientOptions.Builder options = new MongoClientOptions.Builder();
@@ -44,7 +44,7 @@ public abstract class MongoDb {
 					db = mongoClient.getDB(mongoUri.getDatabase());
 				}
 			} else {
-				LOG.error("No database specified, 'MONGOLAB_URI' must be set as an environment variable!");
+				LOG.error("No database specified, 'STANDALONE_MONGOLAB_URI' must be set as an environment variable!");
 			}
 		} catch (UnknownHostException | MongoException e) {
 			LOG.error("Unable to access database:\t{}", e.getMessage());
