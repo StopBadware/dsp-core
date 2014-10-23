@@ -292,10 +292,12 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	}
 	
 	private List<DBObject> findAndSetUid(DBObject query) {
-		List<DBObject> results = coll.find(query, new BasicDBObject("_created", 0)).sort(new BasicDBObject("_created", ASC)).limit(MAX).toArray();
+		List<DBObject> results = coll.find(query).sort(new BasicDBObject("_created", ASC)).limit(MAX).toArray();
 		for (DBObject result : results) {
 			result.put("uid", result.get("_id").toString());
-			result.removeField("_id");
+            result.removeField("_id");
+            result.put("created", result.get("_created").toString());
+			result.removeField("_created");
 		}
 		return results;
 	}
