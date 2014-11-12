@@ -34,8 +34,8 @@ public class DbHandler {
 	private AsnsHandler asnsHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
-	
-	public enum SearchType {
+
+    public enum SearchType {
 		EVENT_REPORT,
 		HOST,
 		IP,
@@ -51,7 +51,7 @@ public class DbHandler {
 	
 	public DbHandler(Subject subject) {
 		db = MongoDb.getDB();
-		if (subject.isAuthenticated()) {
+		if (subject.isAuthenticated() ) {
 			this.subject = subject;
 			eventsHandler = new EventReportsHandler(db, this.subject);
 			hostsHandler = new HostsHandler(db, this.subject);
@@ -153,12 +153,15 @@ public class DbHandler {
 	}
 	
 	/**
-	 * Finds a specific IP address
-	 * @param IP address to find
+     * Finds Event Reports potentially from a specified IP address
+     * @param ip String containing IP address in either dot notation, or as a long
 	 * @return SearchResults containing the IP record
-	 */
-	public SearchResults findIP(String ip) {
-		return (ip.matches("^\\d+$")) ? ipsHandler.getIp(Long.valueOf(ip)) : ipsHandler.getIp(ip);
+     * @throws SearchException
+     * @throws RateLimitException
+     */
+
+    public SearchResults findEventReportsWithIP(String ip) throws SearchException, RateLimitException {
+		return (ip.matches("^\\d+$")) ? eventsHandler.getIp(Long.valueOf(ip)) : eventsHandler.getIp(ip);
 	}
 	
 	/**
@@ -364,4 +367,17 @@ public class DbHandler {
 		
 		return updated;
 	}
+
+    public Set<Long> getIPsForHost(String host) {
+        return hostsHandler.getIPsForHost(host);
+    }
+
+    public void addIPsToEventReports(String host, Set<Long> ips) {
+        WriteStatus status = eventsHandler.addIPsToEventReport(host, ips);
+        if(status != WriteStatus.SUCCESS) {
+            LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
+        } else {
+            LOG.info("IP addresses added to event reports with host {}",host);
+        }
+    }
 }

@@ -54,7 +54,7 @@ public class Add extends SecureRest {
 	public Response pushToApi(@PathParam("source") String dataSource, String data) {
 		int status = OK;
 		Subject subject = getSubject();
-		if (subject != null && subject.isAuthenticated()) {
+		if (subject != null && (subject.isAuthenticated())) {
 			if (AuthAuth.subjectIsMemberOf(subject, dataSource)) {
 				try {
 					boolean sendSuccess = sendToImporter(dataSource, data);
@@ -227,6 +227,7 @@ public class Add extends SecureRest {
 						}
 						LOG.info("{} event reports to write", imports.getSize());
 						numWroteToDB = dbh.addEventReports(reports);
+                        spawnThreadToAddIPs(reports);
 						LOG.info("{} successful write attempts", numWroteToDB);
 					} else {
 						LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
@@ -239,7 +240,35 @@ public class Add extends SecureRest {
 			}
 		}
 
-		@Override
+        private void spawnThreadToAddIPs(final Set<ERWrapper> reports) {
+            LOG.info("Spawning thread to add IPs to {} reports.",reports.size());
+            new Thread() {
+                @Override
+                public void run() {
+                    LOG.info("Thread executing, dbh = {}.",dbh);
+                    addIPsToEventReports(reports, dbh);
+                }
+            }.start();
+        }
+
+        private void addIPsToEventReports(Set<ERWrapper> reports, DbHandler dbh) {
+            Map<String,Set<Long>> hostIPMap = new HashMap<>();
+            for(ERWrapper er: reports) {
+                String host = er.getHost();
+                if (!hostIPMap.containsKey(host)) {
+                    Set<Long> ips = dbh.getIPsForHost(host);
+                    hostIPMap.put(host, ips);
+                    if (ips.size() > 0) {
+                        LOG.debug("IPs {} will be added to event report {}", ips, er.getHost());
+                    }
+                }
+            }
+            for(String host: hostIPMap.keySet()) {
+                dbh.addIPsToEventReports(host, hostIPMap.get(host));
+            }
+        }
+
+        @Override
 		public void run() {
 			processImports();
 		}

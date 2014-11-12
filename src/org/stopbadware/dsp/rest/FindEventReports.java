@@ -69,5 +69,21 @@ public class FindEventReports extends SecureRest {
 		} catch (SearchException e) {
 			return new Error(e.getCode(), e.getMessage());
 		}
-	}	
+	}
+
+
+    @GET
+    @Path("/ip/{ip}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findWithIP(@PathParam("ip") String ip) {
+        DbHandler dbh = getDbh();
+        try {
+            return (dbh != null) ? dbh.findEventReportsWithIP(ip) : httpResponseCode(FORBIDDEN);
+        } catch (SearchException e) {
+            return new Error(e.getCode(), e.getMessage());
+        } catch (RateLimitException e) {
+            return rateLimitExceeded(e.getMessage());
+        }
+    }
+
 }

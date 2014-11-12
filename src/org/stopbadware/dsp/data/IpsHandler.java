@@ -46,15 +46,7 @@ public class IpsHandler extends MdbCollectionHandler {
 		}
 		return critDoc;
 	}
-	
-	public SearchResults getIp(String ipDots) {
-		return getIp(IP.dotsToLong(ipDots));
-	}
-	
-	public SearchResults getIp(long ip) {
-		return getSearchResult(new BasicDBObject("ip", ip));
-	}
-	
+
 	/**
 	 * Adds an IP address to the database
 	 * @param ip the IP address to add

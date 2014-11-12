@@ -21,6 +21,7 @@ import org.stopbadware.dsp.json.TimeOfLast;
 import org.stopbadware.dsp.sec.AuthAuth;
 import org.stopbadware.dsp.sec.Permissions;
 import org.stopbadware.lib.util.Domain;
+import org.stopbadware.lib.util.IP;
 import org.stopbadware.lib.util.SHA2;
 import org.bson.types.ObjectId;
 
@@ -444,5 +445,33 @@ public class EventReportsHandler extends MdbCollectionHandler {
 	protected List<DBObject> getResults(DBObject searchFor) {
 		return findAndSetUid(searchFor);
 	}
-	
+
+    public WriteStatus addIPsToEventReport(String host, Set<Long> ips) {
+        DBObject doc = new BasicDBObject();
+        doc.put("host", host);
+
+        DBObject upd = new BasicDBObject("$set", new BasicDBObject("ips", ips));
+
+        WriteResult wr = coll.update(doc, upd);
+        WriteStatus status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
+        return status;
+    }
+
+    public SearchResults getIp(String ipDots) throws RateLimitException {
+        return getIp(IP.dotsToLong(ipDots));
+    }
+
+    public SearchResults getIp(long ip) throws RateLimitException {
+        SearchResults sr = null;
+        if (canRead) {
+            if (AuthAuth.isRateLimited(subject)) {
+                throw new RateLimitException();
+            } else {
+                sr = getSearchResult(new BasicDBObject("ips", ip));
+            }
+        } else {
+            sr = notPermitted();
+        }
+        return sr;
+    }
 }

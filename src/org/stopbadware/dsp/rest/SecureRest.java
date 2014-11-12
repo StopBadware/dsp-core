@@ -34,7 +34,7 @@ public abstract class SecureRest {
 	 */
 	protected DbHandler getDbh() {
 		Subject subject = getSubject();
-		if (subject != null && subject.isAuthenticated()) {
+		if (subject != null && (subject.isAuthenticated())) {
 			return new DbHandler(subject);
 		} else {
 			return null;

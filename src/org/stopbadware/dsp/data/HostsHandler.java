@@ -1,7 +1,9 @@
 package org.stopbadware.dsp.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -88,7 +90,9 @@ public class HostsHandler extends MdbCollectionHandler {
 		if (canRead) {
 			cur = coll.find(query);
 			while (cur.hasNext()) {
-				String levelString = (String) cur.next().get("share_level");
+                DBObject nextEntry = cur.next();
+                LOG.info("Iterating over matching host entry, {}", nextEntry);
+				String levelString = (String) nextEntry.get("share_level");
 				if (levelString != null) {
 					ShareLevel curLevel = ShareLevel.value(levelString);
 					level = ShareLevel.getLeastRestrictive(curLevel, level);
@@ -99,10 +103,11 @@ public class HostsHandler extends MdbCollectionHandler {
 		DBObject updateDoc = new BasicDBObject();
 		updateDoc.put("host", host);
 		updateDoc.put("share_level", level.toString());
+        DBObject setDoc = new BasicDBObject("$set",updateDoc);
 
 		if (canWrite) {
 			try {
-				WriteResult wr = coll.update(query, updateDoc, true, false);
+				WriteResult wr = coll.update(query, setDoc, true, false);
 				wroteToDB = wr.getN() > 0;
 			} catch (MongoException e) {
 				if (e.getCode() != DUPE_ERR) {
@@ -110,7 +115,7 @@ public class HostsHandler extends MdbCollectionHandler {
 				}
 			}
 		}
-		return wroteToDB;	
+		return wroteToDB;
 	}
 	
 	public boolean addIpForHost(String host, long ip) {
@@ -122,6 +127,7 @@ public class HostsHandler extends MdbCollectionHandler {
 		DBObject updateDoc = new BasicDBObject("$push", new BasicDBObject("ips", ipDoc));
 		if (ipHasChanged(host, ip) && canWrite) {
 			try {
+                LOG.debug("Updating doc for host {}, with ip {}",host,ip);
 				WriteResult wr = coll.update(hostDoc, updateDoc);
 				wroteToDb = wr.getN() > 0;
 			} catch (MongoException e) {
@@ -170,6 +176,7 @@ public class HostsHandler extends MdbCollectionHandler {
 	 * @return boolean, true if the new ASN differs from the most recent db entry
 	 */
 	private boolean ipHasChanged(String host, long ip) {
+        LOG.debug("ipHasChanged called, host = {}, ip = {}", host, ip);
 		long mostRecentTimestamp = 0L;
 		long mostRecentIP = -1;
 		DBCursor cur = null;
@@ -200,8 +207,31 @@ public class HostsHandler extends MdbCollectionHandler {
 				}
 			}
 		}
-		
+		LOG.debug("Most recent IP for host {} is {}.  Original IP is {}", host, ip, mostRecentIP);
 		return (mostRecentIP != ip);
 	}
 
+    public Set<Long> getIPsForHost(String host) {
+        Set<Long> matchingIPs = new HashSet<>();
+        DBCursor cur = null;
+        if (canRead) {
+            cur = coll.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
+            LOG.debug("IP search for host {} resulted in {} matches", host, cur.count());
+        }
+
+        while (cur != null && cur.hasNext()) {
+            BasicDBObject nextOb = (BasicDBObject) cur.next();
+            LOG.debug("nextOb = {}", nextOb);
+            BasicDBList ips = (BasicDBList) nextOb.get("ips");
+            LOG.debug("ips = {}", ips);
+            if (ips != null) {
+                for (String i : ips.keySet()) {
+                    BasicDBObject ipOb = (BasicDBObject) ips.get(i);
+                    Long ip = (long)ipOb.get("ip");
+                    matchingIPs.add(ip);
+                }
+            }
+        }
+        return matchingIPs;
+    }
 }
