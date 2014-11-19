@@ -450,9 +450,9 @@ public class EventReportsHandler extends MdbCollectionHandler {
         DBObject doc = new BasicDBObject();
         doc.put("host", host);
 
-        DBObject upd = new BasicDBObject("$set", new BasicDBObject("ips", ips));
+        DBObject upd = new BasicDBObject("$addToSet", new BasicDBObject("ips", new BasicDBObject("$each",ips)));
 
-        WriteResult wr = coll.update(doc, upd);
+        WriteResult wr = coll.update(doc, upd, false, true);
         WriteStatus status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
         return status;
     }
