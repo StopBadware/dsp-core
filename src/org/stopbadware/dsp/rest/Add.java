@@ -240,15 +240,40 @@ public class Add extends SecureRest {
 			}
 		}
 
+		boolean threadSpawned = false;
+		Object queueLock = new Object();
+		Set<ERWrapper> combinedReports = new HashSet<>();
+
         private void spawnThreadToAddIPs(final Set<ERWrapper> reports) {
             LOG.info("Spawning thread to add IPs to {} reports.",reports.size());
-            new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Thread executing, dbh = {}.",dbh);
-                    addIPsToEventReports(reports, dbh);
-                }
-            }.start();
+			synchronized (queueLock) {
+				if(!threadSpawned) {
+					threadSpawned = true;
+					combinedReports.addAll(reports);
+					new Thread() {
+						@Override
+						public void run() {
+							try {
+								Thread.sleep(10000);
+								synchronized (queueLock) {
+									LOG.info("Thread executing, dbh = {}.", dbh);
+									addIPsToEventReports(combinedReports, dbh);
+									combinedReports.clear();
+									threadSpawned = false;
+								}
+							} catch (InterruptedException e) {
+								if(LOG.isErrorEnabled()) {
+									String hosts = "";
+									for (ERWrapper er : combinedReports) {
+										hosts += er.getHost() + ", ";
+									}
+									LOG.error("IP lookup thread interrupted before "+hosts+" could be processed.", e);
+								}
+							}
+						}
+					}.start();
+				}
+			}
         }
 
         private void addIPsToEventReports(Set<ERWrapper> reports, DbHandler dbh) {
