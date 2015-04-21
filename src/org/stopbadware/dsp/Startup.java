@@ -31,8 +31,8 @@ public class Startup implements ServletContextListener {
         tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
 
         tomcat.start();
+		DbHandler.startSystemThread();
         tomcat.getServer().await();
-        DbHandler.startSystemThread();
     }
     
 	@Override
