@@ -312,6 +312,7 @@ public class DbHandler {
 			addHost(er.getHost(), ShareLevel.value(er.getShareLevel()));
 		}
 		queueNewEventReport(toAugment);
+		LOG.info("Queued {} event reports for info augmentation.",toAugment.size());
 		LOG.info("{} new event reports added", dbInserts);
 		LOG.info("{} existing event reports updated", dbUpdates);
 		LOG.info("{} duplicate entries ignored", dbDupes);
