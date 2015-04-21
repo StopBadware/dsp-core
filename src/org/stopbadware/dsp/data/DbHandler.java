@@ -59,9 +59,11 @@ public class DbHandler {
             public void run() {
                 LOG.info("Thread executing");
                 while (true) {
+					LOG.info("Iterating in event report updating thread.");
                     try {
                         Thread.sleep(10000);
                         synchronized (queueLock) {
+							LOG.info("Combined reports size = {}", combinedReports.size());
 							if(!combinedReports.isEmpty()) {
 								LOG.info(combinedReports.size()+" eventReports need extra info added.");
 								addIPsToEventReports(combinedReports);
