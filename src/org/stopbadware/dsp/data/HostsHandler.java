@@ -216,7 +216,7 @@ public class HostsHandler extends MdbCollectionHandler {
         DBCursor cur = null;
         if (canRead) {
             cur = coll.find(new BasicDBObject("host", host), new BasicDBObject("ips", 1));
-            LOG.debug("IP search for host {} resulted in {} matches", host, cur.count());
+            LOG.info("IP search for host {} resulted in {} matches", host, cur.count());
         }
 
         while (cur != null && cur.hasNext()) {

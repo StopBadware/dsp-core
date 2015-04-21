@@ -63,6 +63,7 @@ public class DbHandler {
                         Thread.sleep(10000);
                         synchronized (queueLock) {
 							if(!combinedReports.isEmpty()) {
+								LOG.info(combinedReports.size()+" eventReports need extra info added.");
 								addIPsToEventReports(combinedReports);
 								combinedReports.clear();
 							}
@@ -86,16 +87,22 @@ public class DbHandler {
 
     private void addIPsToEventReports(Set<ERWrapper> reports) {
         Map<String,Set<Long>> hostIPMap = new HashMap<>();
-        for(ERWrapper er: reports) {
-            String host = er.getHost();
-            if (!hostIPMap.containsKey(host)) {
-                Set<Long> ips = getIPsForHost(host);
-                hostIPMap.put(host, ips);
-                if (ips.size() > 0) {
-                    LOG.debug("IPs {} will be added to event report {}", ips, er.getHost());
-                }
-            }
+		int found = 0;
+		int unique = 0;
+		Set<String> hosts = new HashSet<>();
+		for(ERWrapper er: reports) {
+		    if(!hosts.contains(er.getHost()))
+				hosts.add(er.getHost());
+		}
+        for(String host: hosts) {
+			Set<Long> ips = getIPsForHost(host);
+			hostIPMap.put(host, ips);
+			if (ips.size() > 0) {
+				found++;
+				LOG.debug("IPs {} will be added to event report {}", ips, host);
+			}
         }
+		LOG.info("{} successful IP lookups for {} unique hosts in {} reports", found, hosts.size(), reports.size());
         for(String host: hostIPMap.keySet()) {
 			Set<Long> ips = hostIPMap.get(host);
 			WriteStatus status = eventsHandler.addIPsToEventReport(host, ips);
