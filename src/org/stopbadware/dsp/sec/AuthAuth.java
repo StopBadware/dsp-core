@@ -124,7 +124,7 @@ public abstract class AuthAuth {
 
     public static Subject createSystemSubject() {
         PrincipalCollection principals = new SimplePrincipalCollection(ADMIN_NAME, realm.getName());
-        Subject subject = new Subject.Builder(securityManager).buildSubject();
+        Subject subject = new Subject.Builder(securityManager).principals(principals).buildSubject();
         return subject;
     }
 }

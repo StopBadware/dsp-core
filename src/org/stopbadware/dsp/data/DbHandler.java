@@ -44,8 +44,13 @@ public class DbHandler {
     private static DbHandler systemDBHandler;
 
     public static void startSystemThread() {
-        systemDBHandler = new DbHandler(AuthAuth.createSystemSubject());
-        systemDBHandler.startEventReportUpdatingThread();
+		Subject systemSubject = AuthAuth.createSystemSubject();
+		if(!systemSubject.isAuthenticated()) {
+			LOG.error("System subject is not authenticated.  Make sure admin user is properly setup.");
+		} else {
+			systemDBHandler = new DbHandler(systemSubject);
+			systemDBHandler.startEventReportUpdatingThread();
+		}
     }
 
     public void queueNewEventReport(Set<ERWrapper> ers) {
