@@ -45,12 +45,8 @@ public class DbHandler {
 
     public static void startSystemThread() {
 		Subject systemSubject = AuthAuth.createSystemSubject();
-		if(!systemSubject.isAuthenticated()) {
-			LOG.error("System subject is not authenticated.  Make sure admin user is properly setup.");
-		} else {
-			systemDBHandler = new DbHandler(systemSubject);
-			systemDBHandler.startEventReportUpdatingThread();
-		}
+		systemDBHandler = new DbHandler(systemSubject);
+		systemDBHandler.startEventReportUpdatingThread();
     }
 
     public void queueNewEventReport(Set<ERWrapper> ers) {
@@ -137,13 +133,11 @@ public class DbHandler {
 
     public DbHandler(Subject subject) {
 		db = MongoDb.getDB();
-		if (subject.isAuthenticated() ) {
-			this.subject = subject;
-			eventsHandler = new EventReportsHandler(db, this.subject);
-			hostsHandler = new HostsHandler(db, this.subject);
-			ipsHandler = new IpsHandler(db, this.subject);
-			asnsHandler = new AsnsHandler(db, this.subject);
-		}
+		this.subject = subject;
+		eventsHandler = new EventReportsHandler(db, this.subject);
+		hostsHandler = new HostsHandler(db, this.subject);
+		ipsHandler = new IpsHandler(db, this.subject);
+		asnsHandler = new AsnsHandler(db, this.subject);
 	}
 	
 	/**
