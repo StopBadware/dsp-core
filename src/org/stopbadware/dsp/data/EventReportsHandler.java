@@ -9,12 +9,14 @@ import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.sun.corba.se.impl.presentation.rmi.ExceptionHandlerImpl;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.RateLimitException;
 import org.stopbadware.dsp.SearchException;
 import org.stopbadware.dsp.data.DbHandler.WriteStatus;
+import org.stopbadware.dsp.json.ERWrapper;
 import org.stopbadware.dsp.json.Error;
 import org.stopbadware.dsp.json.SearchResults;
 import org.stopbadware.dsp.json.TimeOfLast;
@@ -43,7 +45,7 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		canRead = subject.isPermitted(Permissions.READ_EVENTS);
 		canWrite = subject.isPermitted(Permissions.WRITE_EVENTS);
 	}
-	
+
 	public SearchResults getParticipantPrefixes() {
 		SearchResults sr = null;
 		if (canRead) {

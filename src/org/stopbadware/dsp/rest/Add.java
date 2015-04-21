@@ -227,7 +227,6 @@ public class Add extends SecureRest {
 						}
 						LOG.info("{} event reports to write", imports.getSize());
 						numWroteToDB = dbh.addEventReports(reports);
-                        spawnThreadToAddIPs(reports);
 						LOG.info("{} successful write attempts", numWroteToDB);
 					} else {
 						LOG.error("Indicated report size of {} does not match number of reports unmarshalled {}, aborting imort", imports.getSize(), reports.size());
@@ -239,59 +238,6 @@ public class Add extends SecureRest {
 				LOG.warn("Add events called but no valid EventReports could be mapped from data");
 			}
 		}
-
-		boolean threadSpawned = false;
-		Object queueLock = new Object();
-		Set<ERWrapper> combinedReports = new HashSet<>();
-
-        private void spawnThreadToAddIPs(final Set<ERWrapper> reports) {
-            LOG.info("Spawning thread to add IPs to {} reports.",reports.size());
-			synchronized (queueLock) {
-				if(!threadSpawned) {
-					threadSpawned = true;
-					combinedReports.addAll(reports);
-					new Thread() {
-						@Override
-						public void run() {
-							try {
-								Thread.sleep(10000);
-								synchronized (queueLock) {
-									LOG.info("Thread executing, dbh = {}.", dbh);
-									addIPsToEventReports(combinedReports, dbh);
-									combinedReports.clear();
-									threadSpawned = false;
-								}
-							} catch (InterruptedException e) {
-								if(LOG.isErrorEnabled()) {
-									String hosts = "";
-									for (ERWrapper er : combinedReports) {
-										hosts += er.getHost() + ", ";
-									}
-									LOG.error("IP lookup thread interrupted before "+hosts+" could be processed.", e);
-								}
-							}
-						}
-					}.start();
-				}
-			}
-        }
-
-        private void addIPsToEventReports(Set<ERWrapper> reports, DbHandler dbh) {
-            Map<String,Set<Long>> hostIPMap = new HashMap<>();
-            for(ERWrapper er: reports) {
-                String host = er.getHost();
-                if (!hostIPMap.containsKey(host)) {
-                    Set<Long> ips = dbh.getIPsForHost(host);
-                    hostIPMap.put(host, ips);
-                    if (ips.size() > 0) {
-                        LOG.debug("IPs {} will be added to event report {}", ips, er.getHost());
-                    }
-                }
-            }
-            for(String host: hostIPMap.keySet()) {
-                dbh.addIPsToEventReports(host, hostIPMap.get(host));
-            }
-        }
 
         @Override
 		public void run() {

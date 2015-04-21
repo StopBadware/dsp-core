@@ -8,6 +8,8 @@ import javax.servlet.ServletContextListener;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.stopbadware.dsp.data.DbHandler;
+import org.stopbadware.dsp.sec.AuthAuth;
 
 public class Startup implements ServletContextListener {
 	
@@ -30,6 +32,7 @@ public class Startup implements ServletContextListener {
 
         tomcat.start();
         tomcat.getServer().await();
+        DbHandler.startSystemThread();
     }
     
 	@Override

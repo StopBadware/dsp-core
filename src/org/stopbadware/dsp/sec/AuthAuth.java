@@ -13,6 +13,8 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ public abstract class AuthAuth {
 	private static SecurityManager securityManager = new DefaultSecurityManager(realm);
 	private static final long MAX_AGE = (System.getenv("MAX_AUTH_AGE") != null) ? Long.valueOf(System.getenv("MAX_AUTH_AGE")) : 180L;
 	private static final Logger LOG = LoggerFactory.getLogger(AuthAuth.class);
+
+    private static final String ADMIN_NAME = "devops sbw";
 	
 	static {
 		SecurityUtils.setSecurityManager(securityManager);
@@ -117,5 +121,10 @@ public abstract class AuthAuth {
 			return new SecurityDbHandler().isRateLimited(subject.getPrincipal().toString());
 		}
 	}
-	
+
+    public static Subject createSystemSubject() {
+        PrincipalCollection principals = new SimplePrincipalCollection(ADMIN_NAME, realm.getName());
+        Subject subject = new Subject.Builder(securityManager).buildSubject();
+        return subject;
+    }
 }

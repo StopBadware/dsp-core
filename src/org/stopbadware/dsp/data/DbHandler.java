@@ -1,11 +1,14 @@
 package org.stopbadware.dsp.data;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,75 @@ public class DbHandler {
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
 
+    Object queueLock = new Object();
+    Set<ERWrapper> combinedReports = new HashSet<>();
+
+    private static DbHandler systemDBHandler;
+
+    public static void startSystemThread() {
+        systemDBHandler = new DbHandler(AuthAuth.createSystemSubject());
+        systemDBHandler.startEventReportUpdatingThread();
+    }
+
+    public void queueNewEventReport(Set<ERWrapper> ers) {
+        synchronized (queueLock) {
+            combinedReports.addAll(ers);
+        }
+    }
+    public void startEventReportUpdatingThread() {
+        new Thread() {
+            @Override
+            public void run() {
+                LOG.info("Thread executing");
+                while (true) {
+                    try {
+                        Thread.sleep(10000);
+                        synchronized (queueLock) {
+							if(!combinedReports.isEmpty()) {
+								addIPsToEventReports(combinedReports);
+								combinedReports.clear();
+							}
+                        }
+                    } catch (InterruptedException e) {
+                        if (LOG.isErrorEnabled()) {
+                            String hosts = "";
+                            synchronized (queueLock) {
+                                for (ERWrapper er : combinedReports) {
+                                    hosts += er.getHost() + ", ";
+                                }
+                                LOG.error("IP lookup thread interrupted, queue = " + combinedReports.toString(), e);
+                            }
+                        }
+                    }
+                }
+            }
+        }.start();
+    }
+
+
+    private void addIPsToEventReports(Set<ERWrapper> reports) {
+        Map<String,Set<Long>> hostIPMap = new HashMap<>();
+        for(ERWrapper er: reports) {
+            String host = er.getHost();
+            if (!hostIPMap.containsKey(host)) {
+                Set<Long> ips = getIPsForHost(host);
+                hostIPMap.put(host, ips);
+                if (ips.size() > 0) {
+                    LOG.debug("IPs {} will be added to event report {}", ips, er.getHost());
+                }
+            }
+        }
+        for(String host: hostIPMap.keySet()) {
+			Set<Long> ips = hostIPMap.get(host);
+			WriteStatus status = eventsHandler.addIPsToEventReport(host, ips);
+			if(status != WriteStatus.SUCCESS) {
+				LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
+			} else {
+				LOG.info("IP addresses added to event reports with host {}",host);
+			}
+        }
+    }
+
     public enum SearchType {
 		EVENT_REPORT,
 		HOST,
@@ -48,8 +120,8 @@ public class DbHandler {
 		UPDATED,
 		DUPLICATE
 	}
-	
-	public DbHandler(Subject subject) {
+
+    public DbHandler(Subject subject) {
 		db = MongoDb.getDB();
 		if (subject.isAuthenticated() ) {
 			this.subject = subject;
@@ -210,6 +282,7 @@ public class DbHandler {
 		int dbInserts = 0;
 		int dbUpdates = 0;
 		int dbDupes = 0;
+		Set<ERWrapper> toAugment = new HashSet<ERWrapper>();
 		for (ERWrapper er : reports) {
 			if (er.getErMap() != null && er.getErMap().size() > 0) {
 				WriteStatus status = eventsHandler.addEventReport(er.getErMap());
@@ -219,9 +292,11 @@ public class DbHandler {
 						break;
 					case UPDATED:
 						dbUpdates++;
+						toAugment.add(er);
 						break;
 					case SUCCESS:
 						dbInserts++;
+						toAugment.add(er);
 						break;
 					default:
 						break;
@@ -229,7 +304,7 @@ public class DbHandler {
 			}
 			addHost(er.getHost(), ShareLevel.value(er.getShareLevel()));
 		}
-		
+		queueNewEventReport(toAugment);
 		LOG.info("{} new event reports added", dbInserts);
 		LOG.info("{} existing event reports updated", dbUpdates);
 		LOG.info("{} duplicate entries ignored", dbDupes);
@@ -370,14 +445,5 @@ public class DbHandler {
 
     public Set<Long> getIPsForHost(String host) {
         return hostsHandler.getIPsForHost(host);
-    }
-
-    public void addIPsToEventReports(String host, Set<Long> ips) {
-        WriteStatus status = eventsHandler.addIPsToEventReport(host, ips);
-        if(status != WriteStatus.SUCCESS) {
-            LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
-        } else {
-            LOG.info("IP addresses added to event reports with host {}",host);
-        }
     }
 }
