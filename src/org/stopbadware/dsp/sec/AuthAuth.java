@@ -1,6 +1,8 @@
 package org.stopbadware.dsp.sec;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 
@@ -19,6 +21,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.data.SecurityDbHandler;
+import org.stopbadware.lib.util.SHA2;
 
 /**
  * Authentication and authorization handler 
@@ -122,9 +125,28 @@ public abstract class AuthAuth {
 		}
 	}
 
-    public static Subject createSystemSubject() {
-        PrincipalCollection principals = new SimplePrincipalCollection(ADMIN_NAME, realm.getName());
-        Subject subject = new Subject.Builder(securityManager).principals(principals).buildSubject();
-        return subject;
-    }
+	public static Subject createSystemSubject() {
+		String key = (System.getenv("SBW_API_KEY")!=null) ? System.getenv("SBW_API_KEY") : "";
+		String secret = (System.getenv("SBW_SECRET")!=null) ? System.getenv("SBW_SECRET") : "";
+		long tsLong = System.currentTimeMillis() / 1000;
+		String ts = String.valueOf(tsLong);
+		String path = "";
+		String sig = SHA2.get256(key + ts + path + secret);
+
+
+		LOG.info("{} accessing '{}'", key, path);
+		Subject subject = SecurityUtils.getSubject();
+		subject.logout();
+
+		RestToken token = new RestToken(key, sig, path, tsLong);
+		try {
+			subject.login(token);
+		} catch (AuthenticationException e) {
+			LOG.warn("Authentication failure for '{}': {}", token.getPrincipal(), e.getMessage());
+		} catch (Exception e) {
+			LOG.warn("Exception thrown authenticating '{}': {}", token.getPrincipal(), e.getMessage());
+		}
+
+		return (subject.isAuthenticated()) ? subject : null;
+	}
 }
