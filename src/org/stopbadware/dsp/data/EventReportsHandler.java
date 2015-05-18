@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.mongodb.util.JSON;
 import com.sun.corba.se.impl.presentation.rmi.ExceptionHandlerImpl;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -448,13 +449,17 @@ public class EventReportsHandler extends MdbCollectionHandler {
 		return findAndSetUid(searchFor);
 	}
 
-    public WriteStatus addIPsToEventReport(String host, Set<Long> ips) {
-        DBObject doc = new BasicDBObject();
+    public WriteStatus addIPsAndDomainToolsInfoToEventReport(String host, Set<Long> ips, String dtInfo) {
+		DBObject dtInfoOb = (DBObject) JSON.parse(dtInfo);
+
+		DBObject doc = new BasicDBObject();
         doc.put("host", host);
 
-        DBObject upd = new BasicDBObject("$addToSet", new BasicDBObject("ips", new BasicDBObject("$each",ips)));
+        DBObject ipsField = new BasicDBObject("ips", new BasicDBObject("$each",ips));
+		DBObject whoisField = new BasicDBObject("dtInfo", dtInfoOb);
+		DBObject fullUpdate = new BasicDBObject().append("$addToSet",ipsField).append("$set",whoisField);
 
-        WriteResult wr = coll.update(doc, upd, false, true);
+        WriteResult wr = coll.update(doc, fullUpdate, false, true);
         WriteStatus status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
         return status;
     }

@@ -35,6 +35,7 @@ public class DbHandler {
 	private HostsHandler hostsHandler;
 	private IpsHandler ipsHandler;
 	private AsnsHandler asnsHandler;
+	private DomainToolsHandler dtHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
 
@@ -108,7 +109,8 @@ public class DbHandler {
 		LOG.info("{} successful IP lookups for {} unique hosts in {} reports", found, hosts.size(), reports.size());
         for(String host: hostIPMap.keySet()) {
 			Set<Long> ips = hostIPMap.get(host);
-			WriteStatus status = eventsHandler.addIPsToEventReport(host, ips);
+			String dtInfo = dtHandler.getWhoisForHost(host);
+			WriteStatus status = eventsHandler.addIPsAndDomainToolsInfoToEventReport(host, ips, dtInfo);
 			if(status != WriteStatus.SUCCESS) {
 				LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
 			} else {
@@ -138,6 +140,7 @@ public class DbHandler {
 		hostsHandler = new HostsHandler(db, this.subject);
 		ipsHandler = new IpsHandler(db, this.subject);
 		asnsHandler = new AsnsHandler(db, this.subject);
+		dtHandler = new DomainToolsHandler();
 	}
 	
 	/**
