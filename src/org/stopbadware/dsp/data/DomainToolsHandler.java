@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.SignatureException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,7 +73,7 @@ public class DomainToolsHandler {
             String timestamp = signer.timestamp();
             String signature = signer.sign(timestamp, uri);
             String query = uri + "?api_username=" +
-                    api_username + "&signature=" + signature + "&timestamp="
+                    URLEncoder.encode(api_username, "UTF-8") + "&signature=" + signature + "&timestamp="
                     + timestamp;
             LOG.debug("Domain tools whois lookup for URI {} is signed");
             return sendQueryToDomainTools(query);
