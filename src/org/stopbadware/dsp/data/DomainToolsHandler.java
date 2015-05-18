@@ -91,8 +91,8 @@ public class DomainToolsHandler {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json");
         int responseCode = conn.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+        LOG.debug("Sending 'GET' request to URL : " + url);
+        LOG.debug("Response Code : " + responseCode);
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(conn.getInputStream()));
@@ -103,6 +103,7 @@ public class DomainToolsHandler {
             response.append(inputLine);
         }
         in.close();
+        LOG.info("Response = "+response.toString());
         return response.toString();
     }
 
