@@ -456,9 +456,14 @@ public class EventReportsHandler extends MdbCollectionHandler {
         doc.put("host", host);
 
         DBObject ipsField = new BasicDBObject("ips", new BasicDBObject("$each",ips));
-		DBObject whoisField = new BasicDBObject("dtInfo", dtInfoOb);
-		DBObject fullUpdate = new BasicDBObject().append("$addToSet",ipsField).append("$set",whoisField);
-
+		DBObject fullUpdate;
+		if(dtInfo != null) {
+			DBObject whoisField = new BasicDBObject("dtInfo", dtInfoOb);
+			fullUpdate = new BasicDBObject().append("$addToSet",ipsField).append("$set", whoisField);
+		} else {
+			LOG.error("Could not retrieve Domaintools whois info for host = {}", host);
+			fullUpdate = new BasicDBObject().append("$addToSet", ipsField);
+		}
         WriteResult wr = coll.update(doc, fullUpdate, false, true);
         WriteStatus status = (wr.getError()==null) ? WriteStatus.SUCCESS : WriteStatus.FAILURE;
         return status;

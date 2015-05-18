@@ -82,7 +82,7 @@ public class DomainToolsHandler {
         } catch(IOException e) {
             LOG.error("Error querying domaintools for host {}",host,e);
         }
-
+        return null;
     }
     private String sendQueryToDomainTools(String query) throws IOException {
         String dtHost = "api.domaintools.com";
