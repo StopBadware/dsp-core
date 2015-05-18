@@ -33,7 +33,7 @@ public class DomainToolsHandler {
 
         public String timestamp() {
             Date now = new Date();
-            return this.timeFormatter.format(now);
+            return this.timeFormatter.format(now).replace("+0000","Z");
         }
 
         public String getHexString(byte[] b) {
