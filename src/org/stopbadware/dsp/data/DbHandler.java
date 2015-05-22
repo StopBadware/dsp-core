@@ -68,7 +68,7 @@ public class DbHandler {
 							LOG.info("Combined reports size = {}", combinedReports.size());
 							if(!combinedReports.isEmpty()) {
 								LOG.info(combinedReports.size()+" eventReports need extra info added.");
-								addIPsToEventReports(combinedReports);
+								addIPsAndWhoisToEventReports(combinedReports);
 								combinedReports.clear();
 							}
                         }
@@ -89,7 +89,8 @@ public class DbHandler {
     }
 
 
-    private void addIPsToEventReports(Set<ERWrapper> reports) {
+    private void addIPsAndWhoisToEventReports(Set<ERWrapper> reports) {
+		Map<String,String> hostDTInfoMap = new HashMap<>();
         Map<String,Set<Long>> hostIPMap = new HashMap<>();
 		int found = 0;
 		int unique = 0;
@@ -109,7 +110,12 @@ public class DbHandler {
 		LOG.info("{} successful IP lookups for {} unique hosts in {} reports", found, hosts.size(), reports.size());
         for(String host: hostIPMap.keySet()) {
 			Set<Long> ips = hostIPMap.get(host);
-			String dtInfo = dtHandler.getWhoisForHost(host);
+			String dtInfo = hostDTInfoMap.get(host);
+			if(dtInfo == null) {
+				LOG.debug("No whois info yet for host {}. Querying.", host);
+				dtInfo = dtHandler.getWhoisForHost(host);
+				hostDTInfoMap.put(host, dtInfo);
+			}
 			WriteStatus status = eventsHandler.addIPsAndDomainToolsInfoToEventReport(host, ips, dtInfo);
 			if(status != WriteStatus.SUCCESS) {
 				LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
