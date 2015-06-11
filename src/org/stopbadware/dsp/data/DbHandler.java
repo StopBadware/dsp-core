@@ -112,29 +112,32 @@ public class DbHandler {
         }
 		LOG.info("{} successful IP lookups for {} unique hosts in {} reports", found, hosts.size(), reports.size());
         for(String host: hostIPMap.keySet()) {
+			String hostParts[] = host.split(".");
+			int sz = hostParts.length;
+			String mainHostname = sz > 1 ? hostParts[sz-2]+"."+hostParts[sz-1] : host;
 			Set<Long> ips = hostIPMap.get(host);
-			String dtInfo = hostDTInfoMap.get(host);
+			String dtInfo = hostDTInfoMap.get(mainHostname);
 			if(dtInfo == null) {
-				LOG.debug("No whois info yet for host {} in this query. Checking cache.", host);
-				CachedWhoIs cacheInfo = whoIsCacheHashMap.get(host);
+				LOG.debug("No whois info yet for host {} in this query. Checking cache.", mainHostname);
+				CachedWhoIs cacheInfo = whoIsCacheHashMap.get(mainHostname);
 				long now = new Date().getTime();
 				long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
 				if(cacheInfo != null && cacheInfo.timestamp > oneMonthAgo) {
 					dtInfo = cacheInfo.dtInfo;
 				} else {
 					LOG.debug("No non-expired whois info yet for host {}. Querying.", host);
-					dtInfo = getWhois(host);
+					dtInfo = getWhois(mainHostname);
 					CachedWhoIs cacheOb = new CachedWhoIs(dtInfo, now);
-					whoIsCacheHashMap.put(host, cacheOb);
+					whoIsCacheHashMap.put(mainHostname, cacheOb);
 					if(whoIsCacheQueue.size() == MAX_WHOIS_CACHE_SIZE) {
 						String oldHost = whoIsCacheQueue.poll();
 						if(oldHost != null) {
 							whoIsCacheHashMap.remove(oldHost);
 						}
 					}
-					whoIsCacheQueue.add(host);
+					whoIsCacheQueue.add(mainHostname);
 				}
-				hostDTInfoMap.put(host, dtInfo);
+				hostDTInfoMap.put(mainHostname, dtInfo);
 			}
 
 			WriteStatus status = eventsHandler.addIPsAndDomainToolsInfoToEventReport(host, ips, dtInfo);
