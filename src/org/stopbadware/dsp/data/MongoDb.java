@@ -22,6 +22,7 @@ public abstract class MongoDb {
 	public static final String ASNS = "autonomous_systems";
 	public static final String ACCOUNTS = "accounts";
 	public static final String ROLES = "roles";
+	public static final String WHOIS = "whois";
 
 	public static final int ASC = 1;
 	public static final int DESC = -1;

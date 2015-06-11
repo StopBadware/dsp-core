@@ -1,15 +1,14 @@
 package org.stopbadware.dsp.data;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.apache.shiro.subject.Subject;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.RateLimitException;
@@ -36,11 +35,16 @@ public class DbHandler {
 	private IpsHandler ipsHandler;
 	private AsnsHandler asnsHandler;
 	private DomainToolsHandler dtHandler;
+	private WhoisHandler whoisHandler;
 	private Subject subject; 
 	private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
 
     Object queueLock = new Object();
     Set<ERWrapper> combinedReports = new HashSet<>();
+
+	public static final int MAX_WHOIS_CACHE_SIZE = 10000;
+	HashMap<String, CachedWhoIs> whoIsCacheHashMap = new HashMap<>();
+	Queue<String> whoIsCacheQueue = new ArrayDeque<>();
 
     private static DbHandler systemDBHandler;
 
@@ -88,7 +92,6 @@ public class DbHandler {
         }.start();
     }
 
-
     private void addIPsAndWhoisToEventReports(Set<ERWrapper> reports) {
 		Map<String,String> hostDTInfoMap = new HashMap<>();
         Map<String,Set<Long>> hostIPMap = new HashMap<>();
@@ -112,10 +115,28 @@ public class DbHandler {
 			Set<Long> ips = hostIPMap.get(host);
 			String dtInfo = hostDTInfoMap.get(host);
 			if(dtInfo == null) {
-				LOG.debug("No whois info yet for host {}. Querying.", host);
-				dtInfo = dtHandler.getWhoisForHost(host);
+				LOG.debug("No whois info yet for host {} in this query. Checking cache.", host);
+				CachedWhoIs cacheInfo = whoIsCacheHashMap.get(host);
+				long now = new Date().getTime();
+				long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
+				if(cacheInfo != null && cacheInfo.timestamp > oneMonthAgo) {
+					dtInfo = cacheInfo.dtInfo;
+				} else {
+					LOG.debug("No non-expired whois info yet for host {}. Querying.", host);
+					dtInfo = getWhois(host);
+					CachedWhoIs cacheOb = new CachedWhoIs(dtInfo, now);
+					whoIsCacheHashMap.put(host, cacheOb);
+					if(whoIsCacheQueue.size() == MAX_WHOIS_CACHE_SIZE) {
+						String oldHost = whoIsCacheQueue.poll();
+						if(oldHost != null) {
+							whoIsCacheHashMap.remove(oldHost);
+						}
+					}
+					whoIsCacheQueue.add(host);
+				}
 				hostDTInfoMap.put(host, dtInfo);
 			}
+
 			WriteStatus status = eventsHandler.addIPsAndDomainToolsInfoToEventReport(host, ips, dtInfo);
 			if(status != WriteStatus.SUCCESS) {
 				LOG.error("Could not add IPs to event report. WriteStatus = {}, host = {}, ips = {}", host, ips);
@@ -147,6 +168,7 @@ public class DbHandler {
 		ipsHandler = new IpsHandler(db, this.subject);
 		asnsHandler = new AsnsHandler(db, this.subject);
 		dtHandler = new DomainToolsHandler();
+		whoisHandler = new WhoisHandler(db, this.subject);
 	}
 	
 	/**
@@ -464,4 +486,44 @@ public class DbHandler {
     public Set<Long> getIPsForHost(String host) {
         return hostsHandler.getIPsForHost(host);
     }
+
+/*	public boolean addWhois(String host, String whois) {
+		return whoisHandler.upsertWhois(host, whois);
+	} */
+
+	final JsonNodeFactory factory = JsonNodeFactory.instance;
+
+	private final static int MILLISECONDS_IN_MONTH = 1000 * 60 * 60 * 24 * 30;
+
+	public String getWhois(String host) {
+		SearchResults whois = whoisHandler.getWhois(host);
+		int count = whois.getCount();
+        ObjectNode result = factory.objectNode();
+		if(count > 0) {
+			List<DBObject> listOfOne = (List<DBObject>) whois.getResults();
+			DBObject onlyOneInList = listOfOne.get(0);
+			long timestamp = ((Number)onlyOneInList.get("_created")).longValue();
+			long now = new Date().getTime();
+			long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
+			if(timestamp > oneMonthAgo) {
+				result.put("whois_data", onlyOneInList.toString());
+			}
+		}
+		if(!result.has("whois_data")) {
+			String response = dtHandler.getWhoisForHost(host);
+			whoisHandler.upsertWhois(host, response);
+			result.put("whois_data", response);
+		}
+		return result.toString();
+	}
+
+	private class CachedWhoIs {
+		String dtInfo;
+		long timestamp;
+
+		public CachedWhoIs(String dtInfo, long timestamp) {
+			this.dtInfo = dtInfo;
+			this.timestamp = timestamp;
+		}
+	}
 }
