@@ -510,7 +510,8 @@ public class DbHandler {
 		if(count > 0) {
 			List<DBObject> listOfOne = (List<DBObject>) whois.getResults();
 			DBObject onlyOneInList = listOfOne.get(0);
-			long timestamp = ((Number)onlyOneInList.get("_created")).longValue();
+			Number numberTimestamp = (Number)onlyOneInList.get("_created");
+			long timestamp = numberTimestamp.longValue();
 			long now = new Date().getTime();
 			long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
 			if(timestamp > oneMonthAgo) {
