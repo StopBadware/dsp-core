@@ -1,5 +1,6 @@
 package org.stopbadware.dsp.data;
 
+import java.io.IOException;
 import java.util.*;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -118,26 +119,30 @@ public class DbHandler {
 			Set<Long> ips = hostIPMap.get(host);
 			String dtInfo = hostDTInfoMap.get(mainHostname);
 			if(dtInfo == null) {
-				LOG.debug("No whois info yet for host {} in this query. Checking cache.", mainHostname);
-				CachedWhoIs cacheInfo = whoIsCacheHashMap.get(mainHostname);
-				long now = new Date().getTime();
-				long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
-				if(cacheInfo != null && cacheInfo.timestamp > oneMonthAgo) {
-					dtInfo = cacheInfo.dtInfo;
-				} else {
-					LOG.debug("No non-expired whois info yet for host {}. Querying.", host);
-					dtInfo = getWhois(mainHostname);
-					CachedWhoIs cacheOb = new CachedWhoIs(dtInfo, now);
-					whoIsCacheHashMap.put(mainHostname, cacheOb);
-					if(whoIsCacheQueue.size() == MAX_WHOIS_CACHE_SIZE) {
-						String oldHost = whoIsCacheQueue.poll();
-						if(oldHost != null) {
-							whoIsCacheHashMap.remove(oldHost);
+				try {
+					LOG.debug("No whois info yet for host {} in this query. Checking cache.", mainHostname);
+					CachedWhoIs cacheInfo = whoIsCacheHashMap.get(mainHostname);
+					long now = new Date().getTime();
+					long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
+					if (cacheInfo != null && cacheInfo.timestamp > oneMonthAgo) {
+						dtInfo = cacheInfo.dtInfo;
+					} else {
+						LOG.debug("No non-expired whois info yet for host {}. Querying.", host);
+						dtInfo = getWhois(mainHostname);
+						CachedWhoIs cacheOb = new CachedWhoIs(dtInfo, now);
+						whoIsCacheHashMap.put(mainHostname, cacheOb);
+						if (whoIsCacheQueue.size() == MAX_WHOIS_CACHE_SIZE) {
+							String oldHost = whoIsCacheQueue.poll();
+							if (oldHost != null) {
+								whoIsCacheHashMap.remove(oldHost);
+							}
 						}
+						whoIsCacheQueue.add(mainHostname);
 					}
-					whoIsCacheQueue.add(mainHostname);
+					hostDTInfoMap.put(mainHostname, dtInfo);
+				} catch(Exception e) {
+                    LOG.error("Could not query DomainTools whois info.", e);
 				}
-				hostDTInfoMap.put(mainHostname, dtInfo);
 			}
 
 			WriteStatus status = eventsHandler.addIPsAndDomainToolsInfoToEventReport(host, ips, dtInfo);
