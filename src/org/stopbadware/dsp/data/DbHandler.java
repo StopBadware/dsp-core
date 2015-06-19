@@ -8,8 +8,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.apache.shiro.subject.Subject;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stopbadware.dsp.RateLimitException;
@@ -522,18 +526,27 @@ public class DbHandler {
 				long now = new Date().getTime();
 				long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
 				if (timestamp > oneMonthAgo) {
-					result.put("whois_data", onlyOneInList.toString());
+					result.put("whois_data", convertStringToJsonNode(onlyOneInList.toString()));
 				}
 			}
 		}
 		if(!result.has("whois_data")) {
 			String response = dtHandler.getWhoisForHost(host);
 			whoisHandler.upsertWhois(host, response);
-			result.put("whois_data", response);
+			result.put("whois_data", convertStringToJsonNode(response));
 		}
 		return result.toString();
 	}
 
+	JsonNode convertStringToJsonNode(String data) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.readTree(data);
+		} catch (IOException e) {
+			LOG.error("Could not convert string to JSON - String: {}",data, e);
+			return null;
+		}
+	}
 	private class CachedWhoIs {
 		String dtInfo;
 		long timestamp;
