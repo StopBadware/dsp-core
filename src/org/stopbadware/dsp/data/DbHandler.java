@@ -517,11 +517,13 @@ public class DbHandler {
 			List<DBObject> listOfOne = (List<DBObject>) whois.getResults();
 			DBObject onlyOneInList = listOfOne.get(0);
 			Number numberTimestamp = (Number)onlyOneInList.get("_created");
-			long timestamp = numberTimestamp.longValue();
-			long now = new Date().getTime();
-			long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
-			if(timestamp > oneMonthAgo) {
-				result.put("whois_data", onlyOneInList.toString());
+			if(numberTimestamp != null) {
+				long timestamp = numberTimestamp.longValue();
+				long now = new Date().getTime();
+				long oneMonthAgo = now - (MILLISECONDS_IN_MONTH);
+				if (timestamp > oneMonthAgo) {
+					result.put("whois_data", onlyOneInList.toString());
+				}
 			}
 		}
 		if(!result.has("whois_data")) {
