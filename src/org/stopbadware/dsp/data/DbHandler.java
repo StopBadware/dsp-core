@@ -113,9 +113,15 @@ public class DbHandler {
         }
 		LOG.info("{} successful IP lookups for {} unique hosts in {} reports", found, hosts.size(), reports.size());
         for(String host: hostIPMap.keySet()) {
-			String hostParts[] = host.split(".");
+			String hostParts[] = host.split("\\.");
 			int sz = hostParts.length;
-			String mainHostname = sz > 1 ? hostParts[sz-2]+"."+hostParts[sz-1] : host;
+			String mainHostname;
+			if(sz > 2 && "co".equals(hostParts[sz-2]))
+				mainHostname = hostParts[sz-3]+".co."+hostParts[sz-1];
+			else if(sz == 2)
+				mainHostname = hostParts[sz-2]+"."+hostParts[sz-1];
+			else
+				mainHostname = host;
 			Set<Long> ips = hostIPMap.get(host);
 			String dtInfo = hostDTInfoMap.get(mainHostname);
 			if(dtInfo == null) {
