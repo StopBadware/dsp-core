@@ -1,0 +1,7 @@
+{
+  "publickey":"87ac1903-f3cd-46da-844d-7953092b0f75-196u9r9fi",
+  "secretkey":"7fad65b49b32e3426907739bf9ef58dbc6f8f7bb49d7fe65dbfa90e84d7faac9",
+  "protocol":"https",
+  "hostname":"stage-dsp-sbw.herokuapp.com",
+  "port":"443"
+}
